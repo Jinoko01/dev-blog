@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Figma theme tokens (mapped) */
+  --color-background: var(--background);
+  --color-background-solid: var(--background-solid);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  --font-display: var(--font-playfair);
+  --font-body: var(--font-outfit);
+}
+
+@layer base {
+  :root {
+    --font-size: 16px;
+
+    /* Pastel Blue-Green Light Theme (from Figma) */
+    --background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 50%, #e8f5e9 100%);
+    --background-solid: #f0f8ff;
+    --foreground: #2c3e50;
+    --card: rgba(255, 255, 255, 0.85);
+    --card-foreground: #2c3e50;
+    --popover: rgba(255, 255, 255, 0.95);
+    --popover-foreground: #2c3e50;
+    --primary: #5dade2;
+    --primary-foreground: #ffffff;
+    --secondary: #aed6f1;
+    --secondary-foreground: #2c3e50;
+    --muted: #d6eaf8;
+    --muted-foreground: #5d6d7e;
+    --accent: #85c1e9;
+    --accent-foreground: #2c3e50;
+    --destructive: #ec7063;
+    --destructive-foreground: #ffffff;
+    --border: rgba(93, 173, 226, 0.2);
+    --ring: rgba(93, 173, 226, 0.3);
+    --chart-1: #5dade2;
+    --chart-2: #85c1e9;
+    --chart-3: #aed6f1;
+    --chart-4: #d6eaf8;
+    --chart-5: #48c9b0;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark theme (from Figma) */
+    --background: #1a1f2e;
+    --background-solid: #1a1f2e;
+    --foreground: #e8eaf0;
+    --card: #252b3c;
+    --card-foreground: #e8eaf0;
+    --popover: #252b3c;
+    --popover-foreground: #e8eaf0;
+    --primary: #6b9bd1;
+    --primary-foreground: #ffffff;
+    --secondary: #3d4a5c;
+    --secondary-foreground: #e8eaf0;
+    --muted: #343b4f;
+    --muted-foreground: #a8b2c0;
+    --accent: #4a5c7a;
+    --accent-foreground: #e8eaf0;
+    --destructive: #d97373;
+    --destructive-foreground: #ffffff;
+    --border: rgba(107, 155, 209, 0.2);
+    --ring: rgba(107, 155, 209, 0.3);
+    --chart-1: #6b9bd1;
+    --chart-2: #8ab4e0;
+    --chart-3: #a8cde8;
+    --chart-4: #c6e0f0;
+    --chart-5: #5fc9b0;
+  }
+}
+
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+}
+
+/* Custom Scrollbar (from Figma) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-solid);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+@layer utilities {
+  .stagger-delay-1 { animation: fade-in-up 0.8s ease-out forwards 0.2s; opacity: 0; }
+  .stagger-delay-2 { animation: fade-in-up 0.8s ease-out forwards 0.4s; opacity: 0; }
+  .stagger-delay-3 { animation: fade-in-up 0.8s ease-out forwards 0.6s; opacity: 0; }
+  .animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; opacity: 0; }
+  
+  @keyframes fade-in-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
