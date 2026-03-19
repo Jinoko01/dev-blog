@@ -1,16 +1,16 @@
-import { getPostBySlug, getPostSlugs } from "@/lib/mdx";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import { notFound } from "next/navigation";
 import { PostMetrics } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
+import { supabase } from "@/lib/supabase";
+
+export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const slugs = getPostSlugs();
-  return slugs.map((slug) => ({
-    slug: slug.replace(/\.mdx$/, ""),
-  }));
+  const { data } = await supabase.from("posts").select("slug").eq("published", true);
+  return (data || []).map((p) => ({ slug: p.slug }));
 }
 
 export default async function PostPage(props: {
@@ -18,14 +18,24 @@ export default async function PostPage(props: {
 }) {
   const params = await props.params;
   const { slug } = params;
-  let post;
-  try {
-    post = getPostBySlug(slug);
-  } catch (e) {
+
+  const { data: post } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (!post) {
     notFound();
   }
 
-  const { content, meta } = post;
+  const meta = {
+    title: post.title,
+    date: post.created_at,
+    description: post.description,
+    tags: post.tags,
+  };
+  const content = post.content;
 
   return (
     <div className="min-h-screen relative z-10">
@@ -42,7 +52,7 @@ export default async function PostPage(props: {
             </time>
             <span>•</span>
             <div className="flex gap-2">
-              {meta.tags?.map((tag) => (
+              {meta.tags?.map((tag: string) => (
                 <span key={tag} className="text-brand-500 font-semibold">
                   {tag}
                 </span>

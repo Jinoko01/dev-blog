@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -48,7 +48,7 @@ export function AlgorithmCodePanel({
             <div className="w-3 h-3 rounded-full bg-yellow-400" />
             <div className="w-3 h-3 rounded-full bg-green-400" />
           </div>
-          <span className="ml-4 text-sm text-[color:var(--color-card-foreground)] font-medium">
+          <span className="ml-4 text-m text-[color:var(--color-card-foreground)] font-bold">
             solution.{language || "txt"}
           </span>
         </div>
@@ -57,7 +57,7 @@ export function AlgorithmCodePanel({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleCopy}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[color:var(--color-primary)]/10 hover:bg-[color:var(--color-primary)]/20 text-[color:var(--color-primary)] transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[color:var(--color-primary)]/10 hover:bg-[color:var(--color-primary)]/20 text-[color:var(--color-primary)] transition-colors cursor-pointer"
         >
           {copied ? (
             <>

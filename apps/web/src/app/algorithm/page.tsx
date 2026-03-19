@@ -1,12 +1,25 @@
-import { getAllPosts } from "@/lib/mdx";
 import { AlgorithmListClient } from "@/components/algorithm/algorithm-list-client";
+import { supabase } from "@/lib/supabase";
 
-export default function AlgorithmListPage() {
-  const posts = getAllPosts();
-  const algo = posts.filter((p) =>
-    (p.tags ?? []).some((t) => /algo|algorithm|알고리즘/i.test(t)),
-  );
+export const revalidate = 60;
 
-  return <AlgorithmListClient posts={algo} />;
+export default async function AlgorithmListPage() {
+  const { data: algos } = await supabase
+    .from("algorithms")
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  // Currently AlgorithmListClient expects `posts` array, so we align the interface
+  const formattedAlgos = (algos || []).map((algo) => ({
+    title: algo.title,
+    date: algo.created_at,
+    description: algo.description || "",
+    tags: [...(algo.tags || []), algo.language],
+    slug: algo.id, // Or handle differently if the client needs route
+    code: algo.code,
+    language: algo.language,
+  }));
+
+  return <AlgorithmListClient posts={formattedAlgos} />;
 }
-
