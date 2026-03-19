@@ -30,11 +30,12 @@ function getDifficultyColor(difficulty: Difficulty) {
 }
 
 function extractFirstCodeFence(mdx: string) {
-  const re = /```(\w+)?\n([\s\S]*?)```/m;
+  // Support Windows line endings (\r\n) and language IDs like "c++", "tsx", etc.
+  const re = /```([^\r\n`]*)\r?\n([\s\S]*?)\r?\n```/m;
   const m = mdx.match(re);
   if (!m) return { language: "txt", code: "", rest: mdx };
-  const language = (m[1] || "txt").trim();
-  const code = (m[2] || "").replace(/\n$/, "");
+  const language = (m[1] || "txt").trim() || "txt";
+  const code = (m[2] || "").replace(/\r\n/g, "\n").replace(/\n$/, "");
   const rest = (mdx.slice(0, m.index) + mdx.slice((m.index ?? 0) + m[0].length)).trim();
   return { language, code, rest };
 }
