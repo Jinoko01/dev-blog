@@ -107,16 +107,16 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             transition={{ delay: 0.08, duration: 0.45, ease: "easeOut" }}
             className="flex items-center justify-between"
           >
-            <h2 className="text-2xl font-semibold text-[color:var(--color-foreground)]">
+            <h2 className="text-2xl font-semibold text-foreground">
               전체 글
             </h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setSortType("latest")}
-                className={`px-4 py-2 rounded-lg transition-colors border ${
+                className={`px-4 py-2 rounded-lg transition-colors border cursor-pointer ${
                   sortType === "latest"
-                    ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] border-transparent"
-                    : "bg-[color:var(--color-secondary)]/60 text-[color:var(--color-secondary-foreground)] hover:bg-[color:var(--color-secondary)] border-[color:var(--color-border)]"
+                    ? "bg-primary text-primary-foreground border-transparent"
+                    : "bg-secondary/60 text-secondary-foreground hover:bg-secondary border-border"
                 }`}
               >
                 <Clock className="w-4 h-4 inline mr-1" />
@@ -124,10 +124,10 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
               </button>
               <button
                 onClick={() => setSortType("popular")}
-                className={`px-4 py-2 rounded-lg transition-colors border ${
+                className={`px-4 py-2 rounded-lg transition-colors border cursor-pointer ${
                   sortType === "popular"
-                    ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] border-transparent"
-                    : "bg-[color:var(--color-secondary)]/60 text-[color:var(--color-secondary-foreground)] hover:bg-[color:var(--color-secondary)] border-[color:var(--color-border)]"
+                    ? "bg-primary text-primary-foreground border-transparent"
+                    : "bg-secondary/60 text-secondary-foreground hover:bg-secondary border-border"
                 }`}
               >
                 <TrendingUp className="w-4 h-4 inline mr-1" />
@@ -144,17 +144,17 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.18, duration: 0.45, ease: "easeOut" }}
-            className="bg-[color:var(--color-card)] rounded-xl p-5 shadow-sm border border-[color:var(--color-border)]"
+            className="bg-card rounded-xl p-5 shadow-sm border border-border"
           >
-            <h3 className="font-semibold text-[color:var(--color-card-foreground)] mb-4">
+            <h3 className="font-semibold text-card-foreground mb-4">
               방문자 통계
             </h3>
             <Sparkline values={visitorStats.map((d) => d.visitors)} />
             <div className="mt-4 text-center">
-              <p className="text-2xl font-semibold text-[color:var(--color-primary)]">
+              <p className="text-2xl font-semibold text-primary">
                 {today}
               </p>
-              <p className="text-sm text-[color:var(--color-muted-foreground)]">
+              <p className="text-sm text-muted-foreground">
                 오늘 방문자
               </p>
             </div>
@@ -164,23 +164,23 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.26, duration: 0.45, ease: "easeOut" }}
-            className="bg-[color:var(--color-card)] rounded-xl p-5 shadow-sm border border-[color:var(--color-border)]"
+            className="bg-card rounded-xl p-5 shadow-sm border border-border"
           >
-            <h3 className="font-semibold text-[color:var(--color-card-foreground)] mb-4">
+            <h3 className="font-semibold text-card-foreground mb-4">
               인기 글
             </h3>
             <div className="space-y-3">
               {popularPosts.map((post, index) => (
                 <Link key={post.slug} href={`/posts/${post.slug}`} className="block group">
-                  <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-[color:var(--color-secondary)]/40 transition-colors">
-                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] text-sm font-semibold">
+                  <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-secondary/40 transition-colors">
+                    <span className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                       {index + 1}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[color:var(--color-card-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors line-clamp-2">
+                      <p className="text-sm font-medium text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
                         {post.title}
                       </p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-[color:var(--color-muted-foreground)]">
+                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Eye className="w-3 h-3" />0
                         </span>
@@ -202,12 +202,12 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
           >
             <Link
               href="/algorithm"
-              className="block bg-gradient-to-br from-[color:var(--color-primary)]/20 to-[color:var(--color-accent)]/20 rounded-xl p-6 shadow-sm border border-[color:var(--color-primary)]/30 hover:shadow-lg transition-shadow group"
+              className="block bg-linear-to-br from-primary/20 to-accent/20 rounded-xl p-6 shadow-sm border border-primary/30 hover:shadow-lg transition-shadow group"
             >
-              <h3 className="font-semibold text-[color:var(--color-card-foreground)] mb-2 group-hover:text-[color:var(--color-primary)] transition-colors">
+              <h3 className="font-semibold text-card-foreground mb-2 group-hover:text-primary transition-colors">
                 알고리즘 아카이브
               </h3>
-              <p className="text-sm text-[color:var(--color-muted-foreground)]">
+              <p className="text-sm text-muted-foreground">
                 문제 풀이와 코드 구현을 확인해보세요
               </p>
             </Link>

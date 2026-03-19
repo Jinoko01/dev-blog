@@ -23,13 +23,13 @@ export function Header() {
           href="/"
           className="text-xl font-semibold font-display tracking-tight text-[color:var(--color-primary)] hover:opacity-90 transition-opacity"
         >
-          Dev Blog
+          OKOJIN
         </Link>
 
         <nav className="hidden sm:flex items-center gap-2">
           <Link
             href="/"
-            className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+            className={`relative px-3 py-2 font-bold text-sm transition-colors ${
               isActive("/")
                 ? "text-[color:var(--color-primary)]"
                 : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
@@ -47,7 +47,7 @@ export function Header() {
 
           <Link
             href="/algorithm"
-            className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+            className={`relative px-3 py-2 text-sm font-bold transition-colors ${
               isStartsWith("/algorithm")
                 ? "text-[color:var(--color-primary)]"
                 : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
@@ -65,7 +65,7 @@ export function Header() {
 
           <Link
             href="/about"
-            className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+            className={`relative px-3 py-2 text-sm font-bold transition-colors ${
               isActive("/about")
                 ? "text-[color:var(--color-primary)]"
                 : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"

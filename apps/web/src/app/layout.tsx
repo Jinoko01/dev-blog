@@ -15,7 +15,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Dev Archive | Portfolio",
+  title: "OKOJIN | Portfolio",
   description: "개발자의 기록과 아카이브",
 };
 

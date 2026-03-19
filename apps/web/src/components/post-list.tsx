@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import type { PostMetadata } from "@/lib/mdx";
@@ -41,7 +41,7 @@ export function PostList({
             key={post.slug}
             className={
               variant === "figma"
-                ? "group relative block bg-[color:var(--color-card)] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-[color:var(--color-border)]"
+                ? "group relative block bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-border"
                 : "group relative p-8 block bg-white/60 dark:bg-gray-900/40 backdrop-blur-[2px] rounded-3xl border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none hover:shadow-xl hover:-translate-y-1 transition-all duration-500 animate-fade-in-up"
             }
             style={{
@@ -56,24 +56,24 @@ export function PostList({
             />
             {variant === "figma" ? (
               <>
-                <div className="aspect-video overflow-hidden bg-[color:var(--color-muted)]">
-                  <div className="w-full h-full bg-gradient-to-br from-[color:var(--color-primary)]/15 via-white/30 to-[color:var(--color-accent)]/20 dark:via-black/10" />
+                <div className="aspect-video overflow-hidden bg-muted">
+                  <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10" />
                 </div>
                 <div className="p-5 space-y-3">
-                  <h4 className="font-semibold text-lg text-[color:var(--color-card-foreground)] line-clamp-2">
+                  <h4 className="font-semibold text-lg text-card-foreground line-clamp-2">
                     {post.title}
                   </h4>
                   <div className="flex flex-wrap gap-2 relative z-20">
                     {post.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-1 text-xs rounded-md bg-[color:var(--color-secondary)]/60 text-[color:var(--color-secondary-foreground)] border border-[color:var(--color-border)]"
+                        className="px-2 py-1 text-xs rounded-md bg-secondary/60 text-secondary-foreground border border-border"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between text-sm text-[color:var(--color-muted-foreground)]">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{new Date(post.date).toLocaleDateString("ko-KR")}</span>
                     <span className="text-xs opacity-80">조회/좋아요 준비중</span>
                   </div>
@@ -115,7 +115,7 @@ export function PostList({
           <div
             className={
               variant === "figma"
-                ? "w-8 h-8 rounded-full border-4 border-[color:var(--color-primary)] border-t-transparent animate-spin"
+                ? "w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"
                 : "w-8 h-8 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"
             }
           />
