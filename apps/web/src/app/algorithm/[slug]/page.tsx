@@ -5,7 +5,9 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import { Pre } from "@/components/mdx/pre";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
+import { AlgorithmDescriptionModal } from "@/components/algorithm/algorithm-description-modal";
 import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { codeToHtml } from "shiki";
 
 type Difficulty = "Easy" | "Medium" | "Hard";
 
@@ -37,6 +39,24 @@ function extractFirstCodeFence(mdx: string) {
   return { language, code, rest };
 }
 
+async function highlightForPanel(code: string, language: string) {
+  if (!code) return { htmlLight: "", htmlDark: "" };
+  const lang = language || "txt";
+
+  const [htmlLight, htmlDark] = await Promise.all([
+    codeToHtml(code, {
+      lang,
+      theme: "github-light",
+    }),
+    codeToHtml(code, {
+      lang,
+      theme: "github-dark",
+    }),
+  ]);
+
+  return { htmlLight, htmlDark };
+}
+
 export async function generateStaticParams() {
   const slugs = getPostSlugs()
     .map((s) => s.replace(/\.mdx$/, ""))
@@ -59,6 +79,10 @@ export default async function AlgorithmDetailPage(props: {
 
   const { meta, content } = post;
   const { language, code, rest } = extractFirstCodeFence(content);
+  const { htmlLight, htmlDark } = await highlightForPanel(
+    code || "/* MDX 본문에 첫 코드블록(```...```)을 넣으면 여기에 표시돼요. */",
+    language,
+  );
 
   const difficulty = normalizeDifficulty((meta as any)?.difficulty);
 
@@ -102,28 +126,28 @@ export default async function AlgorithmDetailPage(props: {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="lg:sticky lg:top-24 h-fit">
-          <AlgorithmCodePanel code={code || "/* MDX 본문에 첫 코드블록(```...```)을 넣으면 여기에 표시돼요. */"} language={language} />
-        </div>
-
-        <div className="bg-[color:var(--color-card)] rounded-xl p-8 shadow-sm border border-[color:var(--color-border)]">
-          <h2 className="text-2xl font-semibold text-[color:var(--color-card-foreground)] mb-6">
-            설명
-          </h2>
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <MDXRemote
-              source={rest || meta.description || ""}
-              components={{ pre: Pre }}
-              options={{
-                mdxOptions: {
-                  rehypePlugins: [[rehypePrettyCode, { theme: "github-dark" }]],
-                },
-              }}
-            />
-          </div>
-        </div>
+      <div className="space-y-6">
+        <AlgorithmCodePanel
+          code={code || "/* MDX 본문에 첫 코드블록(```...```)을 넣으면 여기에 표시돼요. */"}
+          language={language}
+          htmlLight={htmlLight}
+          htmlDark={htmlDark}
+        />
       </div>
+
+      <AlgorithmDescriptionModal title="설명">
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <MDXRemote
+            source={rest || meta.description || ""}
+            components={{ pre: Pre }}
+            options={{
+              mdxOptions: {
+                rehypePlugins: [[rehypePrettyCode, { theme: "github-dark" }]],
+              },
+            }}
+          />
+        </div>
+      </AlgorithmDescriptionModal>
     </div>
   );
 }

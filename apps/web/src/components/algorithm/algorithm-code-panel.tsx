@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -11,18 +11,23 @@ function buildLineNumbers(count: number) {
 export function AlgorithmCodePanel({
   code,
   language,
+  htmlLight,
+  htmlDark,
 }: {
   code: string;
   language: string;
+  htmlLight?: string;
+  htmlDark?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
-  const lines = useMemo(() => {
+  const lineCount = useMemo(() => {
     const normalized = code.replace(/\r\n/g, "\n").replace(/\s+$/, "");
-    return normalized ? normalized.split("\n") : [];
+    if (!normalized) return 1;
+    return normalized.split("\n").length;
   }, [code]);
 
-  const lineNumbers = useMemo(() => buildLineNumbers(Math.max(1, lines.length)), [lines.length]);
+  const lineNumbers = useMemo(() => buildLineNumbers(Math.max(1, lineCount)), [lineCount]);
 
   const handleCopy = async () => {
     try {
@@ -77,13 +82,28 @@ export function AlgorithmCodePanel({
               </div>
             ))}
           </div>
-          <pre className="m-0 py-6 pr-6 whitespace-pre leading-6 text-[color:var(--color-foreground)]">
-            <code>
-              {(lines.length ? lines : [""]).map((ln, idx) => (
-                <div key={idx}>{ln}</div>
-              ))}
-            </code>
-          </pre>
+          <div className="py-6 pr-6">
+            {htmlLight || htmlDark ? (
+              <>
+                {htmlLight && (
+                  <div
+                    className="shiki-wrap dark:hidden"
+                    dangerouslySetInnerHTML={{ __html: htmlLight }}
+                  />
+                )}
+                {htmlDark && (
+                  <div
+                    className="shiki-wrap hidden dark:block"
+                    dangerouslySetInnerHTML={{ __html: htmlDark }}
+                  />
+                )}
+              </>
+            ) : (
+              <pre className="m-0 whitespace-pre leading-6 text-[color:var(--color-foreground)]">
+                <code>{code}</code>
+              </pre>
+            )}
+          </div>
         </div>
       </div>
     </div>
