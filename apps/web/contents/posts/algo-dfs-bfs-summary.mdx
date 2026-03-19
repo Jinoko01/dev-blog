@@ -13,7 +13,7 @@ tags: ["알고리즘", "그래프", "DFS", "BFS"]
 한 경로를 끝까지 탐색한 후, 다시 돌아와서 다른 경로를 탐색하는 방식입니다. **재귀 함수**나 **스택**을 활용하여 구현합니다.
 경로의 특징을 저장해둬야 하는 문제(예: 각 정점에 적힌 숫자를 이어붙이는 경우)에 유리합니다.
 
-```javascript
+```js
 function dfs(graph, v, visited) {
   visited[v] = true;
   console.log(v);
@@ -30,7 +30,7 @@ function dfs(graph, v, visited) {
 시작 정점으로부터 가까운 정점을 먼저 방문하고 멀리 떨어져 있는 정점을 나중에 방문하는 방식입니다. **큐(Queue)**를 활용하여 구현합니다.
 가중치가 없는 그래프에서 **최단 경로**를 찾는 문제에 무조건적으로 사용됩니다.
 
-```javascript
+```js
 function bfs(graph, start, visited) {
   const queue = [start];
   visited[start] = true;
