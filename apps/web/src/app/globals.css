@@ -180,7 +180,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose pre {
-  background-color: var(--color-muted);
+  background-color: var(--background-solid);
+  border: 1px solid var(--border);
   padding: 1em;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -246,6 +247,19 @@ h1, h2, h3, h4, h5, h6 {
   border-top: 1px solid var(--color-border);
   margin-top: 2em;
   margin-bottom: 2em;
+}
+
+/* rehype-pretty-code dual theme support */
+[data-rehype-pretty-code-figure] [data-theme='dark'] {
+  display: none;
+}
+
+.dark [data-rehype-pretty-code-figure] [data-theme='dark'] {
+  display: block;
+}
+
+.dark [data-rehype-pretty-code-figure] [data-theme='light'] {
+  display: none;
 }
 
 /* Shiki (syntax highlight) tweaks for Algorithm panel */

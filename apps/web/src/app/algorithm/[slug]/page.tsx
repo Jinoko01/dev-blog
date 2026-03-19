@@ -131,8 +131,11 @@ export default async function AlgorithmDetailPage(props: {
                   [
                     rehypePrettyCode,
                     {
-                      theme: "github-light",
-                      keepBackground: true,
+                      theme: {
+                        light: "github-light",
+                        dark: "github-dark",
+                      },
+                      keepBackground: false,
                     },
                   ],
                 ],
@@ -141,6 +144,7 @@ export default async function AlgorithmDetailPage(props: {
           />
         </div>
       </AlgorithmDescriptionModal>
+        
     </div>
   );
 }
