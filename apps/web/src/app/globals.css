@@ -39,8 +39,9 @@
     --font-size: 16px;
 
     /* Pastel Blue-Green Light Theme (from Figma) */
-    --background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 50%, #e8f5e9 100%);
-    --background-solid: #f0f8ff;
+    /* --background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 50%, #e8f5e9 100%); */
+    --background: #fff;
+    --background-solid: #fff;
     --foreground: #2c3e50;
     --card: rgba(255, 255, 255, 0.85);
     --card-foreground: #2c3e50;

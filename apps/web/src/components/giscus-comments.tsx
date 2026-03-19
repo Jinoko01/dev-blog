@@ -7,7 +7,7 @@ export function GiscusComments() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="mt-20 pt-12 border-t border-black/5 dark:border-white/10 stagger-delay-3">
+    <div className="mt-20 pt-12 border-t border-black/5 dark:border-white/10 stagger-delay-3 rounded">
       <h3 className="text-2xl font-bold font-display mb-8">Comments</h3>
       <Giscus
         id="Comment"
@@ -19,7 +19,7 @@ export function GiscusComments() {
         reactionsEnabled="1"
         emitMetadata="0"
         inputPosition="top"
-        theme={resolvedTheme === "dark" ? "preferred_color_scheme" : "light"}
+        theme={resolvedTheme === "dark" ? "dark" : "light"}
         lang="ko"
         loading="lazy"
       />

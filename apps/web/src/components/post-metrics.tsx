@@ -73,7 +73,7 @@ export function PostMetrics({ slug }: { slug: string }) {
       <button
         onClick={handleLike}
         disabled={isLiked}
-        className={`flex items-center gap-2 transition-all ${isLiked ? "text-pink-500 scale-105" : "text-foreground/70 hover:text-pink-400 hover:scale-105 active:scale-95"}`}
+        className={`flex items-center gap-2 transition-all cursor-pointer ${isLiked ? "text-pink-500 scale-105" : "text-foreground/70 hover:text-pink-400 hover:scale-105 active:scale-95"}`}
       >
         <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
         <span className="font-semibold text-lg">{likes}</span>{" "}
