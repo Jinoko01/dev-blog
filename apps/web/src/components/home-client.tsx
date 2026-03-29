@@ -107,31 +107,29 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             transition={{ delay: 0.08, duration: 0.45, ease: "easeOut" }}
             className="flex items-center justify-between"
           >
-            <h2 className="text-2xl font-semibold text-foreground">
-              전체 글
+            <h2 className="text-3xl font-black tracking-tight text-foreground uppercase">
+              LATEST ARTICLES
             </h2>
-            <div className="flex gap-2">
+            <div className="flex gap-4 border-b border-border/50">
               <button
                 onClick={() => setSortType("latest")}
-                className={`px-4 py-2 rounded-lg transition-colors border cursor-pointer ${
+                className={`pb-2 px-1 text-sm font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
                   sortType === "latest"
-                    ? "bg-primary text-primary-foreground border-transparent"
-                    : "bg-secondary/60 text-secondary-foreground hover:bg-secondary border-border"
+                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
+                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
                 }`}
               >
-                <Clock className="w-4 h-4 inline mr-1" />
-                최신순
+                LATEST
               </button>
               <button
                 onClick={() => setSortType("popular")}
-                className={`px-4 py-2 rounded-lg transition-colors border cursor-pointer ${
+                className={`pb-2 px-1 text-sm font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
                   sortType === "popular"
-                    ? "bg-primary text-primary-foreground border-transparent"
-                    : "bg-secondary/60 text-secondary-foreground hover:bg-secondary border-border"
+                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
+                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
                 }`}
               >
-                <TrendingUp className="w-4 h-4 inline mr-1" />
-                인기순
+                POPULAR
               </button>
             </div>
           </motion.div>
@@ -146,16 +144,16 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             transition={{ delay: 0.18, duration: 0.45, ease: "easeOut" }}
             className="bg-card rounded-xl p-5 shadow-sm border border-border"
           >
-            <h3 className="font-semibold text-card-foreground mb-4">
-              방문자 통계
+            <h3 className="font-bold tracking-widest text-card-foreground mb-4">
+              VISITORS
             </h3>
             <Sparkline values={visitorStats.map((d) => d.visitors)} />
             <div className="mt-4 text-center">
-              <p className="text-2xl font-semibold text-primary">
+              <p className="text-3xl font-black text-[color:var(--color-primary)]">
                 {today}
               </p>
-              <p className="text-sm text-muted-foreground">
-                오늘 방문자
+              <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mt-1">
+                Today
               </p>
             </div>
           </motion.div>
@@ -166,8 +164,8 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
             transition={{ delay: 0.26, duration: 0.45, ease: "easeOut" }}
             className="bg-card rounded-xl p-5 shadow-sm border border-border"
           >
-            <h3 className="font-semibold text-card-foreground mb-4">
-              인기 글
+            <h3 className="font-bold tracking-widest text-card-foreground mb-4">
+              TRENDING
             </h3>
             <div className="space-y-3">
               {popularPosts.map((post, index) => (
@@ -204,11 +202,11 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
               href="/algorithm"
               className="block bg-linear-to-br from-primary/20 to-accent/20 rounded-xl p-6 shadow-sm border border-primary/30 hover:shadow-lg transition-shadow group"
             >
-              <h3 className="font-semibold text-card-foreground mb-2 group-hover:text-primary transition-colors">
-                알고리즘 아카이브
+              <h3 className="font-bold tracking-widest text-card-foreground mb-2 group-hover:text-[color:var(--color-primary)] transition-colors">
+                ALGORITHM ARCHIVE
               </h3>
-              <p className="text-sm text-muted-foreground">
-                문제 풀이와 코드 구현을 확인해보세요
+              <p className="text-sm font-medium text-muted-foreground">
+                View problem solving &amp; implementations
               </p>
             </Link>
           </motion.div>

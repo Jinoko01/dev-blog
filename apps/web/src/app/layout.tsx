@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Outfit } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} ${outfit.variable} antialiased min-h-screen font-body transition-colors duration-500`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen font-sans transition-colors duration-500`}
       >
         <ThemeProvider
           attribute="class"
@@ -37,9 +37,7 @@ export default function RootLayout({
         >
           <Header />
           <main className="flex-1 w-full flex flex-col items-center">
-            <div className="w-full max-w-7xl">
-              {children}
-            </div>
+            {children}
           </main>
         </ThemeProvider>
       </body>

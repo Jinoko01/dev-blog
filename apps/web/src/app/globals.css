@@ -3,7 +3,6 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Figma theme tokens (mapped) */
   --color-background: var(--background);
   --color-background-solid: var(--background-solid);
   --color-foreground: var(--foreground);
@@ -30,69 +29,70 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   
-  --font-display: var(--font-playfair);
-  --font-body: var(--font-outfit);
+  --font-sans: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 @layer base {
   :root {
     --font-size: 16px;
 
-    /* Pastel Blue-Green Light Theme (from Figma) */
-    /* --background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 50%, #e8f5e9 100%); */
-    --background: #fff;
-    --background-solid: #fff;
-    --foreground: #2c3e50;
-    --card: rgba(255, 255, 255, 0.85);
-    --card-foreground: #2c3e50;
-    --popover: rgba(255, 255, 255, 0.95);
-    --popover-foreground: #2c3e50;
-    --primary: #5dade2;
+    /* Bold Figma Theme - Light */
+    --background: #ffffff;
+    --background-solid: #ffffff;
+    --foreground: #333333;
+    --card: #ffffff;
+    --card-foreground: #333333;
+    --popover: #ffffff;
+    --popover-foreground: #333333;
+    --primary: #FF6B35;
     --primary-foreground: #ffffff;
-    --secondary: #aed6f1;
-    --secondary-foreground: #2c3e50;
-    --muted: #d6eaf8;
-    --muted-foreground: #5d6d7e;
-    --accent: #85c1e9;
-    --accent-foreground: #2c3e50;
-    --destructive: #ec7063;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #333333;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
+    --accent: #FF6B35;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    --border: rgba(93, 173, 226, 0.2);
-    --ring: rgba(93, 173, 226, 0.3);
-    --chart-1: #5dade2;
-    --chart-2: #85c1e9;
-    --chart-3: #aed6f1;
-    --chart-4: #d6eaf8;
-    --chart-5: #48c9b0;
-    --radius: 0.75rem;
+    --border: #e4e4e7;
+    --ring: rgba(255, 107, 53, 0.3);
+    
+    --chart-1: #FF6B35;
+    --chart-2: #f97316;
+    --chart-3: #fb923c;
+    --chart-4: #fdba74;
+    --chart-5: #fed7aa;
+    --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark theme (from Figma) */
-    --background: #1a1f2e;
-    --background-solid: #1a1f2e;
-    --foreground: #e8eaf0;
-    --card: #252b3c;
-    --card-foreground: #e8eaf0;
-    --popover: #252b3c;
-    --popover-foreground: #e8eaf0;
-    --primary: #6b9bd1;
+    /* Bold Figma Theme - Dark */
+    --background: #121212;
+    --background-solid: #121212;
+    --foreground: #f4f4f5;
+    --card: #1e1e1e;
+    --card-foreground: #f4f4f5;
+    --popover: #1e1e1e;
+    --popover-foreground: #f4f4f5;
+    --primary: #FF6B35;
     --primary-foreground: #ffffff;
-    --secondary: #3d4a5c;
-    --secondary-foreground: #e8eaf0;
-    --muted: #343b4f;
-    --muted-foreground: #a8b2c0;
-    --accent: #4a5c7a;
-    --accent-foreground: #e8eaf0;
-    --destructive: #d97373;
+    --secondary: #27272a;
+    --secondary-foreground: #f4f4f5;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
+    --accent: #FF6B35;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    --border: rgba(107, 155, 209, 0.2);
-    --ring: rgba(107, 155, 209, 0.3);
-    --chart-1: #6b9bd1;
-    --chart-2: #8ab4e0;
-    --chart-3: #a8cde8;
-    --chart-4: #c6e0f0;
-    --chart-5: #5fc9b0;
+    --border: #3f3f46;
+    --ring: rgba(255, 107, 53, 0.4);
+
+    --chart-1: #FF6B35;
+    --chart-2: #ea580c;
+    --chart-3: #c2410c;
+    --chart-4: #9a3412;
+    --chart-5: #7c2d12;
   }
 }
 
@@ -100,6 +100,7 @@
   body {
     background: var(--background);
     color: var(--foreground);
+    font-family: var(--font-sans);
   }
 }
 

@@ -40,8 +40,8 @@ export function AlgorithmCodePanel({
   };
 
   return (
-    <div className="bg-[color:var(--color-card)] rounded-xl shadow-sm border border-[color:var(--color-border)] overflow-hidden">
-      <div className="bg-[color:var(--color-secondary)]/50 px-4 py-3 flex items-center justify-between border-b border-[color:var(--color-border)]">
+    <div className="flex-1 flex flex-col w-full h-full bg-[#1e1e1e] dark:bg-[color:var(--color-background-solid)]">
+      <div className="bg-[#2d2d2d] dark:bg-[color:var(--color-secondary)] px-4 py-2.5 flex items-center justify-between border-b border-[#1e1e1e] dark:border-[color:var(--color-border)]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -57,25 +57,25 @@ export function AlgorithmCodePanel({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleCopy}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[color:var(--color-primary)]/10 hover:bg-[color:var(--color-primary)]/20 text-[color:var(--color-primary)] transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-secondary/40 text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)] transition-colors cursor-pointer"
         >
           {copied ? (
             <>
-              <Check className="w-4 h-4" />
-              <span className="text-sm">복사됨!</span>
+              <Check className="w-4 h-4 text-green-500" />
+              <span className="text-xs font-bold tracking-widest uppercase text-green-500">COPIED!</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span className="text-sm">복사</span>
+              <span className="text-xs font-bold tracking-widest uppercase">COPY</span>
             </>
           )}
         </motion.button>
       </div>
 
-      <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-        <div className="grid grid-cols-[auto_1fr] font-mono text-sm">
-          <div className="select-none text-right pr-4 pl-4 py-6 text-[color:var(--color-muted-foreground)] bg-black/0">
+      <div className="flex-1 overflow-auto bg-[#1e1e1e] dark:bg-transparent">
+        <div className="grid grid-cols-[auto_1fr] font-mono text-[13px] leading-relaxed">
+          <div className="select-none text-right pr-4 pl-4 py-6 text-[#858585] dark:text-[color:var(--color-muted-foreground)] bg-black/0 border-r border-[#333] dark:border-[color:var(--color-border)]/50">
             {lineNumbers.map((n) => (
               <div key={n} className="leading-6">
                 {n}
@@ -99,7 +99,7 @@ export function AlgorithmCodePanel({
                 )}
               </>
             ) : (
-              <pre className="m-0 whitespace-pre leading-6 text-[color:var(--color-foreground)]">
+              <pre className="m-0 whitespace-pre leading-relaxed text-[#d4d4d4] dark:text-[color:var(--color-foreground)]">
                 <code>{code}</code>
               </pre>
             )}

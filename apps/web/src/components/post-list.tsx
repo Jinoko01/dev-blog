@@ -57,25 +57,32 @@ export function PostList({
             {variant === "figma" ? (
               <>
                 <div className="aspect-video overflow-hidden bg-muted">
-                  <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10" />
+                  <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10 transition-transform group-hover:scale-105" />
                 </div>
-                <div className="p-5 space-y-3">
-                  <h4 className="font-semibold text-lg text-card-foreground line-clamp-2">
-                    {post.title}
-                  </h4>
+                <div className="p-5 space-y-4">
                   <div className="flex flex-wrap gap-2 relative z-20">
-                    {post.tags.map((tag) => (
+                    {post.tags.map((tag, i) => (
                       <span
                         key={tag}
-                        className="px-2 py-1 text-xs rounded-md bg-secondary/60 text-secondary-foreground border border-border"
+                        className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm ${
+                          i === 0 
+                            ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]" 
+                            : "bg-secondary/60 text-secondary-foreground"
+                        }`}
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{new Date(post.date).toLocaleDateString("ko-KR")}</span>
-                    <span className="text-xs opacity-80">조회/좋아요 준비중</span>
+                  <h4 className="font-bold text-xl text-card-foreground line-clamp-2 leading-tight">
+                    {post.title}
+                  </h4>
+                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground pt-2 border-t border-border/50">
+                    <span className="tracking-wide text-[color:var(--color-foreground)]">{new Date(post.date).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                    <span className="flex gap-3">
+                      <span>👁 0</span>
+                      <span>💬 0</span>
+                    </span>
                   </div>
                 </div>
               </>

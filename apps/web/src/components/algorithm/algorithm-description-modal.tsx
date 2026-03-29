@@ -33,13 +33,13 @@ export function AlgorithmDescriptionModal({
         onClick={() => setOpen((v) => !v)}
         whileHover={{ y: -2, scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
-        className="fixed bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-border bg-card/90 backdrop-blur-md shadow-lg text-card-foreground hover:shadow-xl transition-shadow cursor-pointer"
+        className="fixed bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
         aria-haspopup="dialog"
         aria-controls={dialogId}
         aria-expanded={open}
       >
-        <FileText className="w-5 h-5 text-primary" />
-        <span className="text-sm font-medium">{open ? "닫기" : "설명 보기"}</span>
+        <FileText className="w-5 h-5 text-[color:var(--color-primary)]" />
+        <span className="text-xs font-bold tracking-widest uppercase">{open ? "CLOSE" : "INFO"}</span>
       </motion.button>
 
       {/* 드래그 제약 영역 (viewport 기준 전체) */}
@@ -73,13 +73,13 @@ export function AlgorithmDescriptionModal({
                 onPointerDown={(e) => dragControls.start(e)}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <GripHorizontal className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <GripHorizontal className="w-4 h-4 text-[color:var(--color-muted-foreground)] shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-card-foreground truncate">
-                      설명
+                    <div className="text-xs font-bold tracking-widest uppercase text-[color:var(--color-card-foreground)] truncate">
+                      {title}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      드래그로 이동 · ESC로 닫기
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-[color:var(--color-muted-foreground)] mt-0.5">
+                      Drag to move · ESC to close
                     </div>
                   </div>
                 </div>

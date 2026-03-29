@@ -70,49 +70,7 @@ export default async function AlgorithmDetailPage(props: {
   const difficulty = normalizeDifficulty(algo.difficulty);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <Link
-          href="/algorithm"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          목록으로
-        </Link>
-      </div>
-
-      <div className="mb-6">
-        <h1 className="text-4xl font-bold text-foreground mb-4">
-          {algo.title}
-        </h1>
-
-        <div className="flex flex-wrap items-center gap-4 mb-4">
-          <span className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Calendar className="w-4 h-4" />
-            {new Date(algo.created_at).toLocaleDateString("ko-KR")}
-          </span>
-          <span
-            className={`px-3 py-1 rounded-md font-medium text-sm ${getDifficultyColor(difficulty)}`}
-          >
-            {difficulty}
-          </span>
-        </div>
-
-        {(algo.tags ?? []).length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {(algo.tags ?? []).map((tag: string) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm"
-              >
-                <Tag className="w-3 h-3" />
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
+    <div className="w-full h-[calc(100vh-4rem)] flex flex-col bg-[color:var(--color-background-solid)]">
       <AlgorithmCodePanel
         code={algo.code || ""}
         language={algo.language || "txt"}
@@ -120,11 +78,50 @@ export default async function AlgorithmDetailPage(props: {
         htmlDark={htmlDark}
       />
 
-      {/* 우측 하단 플로팅 버튼 + 드래그 가능한 설명 팝업 */}
-      <AlgorithmDescriptionModal title={algo.title}>
-        <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-code:text-sm prose-pre:p-0 prose-pre:bg-transparent prose-pre:my-3">
+      {/* 플로팅 버튼 + 드래그 가능한 설명 팝업 내부에 메타데이터 편입 */}
+      <AlgorithmDescriptionModal title="PROBLEM INFO">
+        <div className="mb-6">
+          <Link
+            href="/algorithm"
+            className="inline-flex items-center gap-1 text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)] transition-colors mb-4 text-[10px] font-bold tracking-widest uppercase border border-border px-3 py-1.5 rounded-full hover:bg-secondary/40"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            BACK TO LIST
+          </Link>
+          <h1 className="text-2xl font-black text-[color:var(--color-foreground)] mb-4">
+            {algo.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <span className="flex items-center gap-1.5 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
+              <Calendar className="w-3.5 h-3.5" />
+              {new Date(algo.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
+            </span>
+            <span
+              className={`px-2 py-0.5 rounded-sm font-bold text-[10px] uppercase tracking-widest ${getDifficultyColor(difficulty)}`}
+            >
+              {difficulty}
+            </span>
+          </div>
+
+          {(algo.tags ?? []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-6 pb-6 border-b border-[color:var(--color-border)]/50">
+              {(algo.tags ?? []).map((tag: string) => (
+                <span
+                  key={tag}
+                  className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm bg-secondary border border-border text-secondary-foreground"
+                >
+                  <Tag className="w-3 h-3 inline-block mr-1" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-code:text-sm prose-pre:p-0 prose-pre:bg-transparent prose-pre:my-3">
           <MDXRemote
-            source={algo.description || "설명이 없습니다."}
+            source={algo.description || "No description provided."}
             options={{
               mdxOptions: {
                 rehypePlugins: [
@@ -144,7 +141,6 @@ export default async function AlgorithmDetailPage(props: {
           />
         </div>
       </AlgorithmDescriptionModal>
-        
     </div>
   );
 }

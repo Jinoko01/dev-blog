@@ -21,25 +21,25 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <Link
           href="/"
-          className="text-xl font-semibold font-display tracking-tight text-primary hover:opacity-90 transition-opacity"
+          className="text-xl font-black tracking-widest text-[color:var(--color-primary)] hover:opacity-90 transition-opacity"
         >
-          OKOJIN
+          DEVELOPER BLOG
         </Link>
 
         <nav className="hidden sm:flex items-center gap-2">
           <Link
             href="/"
-            className={`relative px-3 py-2 font-bold text-sm transition-colors ${
+            className={`relative px-3 py-2 font-bold text-sm tracking-widest transition-colors ${
               isActive("/")
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-[color:var(--color-primary)]"
+                : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
             }`}
           >
-            메인
+            HOME
             {isActive("/") && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -47,17 +47,17 @@ export function Header() {
 
           <Link
             href="/algorithm"
-            className={`relative px-3 py-2 text-sm font-bold transition-colors ${
+            className={`relative px-3 py-2 text-sm font-bold tracking-widest transition-colors ${
               isStartsWith("/algorithm")
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-[color:var(--color-primary)]"
+                : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
             }`}
           >
-            알고리즘
+            ALGORITHM
             {isStartsWith("/algorithm") && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -65,17 +65,35 @@ export function Header() {
 
           <Link
             href="/about"
-            className={`relative px-3 py-2 text-sm font-bold transition-colors ${
+            className={`relative px-3 py-2 text-sm font-bold tracking-widest transition-colors ${
               isActive("/about")
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-[color:var(--color-primary)]"
+                : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
             }`}
           >
-            About
+            ABOUT
             {isActive("/about") && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+          </Link>
+
+          <Link
+            href="/guestbook"
+            className={`relative px-3 py-2 text-sm font-bold tracking-widest transition-colors ${
+              isActive("/guestbook")
+                ? "text-[color:var(--color-primary)]"
+                : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+            }`}
+          >
+            GUESTBOOK
+            {isActive("/guestbook") && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}

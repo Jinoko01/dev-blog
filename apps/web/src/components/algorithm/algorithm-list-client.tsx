@@ -20,11 +20,11 @@ function normalizeDifficulty(input?: string): Difficulty {
 function getDifficultyColor(difficulty: Difficulty) {
   switch (difficulty) {
     case "Easy":
-      return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      return "bg-green-100/60 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800";
     case "Medium":
-      return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+      return "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)] dark:bg-[color:var(--color-primary)]/20 dark:border-[color:var(--color-primary)]/30 border border-[color:var(--color-primary)]/20";
     case "Hard":
-      return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      return "bg-red-100/60 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800";
   }
 }
 
@@ -71,13 +71,13 @@ export function AlgorithmListClient({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-8 text-center"
       >
-        <h1 className="text-4xl font-bold text-[color:var(--color-foreground)] mb-4">
-          알고리즘 아카이브
+        <h1 className="text-4xl md:text-5xl font-black tracking-widest text-[color:var(--color-foreground)] mb-4 uppercase">
+          ALGORITHM ARCHIVE
         </h1>
-        <p className="text-[color:var(--color-muted-foreground)]">
-          다양한 알고리즘 문제 풀이와 구현 코드를 확인하세요
+        <p className="text-[color:var(--color-muted-foreground)] font-medium">
+          {posts.length} problems solved
         </p>
       </motion.div>
 
@@ -93,67 +93,78 @@ export function AlgorithmListClient({
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="제목, 태그, 난이도로 검색..."
-            className="w-full pl-12 pr-4 py-3 bg-[color:var(--color-input-background)] rounded-lg border border-[color:var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/50 transition-shadow text-[color:var(--color-foreground)]"
+            placeholder="Search by title, tags, difficulty..."
+            className="w-full pl-12 pr-4 py-4 bg-[color:var(--color-card)] rounded-xl border border-[color:var(--color-border)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-1 focus:ring-[color:var(--color-primary)] text-[color:var(--color-foreground)] shadow-sm transition-all"
           />
         </div>
       </motion.div>
 
-      <div className="mb-4 text-sm text-[color:var(--color-muted-foreground)]">
-        {filteredPosts.length}개의 게시글
+      <div className="mb-4 text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
+        {filteredPosts.length} results found
       </div>
 
-      <div className="space-y-4 mb-8">
-        {paginatedPosts.map((post, index) => {
-          const difficulty = normalizeDifficulty(post.difficulty);
-          return (
-            <motion.div
-              key={post.slug}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link
-                href={`/algorithm/${post.slug}`}
-                className="block bg-[color:var(--color-card)] rounded-lg p-6 shadow-sm border border-[color:var(--color-border)] hover:shadow-md hover:border-[color:var(--color-primary)]/50 transition-all group"
+      <div className="bg-[color:var(--color-card)] border border-[color:var(--color-border)] shadow-sm rounded-xl overflow-hidden mb-8">
+        <div className="grid grid-cols-[3rem_1fr_auto_8rem] gap-4 px-6 py-4 border-b border-[color:var(--color-border)] bg-secondary/30 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
+          <div className="text-center">#</div>
+          <div>TITLE</div>
+          <div className="hidden sm:block">TAGS</div>
+          <div className="text-right">DIFFICULTY</div>
+        </div>
+        <div className="divide-y divide-[color:var(--color-border)]/60">
+          {paginatedPosts.map((post, index) => {
+            const difficulty = normalizeDifficulty(post.difficulty);
+            const globalIndex = filteredPosts.length - ((page - 1) * ITEMS_PER_PAGE + index);
+            return (
+              <motion.div
+                key={post.slug}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-[color:var(--color-card-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors mb-2">
+                <Link
+                  href={`/algorithm/${post.slug}`}
+                  className="grid grid-cols-[3rem_1fr_auto_8rem] gap-4 px-6 py-4 items-center hover:bg-secondary/40 transition-colors group"
+                >
+                  <div className="text-center text-sm text-[color:var(--color-muted-foreground)] font-mono">
+                    {globalIndex}
+                  </div>
+                  
+                  <div className="min-w-0 pr-4">
+                    <h3 className="text-base font-bold text-[color:var(--color-card-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors truncate">
                       {post.title}
                     </h3>
-
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-[color:var(--color-muted-foreground)] mb-3">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(post.date).toLocaleDateString("ko-KR")}
-                      </span>
-                      <span
-                        className={`px-2 py-1 rounded-md font-medium ${getDifficultyColor(
-                          difficulty,
-                        )}`}
-                      >
-                        {difficulty}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[color:var(--color-secondary)] text-[color:var(--color-secondary-foreground)]"
-                        >
-                          <Tag className="w-3 h-3" />
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
+
+                  <div className="hidden sm:flex flex-wrap items-center justify-end gap-1.5 min-w-0">
+                    {post.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm bg-secondary border border-border text-secondary-foreground whitespace-nowrap"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {post.tags.length > 3 && (
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-bold rounded-sm bg-secondary border border-border text-secondary-foreground">
+                        +{post.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-right">
+                    <span
+                      className={`inline-flex items-center justify-center px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm whitespace-nowrap ${getDifficultyColor(
+                        difficulty,
+                      )}`}
+                    >
+                      {difficulty}
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       {totalPages > 1 && (
@@ -202,8 +213,8 @@ export function AlgorithmListClient({
 
       {filteredPosts.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-[color:var(--color-muted-foreground)] text-lg">
-            검색 결과가 없습니다
+          <p className="text-[color:var(--color-muted-foreground)] text-lg font-medium">
+            No results found
           </p>
         </div>
       )}
