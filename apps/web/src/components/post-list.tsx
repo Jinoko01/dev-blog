@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import type { PostMetadata } from "@/lib/mdx";
+import { Eye, Heart } from "lucide-react";
 
 export function PostList({
   allPosts,
@@ -77,11 +78,11 @@ export function PostList({
                   <h4 className="font-bold text-xl text-card-foreground line-clamp-2 leading-tight">
                     {post.title}
                   </h4>
-                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground pt-2 border-t border-border/50">
+                  <div className="flex items-center justify-between text-xs font-medium text-[color:var(--color-muted-foreground)] pt-4 mt-2 border-t border-[color:var(--color-border)]/50">
                     <span className="tracking-wide text-[color:var(--color-foreground)]">{new Date(post.date).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                    <span className="flex gap-3">
-                      <span>👁 0</span>
-                      <span>💬 0</span>
+                    <span className="flex gap-3 font-bold tracking-widest text-[10px] uppercase">
+                      <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]"><Eye className="w-3 h-3" /> {(post as any).views || 0}</span>
+                      <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]"><Heart className="w-3 h-3" /> {(post as any).likes || 0}</span>
                     </span>
                   </div>
                 </div>

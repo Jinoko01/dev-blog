@@ -17,22 +17,36 @@ export function PostMetrics({ slug }: { slug: string }) {
         .eq("slug", slug)
         .single();
 
+      let currentViews = data ? data.views : 0;
+      let currentLikes = data ? data.likes : 0;
+
       if (!data) {
         await supabase
           .from("post_metrics")
-          .insert({ slug, views: 1, likes: 0 });
-        setViews(1);
-        setLikes(0);
-      } else {
-        const newViews = data.views + 1;
-        await supabase
-          .from("post_metrics")
-          .update({ views: newViews })
-          .eq("slug", slug);
-
-        setViews(newViews);
-        setLikes(data.likes);
+          .insert({ slug, views: 0, likes: 0 });
       }
+
+      const today = new Date().toISOString().split('T')[0];
+      const viewKey = `viewed_${slug}_${today}`;
+
+      if (!localStorage.getItem(viewKey)) {
+        const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
+        if (!error) {
+          currentViews += 1;
+          localStorage.setItem(viewKey, "true");
+        } else {
+          // Fallback if RPC doesn't exist
+          currentViews += 1;
+          await supabase
+            .from("post_metrics")
+            .update({ views: currentViews })
+            .eq("slug", slug);
+          localStorage.setItem(viewKey, "true");
+        }
+      }
+
+      setViews(currentViews);
+      setLikes(currentLikes);
 
       if (localStorage.getItem(`liked_${slug}`)) {
         setIsLiked(true);
@@ -49,16 +63,20 @@ export function PostMetrics({ slug }: { slug: string }) {
     localStorage.setItem(`liked_${slug}`, "true");
     setLikes((prev) => prev + 1);
 
-    const { data } = await supabase
-      .from("post_metrics")
-      .select("likes")
-      .eq("slug", slug)
-      .single();
-    if (data) {
-      await supabase
+    const { error } = await supabase.rpc("increment_like_count", { post_slug: slug });
+    if (error) {
+      // Fallback
+      const { data } = await supabase
         .from("post_metrics")
-        .update({ likes: data.likes + 1 })
-        .eq("slug", slug);
+        .select("likes")
+        .eq("slug", slug)
+        .single();
+      if (data) {
+        await supabase
+          .from("post_metrics")
+          .update({ likes: data.likes + 1 })
+          .eq("slug", slug);
+      }
     }
   };
 

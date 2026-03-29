@@ -6,6 +6,7 @@ import { PostList } from "@/components/post-list";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Clock, TrendingUp, Eye, Heart } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 type SortType = "latest" | "popular";
 
@@ -72,13 +73,16 @@ function Sparkline({ values }: { values: number[] }) {
 
 export function HomeClient({ posts }: { posts: PostMetadata[] }) {
   const [sortType, setSortType] = useState<SortType>("latest");
+  const [dailyVisits, setDailyVisits] = useState<number | null>(null);
 
   const sortedPosts = useMemo(() => {
     const copy = [...posts];
-    copy.sort((a, b) => {
+    copy.sort((a: any, b: any) => {
       if (sortType === "popular") {
-        // TODO: replace with real metrics from Supabase when list metrics are wired
-        return a.title.localeCompare(b.title);
+        const scoreA = (a.views || 0) + (a.likes || 0) * 2;
+        const scoreB = (b.views || 0) + (b.likes || 0) * 2;
+        if (scoreA !== scoreB) return scoreB - scoreA;
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       }
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
@@ -87,14 +91,33 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
 
   const popularPosts = useMemo(() => {
     const copy = [...posts];
-    copy.sort((a, b) => a.title.localeCompare(b.title));
+    copy.sort((a: any, b: any) => {
+      const scoreA = (a.views || 0) + (a.likes || 0) * 2;
+      const scoreB = (b.views || 0) + (b.likes || 0) * 2;
+      if (scoreA !== scoreB) return scoreB - scoreA;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
     return copy.slice(0, 5);
   }, [posts]);
 
-  const today = visitorStats[visitorStats.length - 1]?.visitors ?? 0;
-
   useEffect(() => {
-    // reserve for future: hydrate metrics
+    const trackVisitor = async () => {
+      let sessionId = localStorage.getItem("devblog_session_id");
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem("devblog_session_id", sessionId);
+      }
+
+      const { data, error } = await supabase.rpc("track_page_view", {
+        p_session_id: sessionId,
+      });
+
+      if (!error && data !== null) {
+        setDailyVisits(data);
+      }
+    };
+
+    trackVisitor();
   }, []);
 
   return (
@@ -114,7 +137,9 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-y border-[color:var(--color-border)] py-4">
           <div className="flex items-center gap-2">
             <span>DAILY VISITS</span>
-            <span className="text-[color:var(--color-foreground)]">142</span>
+            <span className="text-[color:var(--color-foreground)]">
+              {dailyVisits !== null ? dailyVisits : "-"}
+            </span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
           <div className="flex items-center gap-2">
@@ -207,6 +232,14 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
                       <p className="text-sm font-medium text-[color:var(--color-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors line-clamp-2">
                         {post.title}
                       </p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />{(post as any).views || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" />{(post as any).likes || 0}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>
