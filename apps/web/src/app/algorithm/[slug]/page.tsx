@@ -7,6 +7,7 @@ import rehypePrettyCode from "rehype-pretty-code";
 import { supabase } from "@/lib/supabase";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
 import { AlgorithmDescriptionModal } from "@/components/algorithm/algorithm-description-modal";
+import { Pre } from "@/components/mdx/pre";
 
 type Difficulty = "Easy" | "Medium" | "Hard";
 
@@ -30,10 +31,12 @@ function getDifficultyColor(difficulty: Difficulty) {
 
 async function highlightCode(code: string, language: string) {
   if (!code) return { htmlLight: "", htmlDark: "" };
+  const lang = (language || "txt").toLowerCase();
+  
   try {
     const [htmlLight, htmlDark] = await Promise.all([
-      codeToHtml(code, { lang: language || "txt", theme: "github-light" }),
-      codeToHtml(code, { lang: language || "txt", theme: "github-dark" }),
+      codeToHtml(code, { lang: lang, theme: "github-light" }),
+      codeToHtml(code, { lang: lang, theme: "github-dark" }),
     ]);
     return { htmlLight, htmlDark };
   } catch {
@@ -119,23 +122,13 @@ export default async function AlgorithmDetailPage(props: {
           )}
         </div>
 
-        <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-code:text-sm prose-pre:p-0 prose-pre:bg-transparent prose-pre:my-3">
+        <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-code:text-sm prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-black/10 dark:prose-pre:border-white/10 prose-pre:shadow-xl prose-pre:my-6 prose-pre:rounded-xl">
           <MDXRemote
             source={algo.description || "No description provided."}
+            components={{ pre: Pre }}
             options={{
               mdxOptions: {
-                rehypePlugins: [
-                  [
-                    rehypePrettyCode,
-                    {
-                      theme: {
-                        light: "github-light",
-                        dark: "github-dark",
-                      },
-                      keepBackground: false,
-                    },
-                  ],
-                ],
+                rehypePlugins: [[rehypePrettyCode, { theme: "github-dark" }]],
               },
             }}
           />

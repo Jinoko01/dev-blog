@@ -40,15 +40,15 @@ export function AlgorithmCodePanel({
   };
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full bg-[#1e1e1e] dark:bg-[color:var(--color-background-solid)]">
-      <div className="bg-[#2d2d2d] dark:bg-[color:var(--color-secondary)] px-4 py-2.5 flex items-center justify-between border-b border-[#1e1e1e] dark:border-[color:var(--color-border)]">
+    <div className="flex-1 flex flex-col px-10 w-full h-full bg-white dark:bg-black">
+      <div className="bg-gray-100 dark:bg-[#111111] px-4 py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-[#333]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-400" />
             <div className="w-3 h-3 rounded-full bg-yellow-400" />
             <div className="w-3 h-3 rounded-full bg-green-400" />
           </div>
-          <span className="ml-4 text-m text-[color:var(--color-card-foreground)] font-bold">
+          <span className="ml-4 text-m text-black dark:text-white font-bold">
             solution.{language || "txt"}
           </span>
         </div>
@@ -57,7 +57,7 @@ export function AlgorithmCodePanel({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleCopy}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-secondary/40 text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)] transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-[#222] text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
         >
           {copied ? (
             <>
@@ -73,9 +73,9 @@ export function AlgorithmCodePanel({
         </motion.button>
       </div>
 
-      <div className="flex-1 overflow-auto bg-[#1e1e1e] dark:bg-transparent">
+      <div className="flex-1 overflow-auto bg-white dark:bg-black">
         <div className="grid grid-cols-[auto_1fr] font-mono text-[13px] leading-relaxed">
-          <div className="select-none text-right pr-4 pl-4 py-6 text-[#858585] dark:text-[color:var(--color-muted-foreground)] bg-black/0 border-r border-[#333] dark:border-[color:var(--color-border)]/50">
+          <div className="select-none text-right pr-4 pl-4 py-6 text-gray-400 dark:text-[#858585] bg-transparent border-r border-gray-200 dark:border-[#333]">
             {lineNumbers.map((n) => (
               <div key={n} className="leading-6">
                 {n}
@@ -99,7 +99,7 @@ export function AlgorithmCodePanel({
                 )}
               </>
             ) : (
-              <pre className="m-0 whitespace-pre leading-relaxed text-[#d4d4d4] dark:text-[color:var(--color-foreground)]">
+              <pre className="m-0 whitespace-pre leading-relaxed text-black dark:text-[#d4d4d4]">
                 <code>{code}</code>
               </pre>
             )}
