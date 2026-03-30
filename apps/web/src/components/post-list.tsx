@@ -53,9 +53,8 @@ export function PostList({
           >
             <Link
               href={`/posts/${post.slug}`}
-              className="absolute inset-0"
               aria-label={`Read ${post.title}`}
-            />
+            >
             {variant === "figma" ? (
               <>
                 <div className="aspect-video relative overflow-hidden bg-muted">
@@ -120,6 +119,7 @@ export function PostList({
                 </div>
               </>
             )}
+            </Link>
           </article>
         ))}
       </div>
