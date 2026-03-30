@@ -6,20 +6,25 @@ export const revalidate = 60; // Revalidate every 60 seconds
 export default async function Home() {
   const { data: posts } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, post_tags(tags(name))")
     .eq("published", true)
     .order("created_at", { ascending: false });
 
   const { data: metrics } = await supabase.from("post_metrics").select("*");
   const metricsMap = new Map((metrics || []).map((m) => [m.slug, m]));
 
+  const uniqueTopics = new Set<string>();
+
   // Map Supabase columns to expected properties
   const formattedPosts = (posts || []).map((post) => {
+    const postTags = post.post_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+    postTags.forEach((tag: string) => uniqueTopics.add(tag));
+
     const postObj = {
       title: post.title,
       date: post.created_at,
       description: post.description || "",
-      tags: post.tags || [],
+      tags: postTags,
       slug: post.slug,
       thumbnail_url: post.thumbnail_url,
     };
@@ -31,5 +36,5 @@ export default async function Home() {
     };
   });
 
-  return <HomeClient posts={formattedPosts as any} />;
+  return <HomeClient posts={formattedPosts as any} topics={Array.from(uniqueTopics)} />;
 }

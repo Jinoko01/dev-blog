@@ -21,7 +21,7 @@ export default async function PostPage(props: {
 
   const { data: post } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, post_tags(tags(name))")
     .eq("slug", slug)
     .single();
 
@@ -29,11 +29,13 @@ export default async function PostPage(props: {
     notFound();
   }
 
+  const postTags = post.post_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+
   const meta = {
     title: post.title,
     date: post.created_at,
     description: post.description,
-    tags: post.tags,
+    tags: postTags,
   };
   const content = post.content;
 

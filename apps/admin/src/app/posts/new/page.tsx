@@ -23,25 +23,46 @@ export default function NewPostPage() {
 
     const tagsArray = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
 
-    const { error } = await supabase.from('posts').insert([
+    const { data: post, error } = await supabase.from('posts').insert([
       {
         title: formData.title,
         slug: formData.slug,
         description: formData.description,
         content: formData.content,
         thumbnail_url: formData.thumbnail_url,
-        tags: tagsArray,
         published: formData.published,
       },
-    ]);
-
-    setLoading(false);
+    ]).select().single();
 
     if (error) {
       alert('Error saving post: ' + error.message);
-    } else {
-      router.push('/posts');
+      setLoading(false);
+      return;
     }
+
+    if (tagsArray.length > 0) {
+      // Ensure tags exist in the tags table
+      await supabase.from('tags').upsert(
+        tagsArray.map((name) => ({ name })),
+        { onConflict: 'name', ignoreDuplicates: true }
+      );
+
+      // Fetch the IDs of these tags
+      const { data: dbTags } = await supabase
+        .from('tags')
+        .select('id')
+        .in('name', tagsArray);
+
+      // Insert relationships
+      if (dbTags && dbTags.length > 0) {
+        await supabase.from('post_tags').insert(
+          dbTags.map((t) => ({ post_id: post.id, tag_id: t.id }))
+        );
+      }
+    }
+
+    setLoading(false);
+    router.push('/posts');
   }
 
   return (

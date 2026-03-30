@@ -71,9 +71,9 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-export function HomeClient({ posts }: { posts: PostMetadata[] }) {
+export function HomeClient({ posts, topics = [] }: { posts: PostMetadata[], topics?: string[] }) {
   const [sortType, setSortType] = useState<SortType>("latest");
-  const [dailyVisits, setDailyVisits] = useState<number | null>(null);
+  const [totalVisits, setTotalVisits] = useState<number | null>(null);
 
   const sortedPosts = useMemo(() => {
     const copy = [...posts];
@@ -113,7 +113,7 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
       });
 
       if (!error && data !== null) {
-        setDailyVisits(data);
+        setTotalVisits(data);
       }
     };
 
@@ -136,9 +136,9 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
         {/* Stats Bar */}
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-y border-[color:var(--color-border)] py-4">
           <div className="flex items-center gap-2">
-            <span>DAILY VISITS</span>
+            <span>VISITS</span>
             <span className="text-[color:var(--color-foreground)]">
-              {dailyVisits !== null ? dailyVisits : "-"}
+              {totalVisits !== null ? totalVisits : "-"}
             </span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
@@ -192,7 +192,7 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
           <PostList allPosts={sortedPosts} variant="figma" />
         </div>
 
-        <div className="space-y-12 lg:pl-4">
+        <div className="space-y-12 lg:pl-4 lg:min-w-[300px]">
           <motion.div
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -202,14 +202,16 @@ export function HomeClient({ posts }: { posts: PostMetadata[] }) {
               TOPICS
             </h3>
             <div className="flex flex-wrap gap-2">
-              {['REACT', 'TYPESCRIPT', 'NEXT.JS', 'CSS ARCHITECTURE', 'ALGORITHMS', 'WEB'].map((topic) => (
+              {topics.length > 0 ? [...topics].map((topic) => (
                 <span 
                   key={topic} 
                   className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-[color:var(--color-secondary)]/80 text-[color:var(--color-secondary-foreground)] rounded-sm border border-[color:var(--color-border)]"
                 >
                   {topic}
                 </span>
-              ))}
+              )) : (
+                <span className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)]">NO TOPICS FOUND</span>
+              )}
             </div>
           </motion.div>
 

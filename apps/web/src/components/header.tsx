@@ -21,63 +21,41 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <Link
           href="/"
-          className="text-xl font-black tracking-widest text-[color:var(--color-foreground)] hover:opacity-90 transition-opacity"
+          className="text-xl font-black tracking-widest text-foreground hover:opacity-90 transition-opacity"
         >
           OKOJIN
         </Link>
 
-        <nav className="hidden sm:flex items-center gap-2">
+        <nav className="hidden sm:flex items-center gap-6">
           <Link
-            href="/"
-            className={`relative px-3 py-2 font-bold text-sm tracking-widest transition-colors ${isActive("/")
-              ? "text-[color:var(--color-primary)]"
-              : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+            href="/articles"
+            className={`px-3 py-2 font-bold text-xs tracking-widest transition-colors ${isStartsWith("/articles")
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             ARTICLES
-            {isActive("/") && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
           </Link>
 
           <Link
             href="/algorithm"
-            className={`relative px-3 py-2 text-sm font-bold tracking-widest transition-colors ${isStartsWith("/algorithm")
-              ? "text-[color:var(--color-primary)]"
-              : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+            className={`px-3 py-2 text-xs font-bold tracking-widest transition-colors ${isStartsWith("/algorithm")
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             ALGORITHMS
-            {isStartsWith("/algorithm") && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
           </Link>
 
           <Link
             href="/about"
-            className={`relative px-3 py-2 text-sm font-bold tracking-widest transition-colors ${isActive("/about")
-              ? "text-[color:var(--color-primary)]"
-              : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+            className={`px-3 py-2 text-xs font-bold tracking-widest transition-colors ${isActive("/about")
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             ABOUT
-            {isActive("/about") && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--color-primary)]"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
           </Link>
-
         </nav>
 
         <div className="flex items-center gap-3">

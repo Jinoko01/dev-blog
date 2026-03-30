@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,8 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OKOJIN | Portfolio",
-  description: "개발자의 기록과 아카이브",
+  title: "OKOJIN의 블로그",
+  description: "프론트엔드 개발자의 아카이브 채널",
 };
 
 export default function RootLayout({
@@ -35,10 +36,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <main className="flex-1 w-full flex flex-col items-center">
-            {children}
-          </main>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1 w-full flex flex-col items-center">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>
