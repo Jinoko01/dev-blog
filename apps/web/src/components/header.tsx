@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
-import { Terminal } from "lucide-react";
+import { Github } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -68,7 +68,7 @@ export function Header() {
             className="p-2 rounded-lg text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)] transition-colors"
             aria-label="GitHub"
           >
-            <Terminal className="w-5 h-5" />
+            <Github className="w-5 h-5" />
           </motion.a>
           <ThemeToggle />
         </div>

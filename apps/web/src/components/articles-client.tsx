@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Hash, Clock, Eye, Heart, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Hash, Eye, Heart, X, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useDebounce } from "@/hooks/use-debounce";
 import Image from "next/image";
@@ -113,7 +113,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
+    <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 space-y-16">
       {/* Header Section */}
       <div className="text-center space-y-4">
         <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-foreground leading-none">
@@ -157,7 +157,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
               <button
                 onClick={() => handleTagSelect(null)}
-                className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
                   selectedTag === null
                     ? "bg-primary text-white border-primary"
                     : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
@@ -169,7 +169,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                 <button
                   key={tag}
                   onClick={() => handleTagSelect(tag === selectedTag ? null : tag)}
-                  className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border truncate ${
+                  className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border truncate cursor-pointer ${
                     selectedTag === tag
                       ? "bg-primary text-white border-primary"
                       : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
@@ -187,7 +187,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
         <div className="flex-1 space-y-8 w-full min-h-[300px]">
           {/* List Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pb-6 border-b border-border">
-            <div className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+            <div className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
               SHOWING {articles.length > 0 ? (page - 1) * ITEMS_PER_PAGE + 1 : 0} - {Math.min(page * ITEMS_PER_PAGE, totalCount)} OF {totalCount} ARTICLES
             </div>
             
@@ -196,7 +196,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                 <button
                   key={option}
                   onClick={() => handleSortSelect(option)}
-                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
                     sortOption === option
                       ? "bg-primary text-white"
                       : "text-muted-foreground hover:text-foreground"
@@ -221,9 +221,9 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
             <div className="flex flex-col gap-8 w-full">
               {articles.map((article, index) => (
                 <Link href={`/posts/${article.slug}`} key={article.id} className="group relative block animate-fade-in-up" style={{ animationDelay: `${(index % 10) * 0.05}s`, animationFillMode: "both" }}>
-                  <article className="flex flex-col md:flex-row gap-6 md:gap-8 w-full border-b border-border/50 pb-8 group-last:border-0 group-last:pb-0">
+                  <article className="flex flex-col md:flex-row gap-4 md:gap-6 w-full border-b border-border/50 pb-6 group-last:border-0 group-last:pb-0">
                     {/* Thumbnail */}
-                    <div className="w-full md:w-80 lg:w-[400px] aspect-video relative overflow-hidden bg-muted shrink-0 border border-border/50">
+                    <div className="w-full md:w-60 lg:w-[180px] aspect-video relative overflow-hidden bg-muted shrink-0 border border-border/50">
                       {article.thumbnail_url ? (
                           <Image
                             src={article.thumbnail_url}
@@ -238,18 +238,18 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                     
                     {/* Content */}
                     <div className="flex-1 flex flex-col pt-1 py-2">
-                      <div className="flex justify-between items-start mb-4">
+                      <div className="flex justify-between items-start mb-0.5">
                         <div className="flex items-center gap-3">
                           <span className="px-3 py-1 bg-primary text-white text-[10px] font-bold uppercase tracking-widest">
                             {article.tags[0] || "ARTICLE"}
                           </span>
-                          <span className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            <Clock className="w-3.5 h-3.5" />
+                          <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                            <Calendar className="w-3.5 h-3.5" />
                             {new Date(article.created_at).toLocaleDateString("en-US", { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-')}
                           </span>
                         </div>
                         
-                        <div className="flex gap-4 text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                        <div className="flex gap-4 text-xs font-bold tracking-widest text-muted-foreground uppercase">
                           <span className="flex items-center gap-1.5">
                             <Eye className="w-3.5 h-3.5" /> {article.views}
                           </span>
@@ -259,11 +259,11 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                         </div>
                       </div>
 
-                      <h4 className="font-black text-2xl lg:text-3xl text-foreground line-clamp-2 leading-tight mb-4 group-hover:text-primary transition-colors">
+                      <h4 className="font-black text-xl lg:text-2xl text-foreground line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors">
                         <HighlightText text={article.title} highlight={debouncedQuery} />
                       </h4>
                       
-                      <p className="text-sm lg:text-base text-muted-foreground line-clamp-3 leading-relaxed mb-8 pr-4 lg:pr-12">
+                      <p className="text-xs lg:text-sm text-muted-foreground line-clamp-3 leading-relaxed mb-3 pr-4 lg:pr-12">
                         <HighlightText text={article.description || ""} highlight={debouncedQuery} />
                       </p>
 

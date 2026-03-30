@@ -11,7 +11,7 @@ export function Footer() {
           {/* Logo & Description */}
           <div className="space-y-6">
             <h3 className="text-xl font-black tracking-widest text-foreground uppercase">
-              OKOJIN
+              OKOJIN.LOG
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               개발에 대한 열정과 배움을 공유하는 공간입니다. 새로운 기술과 경험을 기록하고 나눕니다.
@@ -64,7 +64,7 @@ export function Footer() {
 
         <div className="pt-12 mt-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            © {new Date().getFullYear()} SYS.LOG — BUILT WITH REACT & TYPESCRIPT
+            © {new Date().getFullYear()} OKOJIN.LOG — BUILT WITH REACT & TYPESCRIPT
           </p>
         </div>
       </div>
