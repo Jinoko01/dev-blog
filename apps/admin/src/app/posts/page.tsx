@@ -86,9 +86,12 @@ export default function PostsPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 transition">
+                      <Link
+                        href={`/posts/${post.id}/edit`}
+                        className="p-2 text-gray-400 hover:text-blue-600 transition"
+                      >
                         <Edit size={16} />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => deletePost(post.id)}
                         className="p-2 text-gray-400 hover:text-red-600 transition"

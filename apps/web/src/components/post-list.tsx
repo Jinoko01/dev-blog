@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
+import Image from "next/image";
 import type { PostMetadata } from "@/lib/mdx";
 import { Eye, Heart } from "lucide-react";
 
@@ -57,8 +58,17 @@ export function PostList({
             />
             {variant === "figma" ? (
               <>
-                <div className="aspect-video overflow-hidden bg-muted">
-                  <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10 transition-transform group-hover:scale-105" />
+                <div className="aspect-video relative overflow-hidden bg-muted">
+                  {(post as any).thumbnail_url ? (
+                    <Image
+                      src={(post as any).thumbnail_url}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10 transition-transform group-hover:scale-105" />
+                  )}
                 </div>
                 <div className="p-5 space-y-4">
                   <div className="flex flex-wrap gap-2 relative z-20">

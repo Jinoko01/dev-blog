@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function NewPostPage() {
+export default function EditPostPage() {
   const router = useRouter();
+  const params = useParams();
+  const postId = params.id as string;
+
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -18,9 +22,56 @@ export default function NewPostPage() {
     published: false,
   });
 
+  useEffect(() => {
+    if (!postId) return;
+
+    async function loadPost() {
+      // Fetch Post
+      const { data: post, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('id', postId)
+        .single();
+
+      if (error || !post) {
+        alert('Failed to load post: ' + (error?.message || 'Not found'));
+        router.push('/posts');
+        return;
+      }
+
+      // Fetch Tags
+      const { data: tagsData } = await supabase
+        .from('post_tags')
+        .select(`
+          tags ( name )
+        `)
+        .eq('post_id', postId);
+
+      let tagsString = '';
+      if (tagsData) {
+        // Handle post_tags returning array containing tags object
+        const tagNames = tagsData.map((pt: any) => pt.tags?.name).filter(Boolean);
+        tagsString = tagNames.join(', ');
+      }
+
+      setFormData({
+        title: post.title,
+        slug: post.slug,
+        description: post.description || '',
+        content: post.content || '',
+        thumbnail_url: post.thumbnail_url || '',
+        tags: tagsString,
+        published: post.published || false,
+      });
+
+      setFetching(false);
+    }
+
+    loadPost();
+  }, [postId, router]);
+
   const uploadImageToSupabase = async (file: File): Promise<string> => {
     try {
-      // 1. Get signed Upload URL token from our secure API
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +83,6 @@ export default function NewPostPage() {
         throw new Error(apiError || 'Failed to get upload token');
       }
 
-      // 2. Upload file directly to Supabase storage using the signed token
       const { error: uploadError } = await supabase.storage
         .from('blog-images')
         .uploadToSignedUrl(path, token, file);
@@ -41,7 +91,6 @@ export default function NewPostPage() {
         throw new Error('Supabase Storage Error: ' + uploadError.message);
       }
 
-      // 3. Retrieve the fully qualified public URL
       const { data: { publicUrl } } = supabase.storage
         .from('blog-images')
         .getPublicUrl(path);
@@ -60,29 +109,24 @@ export default function NewPostPage() {
 
     for (const file of imageFiles) {
       const cursorPosition = textarea.selectionStart;
-      
       const placeholder = `![Uploading ${file.name}...]()\n`;
       
-      // Inject placeholder safely using the functional state update
       setFormData(prev => {
         const textBefore = prev.content.substring(0, cursorPosition);
         const textAfter = prev.content.substring(cursorPosition);
         return { ...prev, content: textBefore + placeholder + textAfter };
       });
 
-      // Execute Secure Upload
       setUploadingImage(true);
       const publicUrl = await uploadImageToSupabase(file);
       setUploadingImage(false);
 
       if (publicUrl) {
-        // Replace exact placeholder with the finalized markdown image
         setFormData(prev => ({
           ...prev,
           content: prev.content.replace(placeholder, `![${file.name}](${publicUrl})\n`)
         }));
       } else {
-        // Fallback: Remove placeholder if upload crashed
         setFormData(prev => ({
           ...prev,
           content: prev.content.replace(placeholder, '')
@@ -97,16 +141,17 @@ export default function NewPostPage() {
 
     const tagsArray = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
 
-    const { data: post, error } = await supabase.from('posts').insert([
-      {
+    const { error } = await supabase
+      .from('posts')
+      .update({
         title: formData.title,
         slug: formData.slug,
         description: formData.description,
         content: formData.content,
         thumbnail_url: formData.thumbnail_url,
         published: formData.published,
-      },
-    ]).select().single();
+      })
+      .eq('id', postId);
 
     if (error) {
       alert('Error saving post: ' + error.message);
@@ -114,23 +159,23 @@ export default function NewPostPage() {
       return;
     }
 
+    // Replace old tags completely by deleting and recreating the mappings
+    await supabase.from('post_tags').delete().eq('post_id', postId);
+
     if (tagsArray.length > 0) {
-      // Ensure tags exist in the tags table
       await supabase.from('tags').upsert(
         tagsArray.map((name) => ({ name })),
         { onConflict: 'name', ignoreDuplicates: true }
       );
 
-      // Fetch the IDs of these tags
       const { data: dbTags } = await supabase
         .from('tags')
         .select('id')
         .in('name', tagsArray);
 
-      // Insert relationships
       if (dbTags && dbTags.length > 0) {
         await supabase.from('post_tags').insert(
-          dbTags.map((t) => ({ post_id: post.id, tag_id: t.id }))
+          dbTags.map((t) => ({ post_id: postId, tag_id: t.id }))
         );
       }
     }
@@ -139,9 +184,17 @@ export default function NewPostPage() {
     router.push('/posts');
   }
 
+  if (fetching) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 pt-10 text-center text-gray-500">
+        Loading post data...
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Create New Post</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
       
       <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6">
         <div className="space-y-2">
@@ -255,7 +308,7 @@ export default function NewPostPage() {
             className="w-4 h-4 text-blue-600 rounded"
           />
           <label htmlFor="published" className="text-sm font-medium">
-            Publish immediately
+            Publish status
           </label>
         </div>
 
@@ -265,7 +318,7 @@ export default function NewPostPage() {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Saving...' : 'Save Post'}
+            {loading ? 'Saving Changes...' : 'Save Changes'}
           </button>
         </div>
       </form>
