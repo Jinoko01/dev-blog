@@ -61,17 +61,17 @@ export default async function PostPage(props: {
               ))}
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display leading-[1.1] mb-6 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display leading-[1.1] mb-6 tracking-tight">
             {meta.title}
           </h1>
-          <p className="text-xl text-foreground/70 leading-relaxed max-w-2xl">
+          <p className="text-lg sm:text-xl text-foreground/70 leading-relaxed max-w-2xl">
             {meta.description}
           </p>
           <PostMetrics slug={slug} />
         </header>
 
         {/* Prose Content */}
-        <div className="prose prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none stagger-delay-2">
+        <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none stagger-delay-2">
           <MDXRemote
             source={content}
             components={{ pre: Pre }}

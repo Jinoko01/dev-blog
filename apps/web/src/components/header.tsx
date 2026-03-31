@@ -65,7 +65,7 @@ export function Header() {
             rel="noopener noreferrer"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.96 }}
-            className="p-2 rounded-lg text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)] transition-colors"
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
             aria-label="GitHub"
           >
             <Github className="w-5 h-5" />

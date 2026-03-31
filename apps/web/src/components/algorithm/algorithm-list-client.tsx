@@ -73,10 +73,10 @@ export function AlgorithmListClient({
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 text-center"
       >
-        <h1 className="text-4xl md:text-5xl font-black tracking-widest text-[color:var(--color-foreground)] mb-4 uppercase">
+        <h1 className="text-4xl md:text-5xl font-black tracking-widest text-foreground mb-4 uppercase">
           ALGORITHM ARCHIVE
         </h1>
-        <p className="text-[color:var(--color-muted-foreground)] font-medium">
+        <p className="text-muted-foreground font-medium">
           {posts.length} problems solved
         </p>
       </motion.div>
@@ -88,13 +88,13 @@ export function AlgorithmListClient({
         className="mb-6"
       >
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[color:var(--color-muted-foreground)]" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search by title, tags, difficulty..."
-            className="w-full pl-12 pr-4 py-4 bg-[color:var(--color-card)] rounded-xl border border-[color:var(--color-border)] focus:outline-none focus:border-[color:var(--color-primary)] focus:ring-1 focus:ring-[color:var(--color-primary)] text-[color:var(--color-foreground)] shadow-sm transition-all"
+            className="w-full pl-12 pr-4 py-4 bg-color-card rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-[color:var(--color-primary)] text-foreground shadow-sm transition-all"
           />
         </div>
       </motion.div>
@@ -104,11 +104,11 @@ export function AlgorithmListClient({
       </div>
 
       <div className="bg-[color:var(--color-card)] border border-[color:var(--color-border)] shadow-sm rounded-xl overflow-hidden mb-8">
-        <div className="grid grid-cols-[3rem_1fr_auto_8rem] gap-4 px-6 py-4 border-b border-[color:var(--color-border)] bg-secondary/30 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
+        <div className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_1fr_auto_8rem] gap-2 sm:gap-4 px-4 sm:px-6 py-4 border-b border-[color:var(--color-border)] bg-secondary/30 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
           <div className="text-center">#</div>
           <div>TITLE</div>
           <div className="hidden sm:block">TAGS</div>
-          <div className="text-right">DIFFICULTY</div>
+          <div className="text-right">DIFF</div>
         </div>
         <div className="divide-y divide-[color:var(--color-border)]/60">
           {paginatedPosts.map((post, index) => {
@@ -123,7 +123,7 @@ export function AlgorithmListClient({
               >
                 <Link
                   href={`/algorithm/${post.slug}`}
-                  className="grid grid-cols-[3rem_1fr_auto_8rem] gap-4 px-6 py-4 items-center hover:bg-secondary/40 transition-colors group"
+                  className="grid grid-cols-[2.5rem_1fr_auto] sm:grid-cols-[3rem_1fr_auto_8rem] gap-2 sm:gap-4 px-4 sm:px-6 py-4 items-center hover:bg-secondary/40 transition-colors group"
                 >
                   <div className="text-center text-sm text-[color:var(--color-muted-foreground)] font-mono">
                     {globalIndex}
