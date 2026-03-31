@@ -33,7 +33,7 @@ export function AlgorithmDescriptionModal({
         onClick={() => setOpen((v) => !v)}
         whileHover={{ y: -2, scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
-        className="fixed bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
+        className="fixed bottom-18 sm:bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
         aria-haspopup="dialog"
         aria-controls={dialogId}
         aria-expanded={open}
