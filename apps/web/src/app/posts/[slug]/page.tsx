@@ -40,9 +40,9 @@ export default async function PostPage(props: {
   const content = post.content;
 
   return (
-    <div className="min-h-screen relative z-10">
+    <div className="w-full min-w-0 overflow-x-hidden min-h-screen relative z-10">
 
-      <article className="w-full max-w-3xl mx-auto py-12 px-6 pb-32 overflow-hidden sm:overflow-visible">
+      <article className="w-full max-w-3xl mx-auto py-12 px-6 pb-32">
         <header className="mb-16 stagger-delay-1">
           <div className="flex items-center gap-4 text-foreground/60 mb-6 font-medium tracking-wide text-sm">
             <time dateTime={meta.date}>
