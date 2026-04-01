@@ -26,12 +26,12 @@ export function BottomNav() {
       href: "/algorithm",
       isActive: pathname?.startsWith("/algorithm"),
     },
-    {
-      label: "ABOUT",
-      icon: User,
-      href: "/about",
-      isActive: pathname === "/about",
-    },
+    // {
+    //   label: "ABOUT",
+    //   icon: User,
+    //   href: "/about",
+    //   isActive: pathname === "/about",
+    // },
   ];
 
   return (

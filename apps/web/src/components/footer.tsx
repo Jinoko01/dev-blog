@@ -30,9 +30,9 @@ export function Footer() {
               <Link href="/algorithm" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
                 ALGORITHMS
               </Link>
-              <Link href="/about" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
+              {/* <Link href="/about" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
                 ABOUT
-              </Link>
+              </Link> */}
             </nav>
           </div>
 

@@ -47,7 +47,7 @@ export function Header() {
             ALGORITHMS
           </Link>
 
-          <Link
+          {/* <Link
             href="/about"
             className={`px-3 py-2 text-xs font-bold tracking-widest transition-colors ${isActive("/about")
               ? "text-primary"
@@ -55,7 +55,7 @@ export function Header() {
               }`}
           >
             ABOUT
-          </Link>
+          </Link> */}
         </nav>
 
         <div className="flex items-center gap-3">
