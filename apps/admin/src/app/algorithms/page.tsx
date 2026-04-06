@@ -58,7 +58,9 @@ export default function AlgorithmsPage() {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-6 py-4 font-medium text-gray-600">Title</th>
-                <th className="px-6 py-4 font-medium text-gray-600">Language</th>
+                <th className="px-6 py-4 font-medium text-gray-600">Platform</th>
+                <th className="px-6 py-4 font-medium text-gray-600">Difficulty</th>
+                <th className="px-6 py-4 font-medium text-gray-600">Lang</th>
                 <th className="px-6 py-4 font-medium text-gray-600">Date</th>
                 <th className="px-6 py-4 font-medium text-gray-600">Status</th>
                 <th className="px-6 py-4 font-medium text-gray-600 text-right">Actions</th>
@@ -68,6 +70,8 @@ export default function AlgorithmsPage() {
               {algos.map((algo) => (
                 <tr key={algo.id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 font-medium">{algo.title}</td>
+                  <td className="px-6 py-4 text-gray-500">{algo.platform || '-'}</td>
+                  <td className="px-6 py-4 text-gray-500">{algo.difficulty || '-'}</td>
                   <td className="px-6 py-4 text-gray-500">{algo.language}</td>
                   <td className="px-6 py-4 text-gray-500 text-xs">
                     {new Date(algo.created_at).toLocaleDateString()}
@@ -86,9 +90,9 @@ export default function AlgorithmsPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 transition">
+                      <Link href={`/algorithms/${algo.id}/edit`} className="p-2 text-gray-400 hover:text-blue-600 transition">
                         <Edit size={16} />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => deleteAlgo(algo.id)}
                         className="p-2 text-gray-400 hover:text-red-600 transition"

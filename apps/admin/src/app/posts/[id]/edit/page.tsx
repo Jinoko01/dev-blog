@@ -211,10 +211,10 @@ export default function EditPostPage() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Slug</label>
           <input
-            required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
+            readOnly
+            disabled
+            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none bg-gray-50 focus:ring-0 transition"
             value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
             placeholder="nextjs-14-guide"
           />
         </div>

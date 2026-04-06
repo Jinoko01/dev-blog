@@ -10,7 +10,6 @@ export default function NewPostPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
     description: '',
     content: '',
     thumbnail_url: '',
@@ -97,10 +96,15 @@ export default function NewPostPage() {
 
     const tagsArray = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
 
+    const generatedSlug = Array.from({ length: 16 }, () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }).join('');
+
     const { data: post, error } = await supabase.from('posts').insert([
       {
         title: formData.title,
-        slug: formData.slug,
+        slug: generatedSlug,
         description: formData.description,
         content: formData.content,
         thumbnail_url: formData.thumbnail_url,
@@ -152,17 +156,6 @@ export default function NewPostPage() {
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Next.js 14 App Router Guide"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Slug</label>
-          <input
-            required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            placeholder="nextjs-14-guide"
           />
         </div>
 
