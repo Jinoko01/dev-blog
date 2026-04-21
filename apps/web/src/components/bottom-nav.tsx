@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, Terminal, User } from "lucide-react";
+import { Home, FileText, Terminal } from "lucide-react";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -49,8 +49,12 @@ export function BottomNav() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Icon className={`w-5 h-5 ${item.isActive ? "stroke-[2.5px]" : "stroke-2"}`} />
-                <span className="text-[10px] font-bold tracking-widest">{item.label}</span>
+                <Icon
+                  className={`w-5 h-5 ${item.isActive ? "stroke-[2.5px]" : "stroke-2"}`}
+                />
+                <span className="text-[10px] font-bold tracking-widest">
+                  {item.label}
+                </span>
               </Link>
             </li>
           );

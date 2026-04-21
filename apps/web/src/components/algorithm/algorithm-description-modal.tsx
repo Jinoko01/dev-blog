@@ -17,9 +17,13 @@ export function AlgorithmDescriptionModal({
   const constraintsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -39,7 +43,9 @@ export function AlgorithmDescriptionModal({
         aria-expanded={open}
       >
         <FileText className="w-5 h-5 text-[color:var(--color-primary)]" />
-        <span className="text-xs font-bold tracking-widest uppercase">{open ? "CLOSE" : "INFO"}</span>
+        <span className="text-xs font-bold tracking-widest uppercase">
+          {open ? "CLOSE" : "INFO"}
+        </span>
       </motion.button>
 
       {/* 드래그 제약 영역 (viewport 기준 전체) */}
@@ -94,9 +100,7 @@ export function AlgorithmDescriptionModal({
               </div>
 
               {/* 스크롤 가능한 본문 */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {children}
-              </div>
+              <div className="flex-1 overflow-y-auto p-6">{children}</div>
             </motion.div>
           )}
         </AnimatePresence>

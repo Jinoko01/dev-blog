@@ -55,70 +55,81 @@ export function PostList({
               href={`/posts/${post.slug}`}
               aria-label={`Read ${post.title}`}
             >
-            {variant === "figma" ? (
-              <>
-                <div className="aspect-video relative overflow-hidden bg-muted">
-                  {(post as any).thumbnail_url ? (
-                    <Image
-                      src={(post as any).thumbnail_url}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10 transition-transform group-hover:scale-105" />
-                  )}
-                </div>
-                <div className="p-5 space-y-4">
-                  <div className="flex flex-wrap gap-2 relative z-20">
-                    {post.tags.map((tag, i) => (
+              {variant === "figma" ? (
+                <>
+                  <div className="aspect-video relative overflow-hidden bg-muted">
+                    {(post as any).thumbnail_url ? (
+                      <Image
+                        src={(post as any).thumbnail_url}
+                        alt={post.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 dark:via-black/10 transition-transform group-hover:scale-105" />
+                    )}
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div className="flex flex-wrap gap-2 relative z-20">
+                      {post.tags.map((tag, i) => (
+                        <span
+                          key={tag}
+                          className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm ${
+                            i === 0
+                              ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]"
+                              : "bg-secondary/60 text-secondary-foreground"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <h4 className="font-bold text-xl text-card-foreground line-clamp-2 leading-tight">
+                      {post.title}
+                    </h4>
+                    <div className="flex items-center justify-between text-xs font-medium text-[color:var(--color-muted-foreground)] pt-4 mt-2 border-t border-[color:var(--color-border)]/50">
+                      <span className="tracking-wide text-[color:var(--color-foreground)]">
+                        {new Date(post.date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      <span className="flex gap-3 font-bold tracking-widest text-[10px] uppercase">
+                        <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]">
+                          <Eye className="w-3 h-3" /> {(post as any).views || 0}
+                        </span>
+                        <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]">
+                          <Heart className="w-3 h-3" />{" "}
+                          {(post as any).likes || 0}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-xs uppercase tracking-widest text-brand-500 font-semibold mb-4">
+                    {new Date(post.date).toLocaleDateString("ko-KR")}
+                  </div>
+                  <h4 className="text-2xl font-bold font-display mb-4 group-hover:text-brand-500 transition-colors leading-snug">
+                    {post.title}
+                  </h4>
+                  <p className="text-foreground/70 line-clamp-3 leading-relaxed mb-8">
+                    {post.description}
+                  </p>
+                  <div className="mt-auto flex flex-wrap gap-2 relative z-20">
+                    {post.tags.map((tag) => (
                       <span
                         key={tag}
-                        className={`px-2 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm ${
-                          i === 0 
-                            ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]" 
-                            : "bg-secondary/60 text-secondary-foreground"
-                        }`}
+                        className="text-xs px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10 text-foreground/80 border border-black/5 dark:border-white/5"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <h4 className="font-bold text-xl text-card-foreground line-clamp-2 leading-tight">
-                    {post.title}
-                  </h4>
-                  <div className="flex items-center justify-between text-xs font-medium text-[color:var(--color-muted-foreground)] pt-4 mt-2 border-t border-[color:var(--color-border)]/50">
-                    <span className="tracking-wide text-[color:var(--color-foreground)]">{new Date(post.date).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                    <span className="flex gap-3 font-bold tracking-widest text-[10px] uppercase">
-                      <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]"><Eye className="w-3 h-3" /> {(post as any).views || 0}</span>
-                      <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]"><Heart className="w-3 h-3" /> {(post as any).likes || 0}</span>
-                    </span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="text-xs uppercase tracking-widest text-brand-500 font-semibold mb-4">
-                  {new Date(post.date).toLocaleDateString("ko-KR")}
-                </div>
-                <h4 className="text-2xl font-bold font-display mb-4 group-hover:text-brand-500 transition-colors leading-snug">
-                  {post.title}
-                </h4>
-                <p className="text-foreground/70 line-clamp-3 leading-relaxed mb-8">
-                  {post.description}
-                </p>
-                <div className="mt-auto flex flex-wrap gap-2 relative z-20">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10 text-foreground/80 border border-black/5 dark:border-white/5"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </>
-            )}
+                </>
+              )}
             </Link>
           </article>
         ))}

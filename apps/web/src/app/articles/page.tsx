@@ -14,7 +14,9 @@ export default async function ArticlesPage() {
     .select("name")
     .order("name");
 
-  const initialTags = tagsData ? Array.from(new Set(tagsData.map(t => t.name))) : [];
+  const initialTags = tagsData
+    ? Array.from(new Set(tagsData.map((t) => t.name)))
+    : [];
 
   return <ArticlesClient initialTags={initialTags} />;
 }

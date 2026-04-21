@@ -23,11 +23,16 @@ export function AlgorithmCodePanel({
 
   const lineCount = useMemo(() => {
     const normalized = code.replace(/\r\n/g, "\n").replace(/\s+$/, "");
-    if (!normalized) return 1;
+    if (!normalized) {
+      return 1;
+    }
     return normalized.split("\n").length;
   }, [code]);
 
-  const lineNumbers = useMemo(() => buildLineNumbers(Math.max(1, lineCount)), [lineCount]);
+  const lineNumbers = useMemo(
+    () => buildLineNumbers(Math.max(1, lineCount)),
+    [lineCount],
+  );
 
   const handleCopy = async () => {
     try {
@@ -62,12 +67,16 @@ export function AlgorithmCodePanel({
           {copied ? (
             <>
               <Check className="w-4 h-4 text-green-500" />
-              <span className="text-xs font-bold tracking-widest uppercase text-green-500">COPIED!</span>
+              <span className="text-xs font-bold tracking-widest uppercase text-green-500">
+                COPIED!
+              </span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span className="text-xs font-bold tracking-widest uppercase">COPY</span>
+              <span className="text-xs font-bold tracking-widest uppercase">
+                COPY
+              </span>
             </>
           )}
         </motion.button>
@@ -109,4 +118,3 @@ export function AlgorithmCodePanel({
     </div>
   );
 }
-

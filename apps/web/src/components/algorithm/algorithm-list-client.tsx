@@ -4,16 +4,28 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { PostMetadata } from "@/lib/mdx";
 import { motion } from "framer-motion";
-import { Calendar, ChevronLeft, ChevronRight, Search, Tag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
 function getDifficultyColor(difficulty: string) {
   const v = difficulty.toLowerCase();
-  if (v.includes("플레") || v.includes("d5") || v.includes("lv4") || v.includes("hard")) {
+  if (
+    v.includes("플레") ||
+    v.includes("d5") ||
+    v.includes("lv4") ||
+    v.includes("hard")
+  ) {
     return "bg-red-100/60 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800";
   }
-  if (v.includes("골드") || v.includes("d3") || v.includes("d4") || v.includes("lv2") || v.includes("lv3") || v.includes("medium")) {
+  if (
+    v.includes("골드") ||
+    v.includes("d3") ||
+    v.includes("d4") ||
+    v.includes("lv2") ||
+    v.includes("lv3") ||
+    v.includes("medium")
+  ) {
     return "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)] dark:bg-[color:var(--color-primary)]/20 dark:border-[color:var(--color-primary)]/30 border border-[color:var(--color-primary)]/20";
   }
   return "bg-green-100/60 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800";
@@ -33,7 +45,9 @@ export function AlgorithmListClient({
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPosts = useMemo(() => {
-    if (!searchQuery) return posts;
+    if (!searchQuery) {
+      return posts;
+    }
     const q = searchQuery.toLowerCase();
     return posts.filter((post) => {
       const diff = post.difficulty || "Unrated";
@@ -47,7 +61,10 @@ export function AlgorithmListClient({
     });
   }, [posts, searchQuery]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredPosts.length / ITEMS_PER_PAGE),
+  );
   const page = Math.min(currentPage, totalPages);
 
   const paginatedPosts = useMemo(() => {
@@ -107,9 +124,10 @@ export function AlgorithmListClient({
         </div>
         <div className="divide-y divide-[color:var(--color-border)]/60">
           {paginatedPosts.map((post, index) => {
-            const difficulty = post.difficulty || 'Unrated';
-            const platform = post.platform || '-';
-            const globalIndex = filteredPosts.length - ((page - 1) * ITEMS_PER_PAGE + index);
+            const difficulty = post.difficulty || "Unrated";
+            const platform = post.platform || "-";
+            const globalIndex =
+              filteredPosts.length - ((page - 1) * ITEMS_PER_PAGE + index);
             return (
               <motion.div
                 key={post.slug}
@@ -124,7 +142,7 @@ export function AlgorithmListClient({
                   <div className="text-center text-sm text-[color:var(--color-muted-foreground)] font-mono">
                     {globalIndex}
                   </div>
-                  
+
                   <div className="min-w-0 pr-4">
                     <h3 className="text-base font-bold text-[color:var(--color-card-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors truncate">
                       {post.title}
@@ -223,4 +241,3 @@ export function AlgorithmListClient({
     </div>
   );
 }
-

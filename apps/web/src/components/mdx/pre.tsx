@@ -21,7 +21,11 @@ export function Pre({
 
   return (
     <div className="relative group/code my-6 w-full max-w-full">
-      <pre ref={preRef} {...props} className={`${props.className || ""} m-0! overflow-x-auto rounded-lg w-full`}>
+      <pre
+        ref={preRef}
+        {...props}
+        className={`${props.className || ""} m-0! overflow-x-auto rounded-lg w-full`}
+      >
         {children}
       </pre>
       <button

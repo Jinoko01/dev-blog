@@ -11,19 +11,33 @@ import { Pre } from "@/components/mdx/pre";
 
 function getDifficultyColor(difficulty: string) {
   const v = difficulty.toLowerCase();
-  if (v.includes("플레") || v.includes("d5") || v.includes("lv4") || v.includes("hard")) {
+  if (
+    v.includes("플레") ||
+    v.includes("d5") ||
+    v.includes("lv4") ||
+    v.includes("hard")
+  ) {
     return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
   }
-  if (v.includes("골드") || v.includes("d3") || v.includes("d4") || v.includes("lv2") || v.includes("lv3") || v.includes("medium")) {
+  if (
+    v.includes("골드") ||
+    v.includes("d3") ||
+    v.includes("d4") ||
+    v.includes("lv2") ||
+    v.includes("lv3") ||
+    v.includes("medium")
+  ) {
     return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
   }
   return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
 }
 
 async function highlightCode(code: string, language: string) {
-  if (!code) return { htmlLight: "", htmlDark: "" };
+  if (!code) {
+    return { htmlLight: "", htmlDark: "" };
+  }
   const lang = (language || "txt").toLowerCase();
-  
+
   try {
     const [htmlLight, htmlDark] = await Promise.all([
       codeToHtml(code, { lang: lang, theme: "github-light" }),
@@ -61,8 +75,8 @@ export default async function AlgorithmDetailPage(props: {
     algo.language || "txt",
   );
 
-  const difficulty = algo.difficulty || 'Unrated';
-  const platform = algo.platform || 'Platform';
+  const difficulty = algo.difficulty || "Unrated";
+  const platform = algo.platform || "Platform";
 
   return (
     <div className="w-full h-[calc(100vh-4rem)] flex flex-col bg-[color:var(--color-background-solid)]">
@@ -90,7 +104,11 @@ export default async function AlgorithmDetailPage(props: {
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="flex items-center gap-1.5 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
               <Calendar className="w-3.5 h-3.5" />
-              {new Date(algo.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
+              {new Date(algo.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </span>
             <span
               className={`px-2 py-0.5 rounded-sm font-bold text-[10px] uppercase tracking-widest ${getDifficultyColor(difficulty)}`}

@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 export function Header() {
   const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
+  // const isActive = (path: string) => pathname === path;
   const isStartsWith = (path: string) => pathname?.startsWith(path);
 
   return (
@@ -29,20 +29,22 @@ export function Header() {
         <nav className="hidden sm:flex items-center gap-6">
           <Link
             href="/articles"
-            className={`px-3 py-2 font-bold text-xs tracking-widest transition-colors ${isStartsWith("/articles")
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-3 py-2 font-bold text-xs tracking-widest transition-colors ${
+              isStartsWith("/articles")
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             ARTICLES
           </Link>
 
           <Link
             href="/algorithm"
-            className={`px-3 py-2 text-xs font-bold tracking-widest transition-colors ${isStartsWith("/algorithm")
-              ? "text-primary"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={`px-3 py-2 text-xs font-bold tracking-widest transition-colors ${
+              isStartsWith("/algorithm")
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             ALGORITHMS
           </Link>

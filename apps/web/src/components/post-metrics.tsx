@@ -18,7 +18,7 @@ export function PostMetrics({ slug }: { slug: string }) {
         .single();
 
       let currentViews = data ? data.views : 0;
-      let currentLikes = data ? data.likes : 0;
+      const currentLikes = data ? data.likes : 0;
 
       if (!data) {
         await supabase
@@ -26,11 +26,13 @@ export function PostMetrics({ slug }: { slug: string }) {
           .insert({ slug, views: 0, likes: 0 });
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const viewKey = `viewed_${slug}_${today}`;
 
       if (!localStorage.getItem(viewKey)) {
-        const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
+        const { error } = await supabase.rpc("increment_view_count", {
+          post_slug: slug,
+        });
         if (!error) {
           currentViews += 1;
           localStorage.setItem(viewKey, "true");
@@ -57,13 +59,17 @@ export function PostMetrics({ slug }: { slug: string }) {
   }, [slug]);
 
   const handleLike = async () => {
-    if (isLiked) return;
+    if (isLiked) {
+      return;
+    }
 
     setIsLiked(true);
     localStorage.setItem(`liked_${slug}`, "true");
     setLikes((prev) => prev + 1);
 
-    const { error } = await supabase.rpc("increment_like_count", { post_slug: slug });
+    const { error } = await supabase.rpc("increment_like_count", {
+      post_slug: slug,
+    });
     if (error) {
       // Fallback
       const { data } = await supabase
