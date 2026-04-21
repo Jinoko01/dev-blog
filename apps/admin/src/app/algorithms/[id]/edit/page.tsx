@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function EditAlgorithmPage() {
   const router = useRouter();
@@ -12,40 +12,42 @@ export default function EditAlgorithmPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [formData, setFormData] = useState({
-    title: '',
-    platform: '백준',
-    difficulty: '',
-    language: 'typescript',
-    description: '',
-    code: '',
-    tags: '',
+    title: "",
+    platform: "백준",
+    difficulty: "",
+    language: "typescript",
+    description: "",
+    code: "",
+    tags: "",
     published: false,
   });
 
   useEffect(() => {
-    if (!algoId) return;
+    if (!algoId) {
+      return;
+    }
 
     async function loadAlgorithm() {
       const { data: algo, error } = await supabase
-        .from('algorithms')
-        .select('*')
-        .eq('id', algoId)
+        .from("algorithms")
+        .select("*")
+        .eq("id", algoId)
         .single();
 
       if (error || !algo) {
-        alert('Failed to load algorithm: ' + (error?.message || 'Not found'));
-        router.push('/algorithms');
+        alert("Failed to load algorithm: " + (error?.message || "Not found"));
+        router.push("/algorithms");
         return;
       }
 
       setFormData({
         title: algo.title,
-        platform: algo.platform || '백준',
-        difficulty: algo.difficulty || '',
-        language: algo.language || 'typescript',
-        description: algo.description || '',
-        code: algo.code || '',
-        tags: (algo.tags || []).join(', '),
+        platform: algo.platform || "백준",
+        difficulty: algo.difficulty || "",
+        language: algo.language || "typescript",
+        description: algo.description || "",
+        code: algo.code || "",
+        tags: (algo.tags || []).join(", "),
         published: algo.published || false,
       });
 
@@ -59,10 +61,13 @@ export default function EditAlgorithmPage() {
     e.preventDefault();
     setLoading(true);
 
-    const tagsArray = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
+    const tagsArray = formData.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const { error } = await supabase
-      .from('algorithms')
+      .from("algorithms")
       .update({
         title: formData.title,
         platform: formData.platform,
@@ -73,14 +78,14 @@ export default function EditAlgorithmPage() {
         tags: tagsArray,
         published: formData.published,
       })
-      .eq('id', algoId);
+      .eq("id", algoId);
 
     setLoading(false);
 
     if (error) {
-      alert('Error updating algorithm: ' + error.message);
+      alert("Error updating algorithm: " + error.message);
     } else {
-      router.push('/algorithms');
+      router.push("/algorithms");
     }
   }
 
@@ -94,16 +99,23 @@ export default function EditAlgorithmPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Edit Algorithm Archive</h1>
-      
-      <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">
+        Edit Algorithm Archive
+      </h1>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6"
+      >
         <div className="space-y-2">
           <label className="text-sm font-medium">Title (Problem Name)</label>
           <input
             required
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
             placeholder="Two Sum (LeetCode 1)"
           />
         </div>
@@ -114,7 +126,9 @@ export default function EditAlgorithmPage() {
             <select
               className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
               value={formData.platform}
-              onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, platform: e.target.value })
+              }
             >
               <option value="백준">백준</option>
               <option value="SWEA">SWEA</option>
@@ -128,7 +142,9 @@ export default function EditAlgorithmPage() {
               required
               className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
               value={formData.difficulty}
-              onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, difficulty: e.target.value })
+              }
               placeholder="e.g., 골드1, D3, LV2"
             />
           </div>
@@ -139,7 +155,9 @@ export default function EditAlgorithmPage() {
           <select
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
             value={formData.language}
-            onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, language: e.target.value })
+            }
           >
             <option value="typescript">TypeScript</option>
             <option value="javascript">JavaScript</option>
@@ -152,11 +170,15 @@ export default function EditAlgorithmPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Approach / Description (Markdown allowed)</label>
+          <label className="text-sm font-medium">
+            Approach / Description (Markdown allowed)
+          </label>
           <textarea
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition h-32"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             placeholder="How to solve this problem..."
           />
         </div>
@@ -187,7 +209,9 @@ export default function EditAlgorithmPage() {
             type="checkbox"
             id="published"
             checked={formData.published}
-            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+            onChange={(e) =>
+              setFormData({ ...formData, published: e.target.checked })
+            }
             className="w-4 h-4 text-blue-600 rounded"
           />
           <label htmlFor="published" className="text-sm font-medium">
@@ -201,7 +225,7 @@ export default function EditAlgorithmPage() {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Saving Changes...' : 'Save Changes'}
+            {loading ? "Saving Changes..." : "Save Changes"}
           </button>
         </div>
       </form>

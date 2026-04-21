@@ -15,19 +15,25 @@ export default function AdminDashboard() {
           <h3 className="text-sm font-medium text-[color:var(--color-muted-foreground)] mb-1">
             Total Views
           </h3>
-          <p className="text-3xl font-bold text-[color:var(--color-primary)]">12,408</p>
+          <p className="text-3xl font-bold text-[color:var(--color-primary)]">
+            12,408
+          </p>
         </div>
         <div className="bg-[color:var(--color-card)] p-6 rounded-xl border border-[color:var(--color-border)] shadow-sm">
           <h3 className="text-sm font-medium text-[color:var(--color-muted-foreground)] mb-1">
             Total Posts
           </h3>
-          <p className="text-3xl font-bold text-[color:var(--color-card-foreground)]">42</p>
+          <p className="text-3xl font-bold text-[color:var(--color-card-foreground)]">
+            42
+          </p>
         </div>
         <div className="bg-[color:var(--color-card)] p-6 rounded-xl border border-[color:var(--color-border)] shadow-sm">
           <h3 className="text-sm font-medium text-[color:var(--color-muted-foreground)] mb-1">
             Total Likes
           </h3>
-          <p className="text-3xl font-bold text-[color:var(--color-card-foreground)]">890</p>
+          <p className="text-3xl font-bold text-[color:var(--color-card-foreground)]">
+            890
+          </p>
         </div>
       </div>
 

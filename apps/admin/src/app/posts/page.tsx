@@ -1,22 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { Plus, Edit, Trash2 } from "lucide-react";
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState<Record<string, any>[]>([]);
+  const [posts, setPosts] = useState<Array<Record<string, any>>>([]);
   const [loading, setLoading] = useState(true);
 
   async function fetchPosts() {
     setLoading(true);
     const { data } = await supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data) setPosts(data);
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      setPosts(data);
+    }
     setLoading(false);
   }
 
@@ -25,13 +27,15 @@ export default function PostsPage() {
   }, []);
 
   async function togglePublish(id: string, current: boolean) {
-    await supabase.from('posts').update({ published: !current }).eq('id', id);
+    await supabase.from("posts").update({ published: !current }).eq("id", id);
     fetchPosts();
   }
 
   async function deletePost(id: string) {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    await supabase.from('posts').delete().eq('id', id);
+    if (!confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+    await supabase.from("posts").delete().eq("id", id);
     fetchPosts();
   }
 
@@ -61,7 +65,9 @@ export default function PostsPage() {
                 <th className="px-6 py-4 font-medium text-gray-600">Slug</th>
                 <th className="px-6 py-4 font-medium text-gray-600">Date</th>
                 <th className="px-6 py-4 font-medium text-gray-600">Status</th>
-                <th className="px-6 py-4 font-medium text-gray-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-gray-600 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -77,11 +83,11 @@ export default function PostsPage() {
                       onClick={() => togglePublish(post.id, post.published)}
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         post.published
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                       }`}
                     >
-                      {post.published ? 'Published' : 'Draft'}
+                      {post.published ? "Published" : "Draft"}
                     </button>
                   </td>
                   <td className="px-6 py-4 text-right">
