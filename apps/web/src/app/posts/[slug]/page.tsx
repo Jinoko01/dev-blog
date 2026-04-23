@@ -2,7 +2,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import { notFound } from "next/navigation";
-import { PostMetrics } from "@/components/post-metrics";
+import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
 import { supabase } from "@/lib/supabase";
@@ -99,6 +99,11 @@ export default async function PostPage(props: {
               {meta.description}
             </p>
           )}
+          <div
+            className={`mt-5 ${post.thumbnail_url ? "text-white/70" : "text-foreground/50"}`}
+          >
+            <PostMetricsDisplay slug={slug} />
+          </div>
         </div>
       </header>
 
@@ -106,9 +111,6 @@ export default async function PostPage(props: {
         <div className="hidden xl:block" />
 
         <article className="w-full min-w-0">
-          <div className="flex justify-center mb-16 stagger-delay-1">
-            <PostMetrics slug={slug} />
-          </div>
 
           {/* Prose Content */}
           <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none stagger-delay-2">
@@ -128,7 +130,7 @@ export default async function PostPage(props: {
 
           {/* Giscus Comments */}
           <div className="mt-20">
-            <GiscusComments />
+            <GiscusComments slug={slug} />
           </div>
         </article>
 

@@ -2,13 +2,17 @@
 
 import Giscus from "@giscus/react";
 import { useTheme } from "next-themes";
+import { PostLikeButton } from "@/components/post-metrics";
 
-export function GiscusComments() {
+export function GiscusComments({ slug }: { slug: string }) {
   const { resolvedTheme } = useTheme();
 
   return (
     <div className="mt-20 pt-12 border-t border-black/5 dark:border-white/10 stagger-delay-3 rounded">
-      <h3 className="text-2xl font-bold font-display mb-8">Comments</h3>
+      <div className="flex items-center gap-3 mb-8">
+        <h3 className="text-2xl font-bold font-display">Comments</h3>
+        <PostLikeButton slug={slug} />
+      </div>
       <Giscus
         id="Comment"
         repo="Jinoko01/dev-blog"

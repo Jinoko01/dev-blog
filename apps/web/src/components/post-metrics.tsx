@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Heart, Eye } from "lucide-react";
 
-export function PostMetrics({ slug }: { slug: string }) {
+/** views 표시 + view 카운트 증가 + likes 읽기 */
+function usePostMetrics(slug: string) {
   const [views, setViews] = useState(0);
   const [likes, setLikes] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const initMetrics = async () => {
@@ -49,19 +49,36 @@ export function PostMetrics({ slug }: { slug: string }) {
 
       setViews(currentViews);
       setLikes(currentLikes);
-
-      if (localStorage.getItem(`liked_${slug}`)) {
-        setIsLiked(true);
-      }
     };
 
     initMetrics();
   }, [slug]);
 
+  return { views, likes };
+}
+
+/** likes 읽기 + like 버튼 액션 전용 (view 증가 없음) */
+function useLikeMetrics(slug: string) {
+  const [likes, setLikes] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      const { data } = await supabase
+        .from("post_metrics")
+        .select("likes")
+        .eq("slug", slug)
+        .single();
+
+      if (data) setLikes(data.likes);
+      if (localStorage.getItem(`liked_${slug}`)) setIsLiked(true);
+    };
+
+    fetchLikes();
+  }, [slug]);
+
   const handleLike = async () => {
-    if (isLiked) {
-      return;
-    }
+    if (isLiked) return;
 
     setIsLiked(true);
     localStorage.setItem(`liked_${slug}`, "true");
@@ -86,23 +103,46 @@ export function PostMetrics({ slug }: { slug: string }) {
     }
   };
 
+  return { likes, isLiked, handleLike };
+}
+
+/** header description 아래에 views/likes 수치를 텍스트로 표시하는 컴포넌트 */
+export function PostMetricsDisplay({ slug }: { slug: string }) {
+  const { views, likes } = usePostMetrics(slug);
+
   return (
-    <div className="flex items-center gap-6 py-6 border-y border-black/5 dark:border-white/10 my-12 bg-white/30 dark:bg-black/20 backdrop-blur-md rounded-2xl px-6 w-fit shadow-sm">
-      <div className="flex items-center gap-2 text-foreground/70">
-        <Eye className="w-5 h-5 text-brand-500" />
-        <span className="font-semibold text-lg">{views}</span>{" "}
-        <span className="text-sm">views</span>
-      </div>
-      <div className="w-px h-6 bg-black/10 dark:bg-white/10" />
-      <button
-        onClick={handleLike}
-        disabled={isLiked}
-        className={`flex items-center gap-2 transition-all cursor-pointer ${isLiked ? "text-pink-500 scale-105" : "text-foreground/70 hover:text-pink-400 hover:scale-105 active:scale-95"}`}
-      >
-        <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-        <span className="font-semibold text-lg">{likes}</span>{" "}
-        <span className="text-sm">likes</span>
-      </button>
+    <div className="flex items-center justify-center gap-4 text-sm mt-4">
+      <span className="flex items-center gap-1.5 opacity-80">
+        <Eye className="w-4 h-4" />
+        <span className="font-medium">{views}</span>
+        <span className="opacity-70">views</span>
+      </span>
+      <span className="opacity-30">·</span>
+      <span className="flex items-center gap-1.5 opacity-80">
+        <Heart className="w-4 h-4" />
+        <span className="font-medium">{likes}</span>
+        <span className="opacity-70">likes</span>
+      </span>
     </div>
+  );
+}
+
+/** Comments 제목 우측에 표시할 like 버튼 컴포넌트 */
+export function PostLikeButton({ slug }: { slug: string }) {
+  const { likes, isLiked, handleLike } = useLikeMetrics(slug);
+
+  return (
+    <button
+      onClick={handleLike}
+      disabled={isLiked}
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
+        isLiked
+          ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
+          : "text-foreground/50 border-black/10 dark:border-white/10 hover:text-pink-400 hover:border-pink-300 dark:hover:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20"
+      }`}
+    >
+      <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+      <span>{likes}</span>
+    </button>
   );
 }
