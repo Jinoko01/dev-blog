@@ -30,19 +30,12 @@ function usePostMetrics(slug: string) {
       const viewKey = `viewed_${slug}_${today}`;
       const likedKey = `liked_${slug}`;
 
-<<<<<<< HEAD
       // [js-cache-storage] Read localStorage once per key and reuse the cached value
       const hasViewed = localStorage.getItem(viewKey);
       const hasLiked = localStorage.getItem(likedKey);
 
       if (!hasViewed) {
         const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
-=======
-      if (!localStorage.getItem(viewKey)) {
-        const { error } = await supabase.rpc("increment_view_count", {
-          post_slug: slug,
-        });
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
         if (!error) {
           currentViews += 1;
           localStorage.setItem(viewKey, "true");
@@ -59,14 +52,11 @@ function usePostMetrics(slug: string) {
 
       setViews(currentViews);
       setLikes(currentLikes);
-<<<<<<< HEAD
 
       // [js-cache-storage] Reuse cached hasLiked value instead of a second localStorage read
-      if (hasLiked) {
-        setIsLiked(true);
-      }
-=======
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
+      // if (hasLiked) {
+      //   setIsLiked(true);
+      // }
     };
 
     initMetrics();
@@ -153,11 +143,10 @@ export function PostLikeButton({ slug }: { slug: string }) {
     <button
       onClick={handleLike}
       disabled={isLiked}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
-        isLiked
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${isLiked
           ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
           : "text-foreground/50 border-black/10 dark:border-white/10 hover:text-pink-400 hover:border-pink-300 dark:hover:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20"
-      }`}
+        }`}
     >
       <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
       <span>{likes}</span>

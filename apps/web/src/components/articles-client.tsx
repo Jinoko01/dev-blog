@@ -133,44 +133,6 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-<<<<<<< HEAD
-=======
-  // Highlighter component
-  const HighlightText = ({
-    text,
-    highlight,
-  }: {
-    text: string;
-    highlight: string;
-  }) => {
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const safeHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`(${safeHighlight})`, "gi");
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <mark
-              key={i}
-              className="bg-primary/20 text-primary font-bold rounded-sm px-0.5"
-              style={{ display: "inline" }}
-            >
-              {part}
-            </mark>
-          ) : (
-            <span key={i} style={{ display: "inline" }}>
-              {part}
-            </span>
-          ),
-        )}
-      </span>
-    );
-  };
-
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
   return (
     <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 space-y-16">
       {/* Header Section */}
@@ -216,11 +178,10 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
               <button
                 onClick={() => handleTagSelect(null)}
-                className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
-                  selectedTag === null
+                className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${selectedTag === null
                     ? "bg-primary text-white border-primary"
                     : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
-                }`}
+                  }`}
               >
                 ALL
               </button>
@@ -230,11 +191,10 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                   onClick={() =>
                     handleTagSelect(tag === selectedTag ? null : tag)
                   }
-                  className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border truncate cursor-pointer ${
-                    selectedTag === tag
+                  className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border truncate cursor-pointer ${selectedTag === tag
                       ? "bg-primary text-white border-primary"
                       : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
-                  }`}
+                    }`}
                   title={tag}
                 >
                   {tag}
@@ -260,11 +220,10 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                 <button
                   key={option}
                   onClick={() => handleSortSelect(option)}
-                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
-                    sortOption === option
+                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${sortOption === option
                       ? "bg-primary text-white"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {option}
                 </button>
@@ -301,11 +260,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                     {/* Thumbnail */}
                     {/* [rendering-conditional-render] Use ternary instead of && to avoid accidental 0/false rendering */}
                     <div className="w-full md:w-60 lg:w-[180px] aspect-video relative overflow-hidden bg-muted shrink-0 border border-border/50">
-<<<<<<< HEAD
-                      {article.thumbnail_url !== null ? (
-=======
                       {article.thumbnail_url ? (
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
                         <Image
                           src={article.thumbnail_url}
                           alt={article.title}
@@ -415,11 +370,10 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`w-8 h-8 border text-[10px] font-bold transition-all ${
-                          page === p
+                        className={`w-8 h-8 border text-[10px] font-bold transition-all ${page === p
                             ? "bg-primary text-white border-primary"
                             : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
-                        }`}
+                          }`}
                       >
                         {p}
                       </button>

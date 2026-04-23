@@ -10,6 +10,12 @@ import { supabase } from "@/lib/supabase";
 
 type SortType = "latest" | "popular";
 
+type PostWithMetrics = PostMetadata & {
+  views?: number;
+  likes?: number;
+  thumbnail_url?: string | null;
+};
+
 // const visitorStats = [
 //   { date: "2026-03-13", visitors: 54 },
 //   { date: "2026-03-14", visitors: 62 },
@@ -20,7 +26,6 @@ type SortType = "latest" | "popular";
 //   { date: "2026-03-19", visitors: 92 },
 // ];
 
-<<<<<<< HEAD
 // [rendering-hoist-jsx] Static gradient defs hoisted outside the component tree
 // so they are not recreated on every re-render.
 const SPARKLINE_DEFS = (
@@ -37,30 +42,23 @@ function Sparkline({ values }: { values: number[] }) {
   const width = 240;
   const height = 72;
   const pad = 6;
-=======
-// function Sparkline({ values }: { values: number[] }) {
-//   const width = 240;
-//   const height = 72;
-//   const pad = 6;
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
 
-//   const min = Math.min(...values);
-//   const max = Math.max(...values);
-//   const range = Math.max(1, max - min);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(1, max - min);
 
-//   const pts = values.map((v, i) => {
-//     const x = pad + (i * (width - pad * 2)) / Math.max(1, values.length - 1);
-//     const y = pad + (height - pad * 2) * (1 - (v - min) / range);
-//     return { x, y };
-//   });
+  const pts = values.map((v, i) => {
+    const x = pad + (i * (width - pad * 2)) / Math.max(1, values.length - 1);
+    const y = pad + (height - pad * 2) * (1 - (v - min) / range);
+    return { x, y };
+  });
 
-//   const d = pts
-//     .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
-//     .join(" ");
+  const d = pts
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+    .join(" ");
 
-//   const area = `${d} L ${width - pad} ${height - pad} L ${pad} ${height - pad} Z`;
+  const area = `${d} L ${width - pad} ${height - pad} L ${pad} ${height - pad} Z`;
 
-<<<<<<< HEAD
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
@@ -85,47 +83,12 @@ function Sparkline({ values }: { values: number[] }) {
     </svg>
   );
 }
-=======
-//   return (
-//     <svg
-//       viewBox={`0 0 ${width} ${height}`}
-//       className="w-full h-[72px]"
-//       role="img"
-//       aria-label="방문자 추이"
-//     >
-//       <path d={area} fill="url(#sparkFill)" opacity={0.9} />
-//       <path
-//         d={d}
-//         fill="none"
-//         stroke="var(--color-primary)"
-//         strokeWidth={2.5}
-//         strokeLinecap="round"
-//         strokeLinejoin="round"
-//       />
-//       <defs>
-//         <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
-//           <stop
-//             offset="0%"
-//             stopColor="var(--color-primary)"
-//             stopOpacity="0.35"
-//           />
-//           <stop
-//             offset="100%"
-//             stopColor="var(--color-primary)"
-//             stopOpacity="0.05"
-//           />
-//         </linearGradient>
-//       </defs>
-//     </svg>
-//   );
-// }
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
 
 export function HomeClient({
   posts,
   topics = [],
 }: {
-  posts: PostMetadata[];
+  posts: PostWithMetrics[];
   topics?: string[];
 }) {
   const [sortType, setSortType] = useState<SortType>("latest");
@@ -133,7 +96,7 @@ export function HomeClient({
 
   // [js-tosorted-immutable] Use toSorted() for a cleaner immutable sort — avoids manual spread+sort
   const sortedPosts = useMemo(() =>
-    posts.toSorted((a: any, b: any) => {
+    posts.toSorted((a, b) => {
       if (sortType === "popular") {
         const scoreA = (a.views || 0) + (a.likes || 0) * 2;
         const scoreB = (b.views || 0) + (b.likes || 0) * 2;
@@ -147,10 +110,9 @@ export function HomeClient({
     [posts, sortType]
   );
 
-<<<<<<< HEAD
   const popularPosts = useMemo(() =>
     posts
-      .toSorted((a: any, b: any) => {
+      .toSorted((a, b) => {
         const scoreA = (a.views || 0) + (a.likes || 0) * 2;
         const scoreB = (b.views || 0) + (b.likes || 0) * 2;
         if (scoreA !== scoreB) return scoreB - scoreA;
@@ -159,20 +121,6 @@ export function HomeClient({
       .slice(0, 5),
     [posts]
   );
-=======
-  const popularPosts = useMemo(() => {
-    const copy = [...posts];
-    copy.sort((a: any, b: any) => {
-      const scoreA = (a.views || 0) + (a.likes || 0) * 2;
-      const scoreB = (b.views || 0) + (b.likes || 0) * 2;
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    return copy.slice(0, 5);
-  }, [posts]);
->>>>>>> a4671c79199526efb32aeb9fa5438b8853ff2d44
 
   useEffect(() => {
     const trackVisitor = async () => {
@@ -247,21 +195,19 @@ export function HomeClient({
             <div className="flex gap-4">
               <button
                 onClick={() => setSortType("latest")}
-                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
-                  sortType === "latest"
-                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
-                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
-                }`}
+                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${sortType === "latest"
+                  ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
+                  : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+                  }`}
               >
                 LATEST
               </button>
               <button
                 onClick={() => setSortType("popular")}
-                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
-                  sortType === "popular"
-                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
-                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
-                }`}
+                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${sortType === "popular"
+                  ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
+                  : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
+                  }`}
               >
                 POPULAR
               </button>
@@ -327,11 +273,11 @@ export function HomeClient({
                         <div className="flex items-center gap-2 mt-1.5 text-[10px] font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
                           <span className="flex items-center gap-1">
                             <Eye className="w-3 h-3" />
-                            {(post as any).views || 0}
+                            {post.views || 0}
                           </span>
                           <span className="flex items-center gap-1">
                             <Heart className="w-3 h-3" />
-                            {(post as any).likes || 0}
+                            {post.likes || 0}
                           </span>
                         </div>
                       </div>

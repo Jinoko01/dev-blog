@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
@@ -9,6 +11,32 @@ import { supabase } from "@/lib/supabase";
 import { TableOfContents } from "@/components/toc";
 
 export const revalidate = 60;
+
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await props.params;
+  const { data: post } = await supabase
+    .from("posts")
+    .select("title, description, thumbnail_url")
+    .eq("slug", slug)
+    .single();
+
+  if (!post) return { title: "Not Found" };
+
+  return {
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      ...(post.thumbnail_url && {
+        images: [{ url: post.thumbnail_url, width: 1200, height: 630 }],
+      }),
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const { data } = await supabase
@@ -34,8 +62,9 @@ export default async function PostPage(props: {
     notFound();
   }
 
-  const postTags =
-    post.post_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+  const postTags = (
+    post.post_tags as Array<{ tags: { name: string } | null }> ?? []
+  ).map((pt) => pt.tags?.name).filter((n): n is string => Boolean(n));
 
   const meta = {
     title: post.title,
@@ -50,9 +79,12 @@ export default async function PostPage(props: {
       <header className="relative w-full stagger-delay-1 overflow-hidden border-b border-black/5 dark:border-white/5">
         {post.thumbnail_url && (
           <>
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
-              style={{ backgroundImage: `url(${post.thumbnail_url})` }}
+            <Image
+              src={post.thumbnail_url}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-1000 hover:scale-105"
+              priority
             />
             <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
           </>

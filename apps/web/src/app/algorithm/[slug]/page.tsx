@@ -53,7 +53,7 @@ async function highlightCode(code: string, language: string) {
   }
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function AlgorithmDetailPage(props: {
   params: Promise<{ slug: string }>;
