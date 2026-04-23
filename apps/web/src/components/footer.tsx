@@ -14,7 +14,8 @@ export function Footer() {
               OKOJIN.LOG
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              개발에 대한 열정과 배움을 공유하는 공간입니다. 새로운 기술과 경험을 기록하고 나눕니다.
+              개발에 대한 열정과 배움을 공유하는 공간입니다. 새로운 기술과
+              경험을 기록하고 나눕니다.
             </p>
           </div>
 
@@ -24,15 +25,21 @@ export function Footer() {
               NAVIGATION
             </h4>
             <nav className="flex flex-col gap-3">
-              <Link href="/articles" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
+              <Link
+                href="/articles"
+                className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest"
+              >
                 ARTICLES
               </Link>
-              <Link href="/algorithm" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
+              <Link
+                href="/algorithm"
+                className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest"
+              >
                 ALGORITHMS
               </Link>
-              <Link href="/about" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
+              {/* <Link href="/about" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
                 ABOUT
-              </Link>
+              </Link> */}
             </nav>
           </div>
 
@@ -64,7 +71,8 @@ export function Footer() {
 
         <div className="pt-12 mt-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            © {new Date().getFullYear()} OKOJIN.LOG — BUILT WITH REACT & TYPESCRIPT
+            © {new Date().getFullYear()} OKOJIN.LOG — BUILT WITH REACT &
+            TYPESCRIPT
           </p>
         </div>
       </div>

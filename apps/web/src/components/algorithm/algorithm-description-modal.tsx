@@ -17,9 +17,13 @@ export function AlgorithmDescriptionModal({
   const constraintsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -33,13 +37,15 @@ export function AlgorithmDescriptionModal({
         onClick={() => setOpen((v) => !v)}
         whileHover={{ y: -2, scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
-        className="fixed bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
+        className="fixed bottom-18 sm:bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
         aria-haspopup="dialog"
         aria-controls={dialogId}
         aria-expanded={open}
       >
         <FileText className="w-5 h-5 text-[color:var(--color-primary)]" />
-        <span className="text-xs font-bold tracking-widest uppercase">{open ? "CLOSE" : "INFO"}</span>
+        <span className="text-xs font-bold tracking-widest uppercase">
+          {open ? "CLOSE" : "INFO"}
+        </span>
       </motion.button>
 
       {/* 드래그 제약 영역 (viewport 기준 전체) */}
@@ -94,9 +100,7 @@ export function AlgorithmDescriptionModal({
               </div>
 
               {/* 스크롤 가능한 본문 */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {children}
-              </div>
+              <div className="flex-1 overflow-y-auto p-6">{children}</div>
             </motion.div>
           )}
         </AnimatePresence>

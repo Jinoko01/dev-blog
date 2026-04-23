@@ -12,7 +12,9 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <div className="w-9 h-9" />;
+  if (!mounted) {
+    return <div className="w-9 h-9" />;
+  }
 
   return (
     <button

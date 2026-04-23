@@ -20,7 +20,8 @@ export default async function Home() {
 
   // Map Supabase columns to expected properties
   const formattedPosts = (posts || []).map((post) => {
-    const postTags = post.post_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+    const postTags =
+      post.post_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
     postTags.forEach((tag: string) => uniqueTopics.add(tag));
 
     const postObj = {
@@ -39,5 +40,10 @@ export default async function Home() {
     };
   });
 
-  return <HomeClient posts={formattedPosts as any} topics={Array.from(uniqueTopics)} />;
+  return (
+    <HomeClient
+      posts={formattedPosts as any}
+      topics={Array.from(uniqueTopics)}
+    />
+  );
 }

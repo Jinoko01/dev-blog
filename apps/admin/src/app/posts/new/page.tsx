@@ -1,70 +1,76 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function NewPostPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    content: '',
-    thumbnail_url: '',
-    tags: '',
+    title: "",
+    description: "",
+    content: "",
+    thumbnail_url: "",
+    tags: "",
     published: false,
   });
 
   const uploadImageToSupabase = async (file: File): Promise<string> => {
     try {
       // 1. Get signed Upload URL token from our secure API
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename: file.name, contentType: file.type })
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
-      
+
       const { token, path, error: apiError } = await res.json();
       if (apiError || !token || !path) {
-        throw new Error(apiError || 'Failed to get upload token');
+        throw new Error(apiError || "Failed to get upload token");
       }
 
       // 2. Upload file directly to Supabase storage using the signed token
       const { error: uploadError } = await supabase.storage
-        .from('blog-images')
+        .from("blog-images")
         .uploadToSignedUrl(path, token, file);
 
       if (uploadError) {
-        throw new Error('Supabase Storage Error: ' + uploadError.message);
+        throw new Error("Supabase Storage Error: " + uploadError.message);
       }
 
       // 3. Retrieve the fully qualified public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(path);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("blog-images").getPublicUrl(path);
 
       return publicUrl;
     } catch (err: unknown) {
       console.error(err);
-      alert('Upload failed: ' + (err instanceof Error ? err.message : String(err)));
-      return '';
+      alert(
+        "Upload failed: " + (err instanceof Error ? err.message : String(err)),
+      );
+      return "";
     }
   };
 
-  const processMarkdownFiles = async (files: File[], textarea: HTMLTextAreaElement) => {
-    const imageFiles = files.filter(f => f.type.startsWith('image/'));
-    if (imageFiles.length === 0) return;
+  const processMarkdownFiles = async (
+    files: File[],
+    textarea: HTMLTextAreaElement,
+  ) => {
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    if (imageFiles.length === 0) {
+      return;
+    }
 
     for (const file of imageFiles) {
       const cursorPosition = textarea.selectionStart;
-      
+
       const placeholder = `![Uploading ${file.name}...]()\n`;
-      
+
       // Inject placeholder safely using the functional state update
-      setFormData(prev => {
+      setFormData((prev) => {
         const textBefore = prev.content.substring(0, cursorPosition);
         const textAfter = prev.content.substring(cursorPosition);
         return { ...prev, content: textBefore + placeholder + textAfter };
@@ -77,15 +83,18 @@ export default function NewPostPage() {
 
       if (publicUrl) {
         // Replace exact placeholder with the finalized markdown image
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          content: prev.content.replace(placeholder, `![${file.name}](${publicUrl})\n`)
+          content: prev.content.replace(
+            placeholder,
+            `![${file.name}](${publicUrl})\n`,
+          ),
         }));
       } else {
         // Fallback: Remove placeholder if upload crashed
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          content: prev.content.replace(placeholder, '')
+          content: prev.content.replace(placeholder, ""),
         }));
       }
     }
@@ -95,74 +104,81 @@ export default function NewPostPage() {
     e.preventDefault();
     setLoading(true);
 
-    const tagsArray = formData.tags.split(',').map((t) => t.trim()).filter(Boolean);
+    const tagsArray = formData.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    const { data: post, error } = await supabase.from('posts').insert([
-      {
-        title: formData.title,
-        slug: formData.slug,
-        description: formData.description,
-        content: formData.content,
-        thumbnail_url: formData.thumbnail_url,
-        published: formData.published,
-      },
-    ]).select().single();
+    const generatedSlug = Array.from({ length: 16 }, () => {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }).join("");
+
+    const { data: post, error } = await supabase
+      .from("posts")
+      .insert([
+        {
+          title: formData.title,
+          slug: generatedSlug,
+          description: formData.description,
+          content: formData.content,
+          thumbnail_url: formData.thumbnail_url,
+          published: formData.published,
+        },
+      ])
+      .select()
+      .single();
 
     if (error) {
-      alert('Error saving post: ' + error.message);
+      alert("Error saving post: " + error.message);
       setLoading(false);
       return;
     }
 
     if (tagsArray.length > 0) {
       // Ensure tags exist in the tags table
-      await supabase.from('tags').upsert(
+      await supabase.from("tags").upsert(
         tagsArray.map((name) => ({ name })),
-        { onConflict: 'name', ignoreDuplicates: true }
+        { onConflict: "name", ignoreDuplicates: true },
       );
 
       // Fetch the IDs of these tags
       const { data: dbTags } = await supabase
-        .from('tags')
-        .select('id')
-        .in('name', tagsArray);
+        .from("tags")
+        .select("id")
+        .in("name", tagsArray);
 
       // Insert relationships
       if (dbTags && dbTags.length > 0) {
-        await supabase.from('post_tags').insert(
-          dbTags.map((t) => ({ post_id: post.id, tag_id: t.id }))
-        );
+        await supabase
+          .from("post_tags")
+          .insert(dbTags.map((t) => ({ post_id: post.id, tag_id: t.id })));
       }
     }
 
     setLoading(false);
-    router.push('/posts');
+    router.push("/posts");
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">Create New Post</h1>
-      
-      <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6">
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6"
+      >
         <div className="space-y-2">
           <label className="text-sm font-medium">Title</label>
           <input
             required
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
             placeholder="Next.js 14 App Router Guide"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Slug</label>
-          <input
-            required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            placeholder="nextjs-14-guide"
           />
         </div>
 
@@ -171,7 +187,9 @@ export default function NewPostPage() {
           <textarea
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition h-20"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             placeholder="Brief summary of the post..."
           />
         </div>
@@ -180,7 +198,11 @@ export default function NewPostPage() {
           <label className="text-sm font-medium">Thumbnail Image</label>
           <div className="flex flex-col gap-3">
             {formData.thumbnail_url && (
-              <img src={formData.thumbnail_url} alt="Thumbnail preview" className="w-32 h-auto object-cover rounded-md border border-gray-200" />
+              <img
+                src={formData.thumbnail_url}
+                alt="Thumbnail preview"
+                className="w-32 h-auto object-cover rounded-md border border-gray-200"
+              />
             )}
             <div className="flex gap-4 items-center">
               <input
@@ -193,18 +215,31 @@ export default function NewPostPage() {
                   if (file) {
                     setUploadingImage(true);
                     const publicUrl = await uploadImageToSupabase(file);
-                    if (publicUrl) setFormData(prev => ({ ...prev, thumbnail_url: publicUrl }));
+                    if (publicUrl) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        thumbnail_url: publicUrl,
+                      }));
+                    }
                     setUploadingImage(false);
                   }
                 }}
               />
-              {uploadingImage && <span className="text-sm text-blue-600 animate-pulse font-medium whitespace-nowrap">Uploading...</span>}
+              {uploadingImage && (
+                <span className="text-sm text-blue-600 animate-pulse font-medium whitespace-nowrap">
+                  Uploading...
+                </span>
+              )}
             </div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Or provide a URL:</p>
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+              Or provide a URL:
+            </p>
             <input
               className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
               value={formData.thumbnail_url}
-              onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, thumbnail_url: e.target.value })
+              }
               placeholder="https://example.com/image.png"
             />
           </div>
@@ -223,13 +258,17 @@ export default function NewPostPage() {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <label className="text-sm font-medium">Markdown Content</label>
-            <span className="text-xs text-gray-500 font-medium">Drop/Paste images directly inside</span>
+            <span className="text-xs text-gray-500 font-medium">
+              Drop/Paste images directly inside
+            </span>
           </div>
           <textarea
             required
             className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition h-96 font-mono text-sm"
             value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
+            }
             onDrop={async (e) => {
               e.preventDefault();
               const files = Array.from(e.dataTransfer.files);
@@ -237,7 +276,10 @@ export default function NewPostPage() {
             }}
             onPaste={async (e) => {
               const files = Array.from(e.clipboardData.files);
-              if (files.length > 0 && files.some(f => f.type.startsWith('image/'))) {
+              if (
+                files.length > 0 &&
+                files.some((f) => f.type.startsWith("image/"))
+              ) {
                 e.preventDefault();
                 await processMarkdownFiles(files, e.currentTarget);
               }
@@ -251,7 +293,9 @@ export default function NewPostPage() {
             type="checkbox"
             id="published"
             checked={formData.published}
-            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+            onChange={(e) =>
+              setFormData({ ...formData, published: e.target.checked })
+            }
             className="w-4 h-4 text-blue-600 rounded"
           />
           <label htmlFor="published" className="text-sm font-medium">
@@ -265,7 +309,7 @@ export default function NewPostPage() {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Saving...' : 'Save Post'}
+            {loading ? "Saving..." : "Save Post"}
           </button>
         </div>
       </form>

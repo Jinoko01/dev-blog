@@ -2,3 +2,16 @@
 > web@0.1.0 lint C:\project\dev-blog\apps\web
 > eslint
 
+
+C:\project\dev-blog\apps\web\src\app\posts\[slug]\page.tsx
+  52:19  error  Delete `·`                                                                                                                                                                                                                                                                                                                                                                                                                             prettier/prettier
+  60:15  error  Replace `·className={`relative·z-10·px-6·py-16·sm:px-12·sm:py-20·flex·flex-col·items-center·text-center·${post.thumbnail_url·?·'text-white'·:·''}`}` with `⏎············className={`relative·z-10·px-6·py-16·sm:px-12·sm:py-20·flex·flex-col·items-center·text-center·${post.thumbnail_url·?·"text-white"·:·""}`}⏎··········`                                                                                                          prettier/prettier
+  61:17  error  Replace `·className={`flex·items-center·justify-center·gap-3·sm:gap-4·mb-6·font-medium·tracking-wide·text-sm·${post.thumbnail_url·?·'text-white/80'·:·'text-foreground/60'}`}` with `⏎··············className={`flex·items-center·justify-center·gap-3·sm:gap-4·mb-6·font-medium·tracking-wide·text-sm·${post.thumbnail_url·?·"text-white/80"·:·"text-foreground/60"}`}⏎············`                                                  prettier/prettier
+  72:24  error  Replace `·key={tag}·className={post.thumbnail_url·?·"text-brand-300·font-semibold·drop-shadow-sm"·:·"text-brand-500·font-semibold"}` with `⏎····················key={tag}⏎····················className={⏎······················post.thumbnail_url⏎························?·"text-brand-300·font-semibold·drop-shadow-sm"⏎························:·"text-brand-500·font-semibold"⏎····················}⏎··················`          prettier/prettier
+  78:16  error  Replace `·className={`text-3xl·sm:text-4xl·md:text-5xl·lg:text-5xl·font-bold·font-display·leading-[1.2]·mb-6·tracking-tight·drop-shadow-md·${post.thumbnail_url·?·'text-white'·:·'text-foreground'}`}` with `⏎··············className={`text-3xl·sm:text-4xl·md:text-5xl·lg:text-5xl·font-bold·font-display·leading-[1.2]·mb-6·tracking-tight·drop-shadow-md·${post.thumbnail_url·?·"text-white"·:·"text-foreground"}`}⏎············`  prettier/prettier
+  82:17  error  Replace `·className={`text-lg·sm:text-xl·leading-relaxed·max-w-2xl·drop-shadow-sm·${post.thumbnail_url·?·'text-white/90'·:·'text-foreground/70'}`}` with `⏎················className={`text-lg·sm:text-xl·leading-relaxed·max-w-2xl·drop-shadow-sm·${post.thumbnail_url·?·"text-white/90"·:·"text-foreground/70"}`}⏎··············`                                                                                                    prettier/prettier
+
+✖ 6 problems (6 errors, 0 warnings)
+  6 errors and 0 warnings potentially fixable with the `--fix` option.
+
+ ELIFECYCLE  Command failed with exit code 1.

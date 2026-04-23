@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-export default function NewAlgorithmPage() {
+export default function EditAlgorithmPage() {
   const router = useRouter();
+  const params = useParams();
+  const algoId = params.id as string;
+
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     platform: "백준",
@@ -18,6 +22,41 @@ export default function NewAlgorithmPage() {
     published: false,
   });
 
+  useEffect(() => {
+    if (!algoId) {
+      return;
+    }
+
+    async function loadAlgorithm() {
+      const { data: algo, error } = await supabase
+        .from("algorithms")
+        .select("*")
+        .eq("id", algoId)
+        .single();
+
+      if (error || !algo) {
+        alert("Failed to load algorithm: " + (error?.message || "Not found"));
+        router.push("/algorithms");
+        return;
+      }
+
+      setFormData({
+        title: algo.title,
+        platform: algo.platform || "백준",
+        difficulty: algo.difficulty || "",
+        language: algo.language || "typescript",
+        description: algo.description || "",
+        code: algo.code || "",
+        tags: (algo.tags || []).join(", "),
+        published: algo.published || false,
+      });
+
+      setFetching(false);
+    }
+
+    loadAlgorithm();
+  }, [algoId, router]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -27,8 +66,9 @@ export default function NewAlgorithmPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const { error } = await supabase.from("algorithms").insert([
-      {
+    const { error } = await supabase
+      .from("algorithms")
+      .update({
         title: formData.title,
         platform: formData.platform,
         difficulty: formData.difficulty,
@@ -37,22 +77,30 @@ export default function NewAlgorithmPage() {
         code: formData.code,
         tags: tagsArray,
         published: formData.published,
-      },
-    ]);
+      })
+      .eq("id", algoId);
 
     setLoading(false);
 
     if (error) {
-      alert("Error saving algorithm: " + error.message);
+      alert("Error updating algorithm: " + error.message);
     } else {
       router.push("/algorithms");
     }
   }
 
+  if (fetching) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 pt-10 text-center text-gray-500">
+        Loading algorithm data...
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">
-        Create Algorithm Archive
+        Edit Algorithm Archive
       </h1>
 
       <form
@@ -167,7 +215,7 @@ export default function NewAlgorithmPage() {
             className="w-4 h-4 text-blue-600 rounded"
           />
           <label htmlFor="published" className="text-sm font-medium">
-            Publish immediately
+            Publish status
           </label>
         </div>
 
@@ -177,7 +225,7 @@ export default function NewAlgorithmPage() {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Save Archive"}
+            {loading ? "Saving Changes..." : "Save Changes"}
           </button>
         </div>
       </form>

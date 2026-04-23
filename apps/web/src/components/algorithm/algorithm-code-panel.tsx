@@ -23,11 +23,16 @@ export function AlgorithmCodePanel({
 
   const lineCount = useMemo(() => {
     const normalized = code.replace(/\r\n/g, "\n").replace(/\s+$/, "");
-    if (!normalized) return 1;
+    if (!normalized) {
+      return 1;
+    }
     return normalized.split("\n").length;
   }, [code]);
 
-  const lineNumbers = useMemo(() => buildLineNumbers(Math.max(1, lineCount)), [lineCount]);
+  const lineNumbers = useMemo(
+    () => buildLineNumbers(Math.max(1, lineCount)),
+    [lineCount],
+  );
 
   const handleCopy = async () => {
     try {
@@ -40,7 +45,7 @@ export function AlgorithmCodePanel({
   };
 
   return (
-    <div className="flex-1 flex flex-col px-10 w-full h-full bg-white dark:bg-black">
+    <div className="flex-1 flex flex-col sm:px-10 w-full h-full bg-white dark:bg-black">
       <div className="bg-gray-100 dark:bg-[#111111] px-4 py-2.5 flex items-center justify-between border-b border-gray-200 dark:border-[#333]">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
@@ -62,12 +67,16 @@ export function AlgorithmCodePanel({
           {copied ? (
             <>
               <Check className="w-4 h-4 text-green-500" />
-              <span className="text-xs font-bold tracking-widest uppercase text-green-500">COPIED!</span>
+              <span className="text-xs font-bold tracking-widest uppercase text-green-500">
+                COPIED!
+              </span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span className="text-xs font-bold tracking-widest uppercase">COPY</span>
+              <span className="text-xs font-bold tracking-widest uppercase">
+                COPY
+              </span>
             </>
           )}
         </motion.button>
@@ -109,4 +118,3 @@ export function AlgorithmCodePanel({
     </div>
   );
 }
-

@@ -16,9 +16,11 @@ export default async function AlgorithmListPage() {
     date: algo.created_at,
     description: algo.description || "",
     tags: [...(algo.tags || []), algo.language],
-    slug: algo.id, // Or handle differently if the client needs route
+    slug: algo.id,
     code: algo.code,
     language: algo.language,
+    platform: algo.platform,
+    difficulty: algo.difficulty,
   }));
 
   return <AlgorithmListClient posts={formattedAlgos} />;
