@@ -2,41 +2,36 @@
 > web@0.1.0 build C:\project\dev-blog\apps\web
 > next build
 
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of C:\project\dev-blog\pnpm-workspace.yaml as the root directory.
- To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
- Detected additional lockfiles: 
-   * C:\project\dev-blog\apps\web\pnpm-workspace.yaml
-
 ▲ Next.js 16.2.0 (Turbopack)
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 4.6s
+✓ Compiled successfully in 4.0s
   Running TypeScript ...
-  Finished TypeScript in 3.6s ...
-  Collecting page data using 9 workers ...
-  Generating static pages using 9 workers (0/40) ...
-  Generating static pages using 9 workers (10/40) 
-  Generating static pages using 9 workers (20/40) 
-  Generating static pages using 9 workers (30/40) 
-✓ Generating static pages using 9 workers (40/40) in 2.1s
+  Finished TypeScript in 3.5s ...
+  Collecting page data using 10 workers ...
+  Generating static pages using 10 workers (0/19) ...
+  Generating static pages using 10 workers (4/19) 
+  Generating static pages using 10 workers (9/19) 
+  Generating static pages using 10 workers (14/19) 
+✓ Generating static pages using 10 workers (19/19) in 3.7s
   Finalizing page optimization ...
 
-Route (app)                          Revalidate  Expire
-┌ ○ /                                        1m      1y
+Route (app)                  Revalidate  Expire
+┌ ○ /                                1m      1y
 ├ ○ /_not-found
 ├ ○ /about
-├ ○ /algorithm                               1m      1y
-├ ● /algorithm/[slug]
-│ ├ /algorithm/algo-boj-1890
-│ ├ /algorithm/algo-dfs-bfs-summary
-│ ├ /algorithm/algo-two-sum
-│ └ [+31 more paths]
-└ ● /posts/[slug]
+├ ○ /algorithm                       1m      1y
+├ ƒ /algorithm/[slug]
+├ ○ /articles                        1m      1y
+└ ● /posts/[slug]                    1m      1y
+  ├ /posts/txxxxvzj8p2mm8m5          1m      1y
+  ├ /posts/zxcvweesafsadxcq          1m      1y
+  ├ /posts/kihc3ddqm1njepg8          1m      1y
+  └ [+9 more paths]
 
 
-○  (Static)  prerendered as static content
-●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
 

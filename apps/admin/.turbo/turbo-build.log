@@ -2,36 +2,33 @@
 > admin@0.1.0 build C:\project\dev-blog\apps\admin
 > next build
 
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of C:\project\dev-blog\pnpm-workspace.yaml as the root directory.
- To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
- Detected additional lockfiles: 
-   * C:\project\dev-blog\apps\admin\pnpm-workspace.yaml
-
 ▲ Next.js 16.2.0 (Turbopack)
 - Environments: .env.local
 
   Creating an optimized production build ...
-✓ Compiled successfully in 5.3s
+✓ Compiled successfully in 3.2s
   Running TypeScript ...
   Finished TypeScript in 2.7s ...
-  Collecting page data using 9 workers ...
-  Generating static pages using 9 workers (0/8) ...
-  Generating static pages using 9 workers (2/8) 
-  Generating static pages using 9 workers (4/8) 
-  Generating static pages using 9 workers (6/8) 
-✓ Generating static pages using 9 workers (8/8) in 1246ms
+  Collecting page data using 12 workers ...
+  Generating static pages using 12 workers (0/9) ...
+  Generating static pages using 12 workers (2/9) 
+  Generating static pages using 12 workers (4/9) 
+  Generating static pages using 12 workers (6/9) 
+✓ Generating static pages using 12 workers (9/9) in 1428ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ○ /algorithms
+├ ƒ /algorithms/[id]/edit
 ├ ○ /algorithms/new
+├ ƒ /api/upload
 ├ ○ /posts
+├ ƒ /posts/[id]/edit
 └ ○ /posts/new
 
 
-○  (Static)  prerendered as static content
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 
