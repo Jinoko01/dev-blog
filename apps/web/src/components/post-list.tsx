@@ -124,8 +124,8 @@ export function PostList({
         ))}
       </div>
 
-      {/* Intersection Observer Target */}
-      {visibleCount < allPosts.length && (
+      {/* [rendering-conditional-render] Explicit ternary instead of && */}
+      {visibleCount < allPosts.length ? (
         <div
           ref={ref}
           className="h-32 flex items-center justify-center mt-8 w-full col-span-full"
@@ -138,7 +138,7 @@ export function PostList({
             }
           />
         </div>
-      )}
+      ) : null}
     </>
   );
 }

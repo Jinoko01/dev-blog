@@ -21,6 +21,31 @@ type Article = {
 
 type SortOption = "latest" | "views" | "likes";
 
+// [rerender-no-inline-components] Defined at module level — was previously inside ArticlesClient,
+// which caused React to unmount+remount the component tree on every parent render.
+// [js-hoist-regexp] The escape RegExp is also hoisted to module level to avoid recreation.
+const ESCAPE_REGEXP = /[.*+?^${}()|[\\]\\]/g;
+
+function HighlightText({ text, highlight }: { text: string; highlight: string }) {
+  if (!highlight.trim()) return <span>{text}</span>;
+  const safeHighlight = highlight.replace(ESCAPE_REGEXP, "\\$&");
+  const regex = new RegExp(`(${safeHighlight})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-primary/20 text-primary font-bold rounded-sm px-0.5" style={{ display: 'inline' }}>
+            {part}
+          </mark>
+        ) : (
+          <span key={i} style={{ display: 'inline' }}>{part}</span>
+        )
+      )}
+    </span>
+  );
+}
+
 export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
@@ -90,27 +115,6 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
   };
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-
-  // Highlighter component
-  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
-    if (!highlight.trim()) return <span>{text}</span>;
-    const safeHighlight = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${safeHighlight})`, "gi");
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <mark key={i} className="bg-primary/20 text-primary font-bold rounded-sm px-0.5" style={{ display: 'inline' }}>
-              {part}
-            </mark>
-          ) : (
-            <span key={i} style={{ display: 'inline' }}>{part}</span>
-          )
-        )}
-      </span>
-    );
-  };
 
   return (
     <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 space-y-16">
@@ -223,14 +227,15 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                 <Link href={`/posts/${article.slug}`} key={article.id} className="group relative block animate-fade-in-up" style={{ animationDelay: `${(index % 10) * 0.05}s`, animationFillMode: "both" }}>
                   <article className="flex flex-col md:flex-row gap-4 md:gap-6 w-full border-b border-border/50 pb-6 group-last:border-0 group-last:pb-0">
                     {/* Thumbnail */}
+                    {/* [rendering-conditional-render] Use ternary instead of && to avoid accidental 0/false rendering */}
                     <div className="w-full md:w-60 lg:w-[180px] aspect-video relative overflow-hidden bg-muted shrink-0 border border-border/50">
-                      {article.thumbnail_url ? (
-                          <Image
-                            src={article.thumbnail_url}
-                            alt={article.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
+                      {article.thumbnail_url !== null ? (
+                        <Image
+                          src={article.thumbnail_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       ) : (
                         <div className="w-full h-full bg-linear-to-br from-primary/15 via-white/30 to-accent/20 transition-transform group-hover:scale-105 duration-500" />
                       )}

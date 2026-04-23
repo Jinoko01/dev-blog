@@ -5,7 +5,7 @@ import type { PostMetadata } from "@/lib/mdx";
 import { PostList } from "@/components/post-list";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Clock, TrendingUp, Eye, Heart } from "lucide-react";
+import { Eye, Heart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 type SortType = "latest" | "popular";
@@ -20,6 +20,18 @@ const visitorStats = [
   { date: "2026-03-19", visitors: 92 },
 ];
 
+// [rendering-hoist-jsx] Static gradient defs hoisted outside the component tree
+// so they are not recreated on every re-render.
+const SPARKLINE_DEFS = (
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.35" />
+      <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.05" />
+    </linearGradient>
+  </defs>
+);
+
+// [rerender-no-inline-components] Sparkline extracted to module level
 function Sparkline({ values }: { values: number[] }) {
   const width = 240;
   const height = 72;
@@ -61,12 +73,7 @@ function Sparkline({ values }: { values: number[] }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <defs>
-        <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.05" />
-        </linearGradient>
-      </defs>
+      {SPARKLINE_DEFS}
     </svg>
   );
 }
@@ -75,9 +82,9 @@ export function HomeClient({ posts, topics = [] }: { posts: PostMetadata[], topi
   const [sortType, setSortType] = useState<SortType>("latest");
   const [totalVisits, setTotalVisits] = useState<number | null>(null);
 
-  const sortedPosts = useMemo(() => {
-    const copy = [...posts];
-    copy.sort((a: any, b: any) => {
+  // [js-tosorted-immutable] Use toSorted() for a cleaner immutable sort — avoids manual spread+sort
+  const sortedPosts = useMemo(() =>
+    posts.toSorted((a: any, b: any) => {
       if (sortType === "popular") {
         const scoreA = (a.views || 0) + (a.likes || 0) * 2;
         const scoreB = (b.views || 0) + (b.likes || 0) * 2;
@@ -85,26 +92,28 @@ export function HomeClient({ posts, topics = [] }: { posts: PostMetadata[], topi
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       }
       return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    return copy;
-  }, [posts, sortType]);
+    }),
+    [posts, sortType]
+  );
 
-  const popularPosts = useMemo(() => {
-    const copy = [...posts];
-    copy.sort((a: any, b: any) => {
-      const scoreA = (a.views || 0) + (a.likes || 0) * 2;
-      const scoreB = (b.views || 0) + (b.likes || 0) * 2;
-      if (scoreA !== scoreB) return scoreB - scoreA;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    return copy.slice(0, 5);
-  }, [posts]);
+  const popularPosts = useMemo(() =>
+    posts
+      .toSorted((a: any, b: any) => {
+        const scoreA = (a.views || 0) + (a.likes || 0) * 2;
+        const scoreB = (b.views || 0) + (b.likes || 0) * 2;
+        if (scoreA !== scoreB) return scoreB - scoreA;
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      })
+      .slice(0, 5),
+    [posts]
+  );
 
   useEffect(() => {
     const trackVisitor = async () => {
-      let sessionId = localStorage.getItem("devblog_session_id");
-      if (!sessionId) {
-        sessionId = crypto.randomUUID();
+      // [js-cache-storage] Read sessionId once and reuse
+      const existingSessionId = localStorage.getItem("devblog_session_id");
+      const sessionId = existingSessionId ?? crypto.randomUUID();
+      if (!existingSessionId) {
         localStorage.setItem("devblog_session_id", sessionId);
       }
 
@@ -201,6 +210,8 @@ export function HomeClient({ posts, topics = [] }: { posts: PostMetadata[], topi
             <h3 className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-b border-[color:var(--color-border)]/50 pb-2 mb-4">
               TOPICS
             </h3>
+            {/* [rendering-conditional-render] Ternary used instead of && to avoid
+                rendering the number 0 when topics array is empty */}
             <div className="flex flex-wrap gap-2">
               {topics.length > 0 ? [...topics].map((topic) => (
                 <span 

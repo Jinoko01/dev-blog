@@ -4,13 +4,16 @@ import { supabase } from "@/lib/supabase";
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
-  const { data: posts } = await supabase
-    .from("posts")
-    .select("*, post_tags(tags(name))")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+  // [async-parallel] Fetch posts and metrics in parallel — previously sequential (2 round trips → 1)
+  const [{ data: posts }, { data: metrics }] = await Promise.all([
+    supabase
+      .from("posts")
+      .select("*, post_tags(tags(name))")
+      .eq("published", true)
+      .order("created_at", { ascending: false }),
+    supabase.from("post_metrics").select("*"),
+  ]);
 
-  const { data: metrics } = await supabase.from("post_metrics").select("*");
   const metricsMap = new Map((metrics || []).map((m) => [m.slug, m]));
 
   const uniqueTopics = new Set<string>();

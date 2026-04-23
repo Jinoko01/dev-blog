@@ -28,8 +28,13 @@ export function PostMetrics({ slug }: { slug: string }) {
 
       const today = new Date().toISOString().split('T')[0];
       const viewKey = `viewed_${slug}_${today}`;
+      const likedKey = `liked_${slug}`;
 
-      if (!localStorage.getItem(viewKey)) {
+      // [js-cache-storage] Read localStorage once per key and reuse the cached value
+      const hasViewed = localStorage.getItem(viewKey);
+      const hasLiked = localStorage.getItem(likedKey);
+
+      if (!hasViewed) {
         const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
         if (!error) {
           currentViews += 1;
@@ -48,7 +53,8 @@ export function PostMetrics({ slug }: { slug: string }) {
       setViews(currentViews);
       setLikes(currentLikes);
 
-      if (localStorage.getItem(`liked_${slug}`)) {
+      // [js-cache-storage] Reuse cached hasLiked value instead of a second localStorage read
+      if (hasLiked) {
         setIsLiked(true);
       }
     };
