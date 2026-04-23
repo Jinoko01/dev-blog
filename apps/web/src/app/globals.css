@@ -14,6 +14,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -49,6 +51,8 @@
     --primary-foreground: #ffffff;
     --secondary: #f4f4f5;
     --secondary-foreground: #111111;
+    --tertiary: #ededed;
+    --tertiary-foreground: #111111;
     --muted: #f4f4f5;
     --muted-foreground: #71717a;
     --accent: #f97316;
@@ -78,6 +82,8 @@
     --primary-foreground: #ffffff;
     --secondary: #27272a;
     --secondary-foreground: #ffffff;
+    --tertiary: #3f3f46;
+    --tertiary-foreground: #c0c0c0;
     --muted: #27272a;
     --muted-foreground: #a1a1aa;
     --accent: #f97316;
@@ -171,11 +177,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose code {
-  background-color: var(--color-secondary);
-  padding: 0.2em 0.4em;
+  background-color: var(--color-tertiary);
+  color: var(--color-destructive);
+  padding: 0.125em 0.25em;
   border-radius: 0.25rem;
   font-size: 0.9em;
   font-family: "Consolas", "Monaco", "Courier New", monospace;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none !important;
 }
 
 .prose pre {
