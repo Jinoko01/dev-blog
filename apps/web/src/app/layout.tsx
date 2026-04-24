@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { BottomNav } from "@/components/bottom-nav";
 import "./globals.css";
 import GoogleAdSense from "@/components/GoogleAdSense";
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,7 +43,11 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <GoogleAdSense />
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
+          crossOrigin="anonymous"
+        />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen font-sans transition-colors duration-500`}
