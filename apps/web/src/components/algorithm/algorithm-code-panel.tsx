@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Check, Copy } from "lucide-react";
 
 function buildLineNumbers(count: number) {
@@ -58,9 +57,7 @@ export function AlgorithmCodePanel({
           </span>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={handleCopy}
           className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-[#222] text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
         >
@@ -79,7 +76,7 @@ export function AlgorithmCodePanel({
               </span>
             </>
           )}
-        </motion.button>
+        </button>
       </div>
 
       <div className="flex-1 overflow-auto bg-white dark:bg-black">

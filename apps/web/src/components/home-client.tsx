@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import type { PostMetadata } from "@/lib/mdx";
 import { PostList } from "@/components/post-list";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Eye, Heart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -72,12 +71,7 @@ export function HomeClient({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mb-16 mt-8"
-      >
+      <div className="mb-16 mt-8">
         <h1 className="text-5xl md:text-7xl lg:text-[100px] leading-[0.9] font-black tracking-tighter text-center text-[color:var(--color-foreground)] mb-12 uppercase">
           FRONTEND
           <br />
@@ -105,16 +99,11 @@ export function HomeClient({
             <span className="text-[color:var(--color-primary)]">OPTIMIZED</span>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08, duration: 0.45, ease: "easeOut" }}
-            className="flex items-center justify-between border-b border-[color:var(--color-border)]/50 pb-2"
-          >
+          <div className="flex items-center justify-between border-b border-[color:var(--color-border)]/50 pb-2">
             <h2 className="text-sm font-bold tracking-widest text-[color:var(--color-primary)] uppercase">
               LATEST ARTICLES
             </h2>
@@ -140,17 +129,13 @@ export function HomeClient({
                 POPULAR
               </button>
             </div>
-          </motion.div>
+          </div>
 
           <PostList allPosts={sortedPosts} variant="figma" />
         </div>
 
         <div className="space-y-12 lg:pl-4 lg:min-w-[300px]">
-          <motion.div
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.18, duration: 0.45, ease: "easeOut" }}
-          >
+          <div>
             <h3 className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-b border-[color:var(--color-border)]/50 pb-2 mb-4">
               TOPICS
             </h3>
@@ -170,13 +155,9 @@ export function HomeClient({
                 </span>
               )}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.26, duration: 0.45, ease: "easeOut" }}
-          >
+          <div>
             <h3 className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-b border-[color:var(--color-border)]/50 pb-2 mb-4">
               TRENDING
             </h3>
@@ -216,19 +197,14 @@ export function HomeClient({
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.34, duration: 0.45, ease: "easeOut" }}
-            className="w-full h-64 bg-[color:var(--color-secondary)]/30 border border-[color:var(--color-border)] flex items-center justify-center rounded-sm relative overflow-hidden"
-          >
+          <div className="w-full h-64 bg-[color:var(--color-secondary)]/30 border border-[color:var(--color-border)] flex items-center justify-center rounded-sm relative overflow-hidden">
             <div className="absolute inset-0 bg-linear-to-tr from-[color:var(--color-primary)]/10 to-transparent" />
             <span className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase relative z-10">
               AD SPACE
             </span>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

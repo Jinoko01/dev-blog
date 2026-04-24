@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { PostMetadata } from "@/lib/mdx";
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
@@ -79,25 +78,16 @@ export function AlgorithmListClient({
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 text-center"
-      >
+      <div className="mb-8 text-center">
         <h1 className="text-4xl md:text-5xl font-black tracking-widest text-foreground mb-4 uppercase">
           ALGORITHM ARCHIVE
         </h1>
         <p className="text-muted-foreground font-medium">
           {posts.length} problems solved
         </p>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
+      <div className="mb-6">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
@@ -108,7 +98,7 @@ export function AlgorithmListClient({
             className="w-full pl-12 pr-4 py-4 bg-color-card rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-[color:var(--color-primary)] text-foreground shadow-sm transition-all"
           />
         </div>
-      </motion.div>
+      </div>
 
       <div className="mb-4 text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
         {filteredPosts.length} results found
@@ -129,12 +119,7 @@ export function AlgorithmListClient({
             const globalIndex =
               filteredPosts.length - ((page - 1) * ITEMS_PER_PAGE + index);
             return (
-              <motion.div
-                key={post.slug}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.03 }}
-              >
+              <div key={post.slug}>
                 <Link
                   href={`/algorithm/${post.slug}`}
                   className="grid grid-cols-[2.5rem_1fr_auto_auto] sm:grid-cols-[3rem_1fr_auto_5rem_6rem] gap-2 sm:gap-4 px-4 sm:px-6 py-4 items-center hover:bg-secondary/40 transition-colors group"
@@ -181,19 +166,14 @@ export function AlgorithmListClient({
                     </span>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </div>
       </div>
 
       {totalPages > 1 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-2"
-        >
+        <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
@@ -228,7 +208,7 @@ export function AlgorithmListClient({
           >
             <ChevronRight className="w-5 h-5" />
           </button>
-        </motion.div>
+        </div>
       )}
 
       {/* [rendering-conditional-render] Use explicit ternary to avoid accidental rendering of 0 */}
