@@ -1,5 +1,5 @@
-"use client";
-
+// [server-serialization] Footer has no interactivity — removed "use client" to make
+// it a React Server Component. This avoids shipping this component's JS to the browser.
 import Link from "next/link";
 import { Github, Mail } from "lucide-react";
 

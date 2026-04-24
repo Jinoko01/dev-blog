@@ -18,8 +18,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OKOJIN의 블로그",
+  title: {
+    default: "OKOJIN의 블로그",
+    template: "%s | OKOJIN의 블로그",
+  },
   description: "프론트엔드 개발자의 아카이브 채널",
+  openGraph: {
+    title: "OKOJIN의 블로그",
+    description: "프론트엔드 개발자의 아카이브 채널",
+    type: "website",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

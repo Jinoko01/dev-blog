@@ -231,13 +231,14 @@ export function AlgorithmListClient({
         </motion.div>
       )}
 
-      {filteredPosts.length === 0 && (
+      {/* [rendering-conditional-render] Use explicit ternary to avoid accidental rendering of 0 */}
+      {filteredPosts.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-[color:var(--color-muted-foreground)] text-lg font-medium">
             No results found
           </p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
