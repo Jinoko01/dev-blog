@@ -338,7 +338,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -370,9 +370,9 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`w-8 h-8 border text-[10px] font-bold transition-all ${page === p
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
+                        className={`w-8 h-8 border text-[10px] font-bold transition-all cursor-pointer ${page === p
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-muted-foreground border-border hover:border-primary hover:text-primary"
                           }`}
                       >
                         {p}
@@ -385,7 +385,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                 aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />
