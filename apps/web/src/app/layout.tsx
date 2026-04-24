@@ -41,6 +41,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        <GoogleAdSense />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen font-sans transition-colors duration-500`}
       >
@@ -60,7 +63,6 @@ export default function RootLayout({
           </div>
         </ThemeProvider>
       </body>
-      <GoogleAdSense />
     </html>
   );
 }
