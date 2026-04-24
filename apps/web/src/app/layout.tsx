@@ -5,7 +5,6 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { BottomNav } from "@/components/bottom-nav";
 import "./globals.css";
-import GoogleAdSense from "@/components/GoogleAdSense";
 import Script from "next/script";
 
 const inter = Inter({
