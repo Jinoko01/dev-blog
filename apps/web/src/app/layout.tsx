@@ -5,6 +5,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { BottomNav } from "@/components/bottom-nav";
 import "./globals.css";
+import GoogleAdSense from "@/components/GoogleAdSense";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,6 +48,7 @@ export default function RootLayout({
           </div>
         </ThemeProvider>
       </body>
+      <GoogleAdSense />
     </html>
   );
 }
