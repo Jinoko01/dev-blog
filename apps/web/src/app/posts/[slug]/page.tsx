@@ -76,7 +76,7 @@ export default async function PostPage(props: {
 
   return (
     <div className="w-full min-w-0 min-h-screen relative z-10">
-      <header className="relative w-full stagger-delay-1 overflow-hidden border-b border-black/5 dark:border-white/5">
+      <header className="relative w-full overflow-hidden border-b border-black/5 dark:border-white/5">
         {post.thumbnail_url && (
           <>
             <Image
@@ -145,7 +145,7 @@ export default async function PostPage(props: {
         <article className="w-full min-w-0">
 
           {/* Prose Content */}
-          <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none stagger-delay-2">
+          <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
             <MDXRemote
               source={content}
               components={{ pre: Pre }}
