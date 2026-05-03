@@ -7,6 +7,7 @@ import Image from "next/image";
 import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
+import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
 import { supabase } from "@/lib/supabase";
 import { TableOfContents } from "@/components/toc";
 
@@ -148,7 +149,7 @@ export default async function PostPage(props: {
           <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
             <MDXRemote
               source={content}
-              components={{ pre: Pre }}
+              components={{ pre: Pre, CodeTabs, CodeTab }}
               options={{
                 mdxOptions: {
                   rehypePlugins: [
