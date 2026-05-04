@@ -4,17 +4,17 @@
 - Next.js 16 (App Router), TypeScript strict, MDX
 - TailwindCSS v4, shadcn/ui, Framer Motion
 - Recharts (Chart), lucide-react (Icons)
-- @supabase/ssr, @supabase/auth-helpers-nextjs (Authentication)
 
 ### Backend
-- Next.js 16 (API Routes), TypeScript strict, Supabase
+- Spring Boot 3.x, Kotlin, Spring Data JPA
+- Spring Security + JWT (인증/인가)
+- PostgreSQL (Supabase 호스팅)
 
 ### Infra
 - Supabase
     - Storage (Images, Backups)
-    - Realtime (Realtime Metrics)
     - Database (PostgreSQL)
-    - RLS (Row Level Security)
+- JWT 기반 Admin 인증
 
 ## Rules
 - 기획서/리포트에 가정치 금지. 실측 데이터만, 모르면 TBD 표시
