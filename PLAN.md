@@ -20,6 +20,15 @@ apps/admin/api/upload ──→ Supabase Storage (서비스 롤 키)
 
 ## 목표 아키텍처
 
+- 프론트엔드: `dev-blog/frontend`
+  - `frontend/apps/web` ──→ Spring API
+  - `frontend/apps/admin` ──→ Spring API
+- 백엔드: `dev-blog/backend`
+  - Spring Boot REST API 서버
+  - Supabase PostgreSQL (DB)
+  - Supabase Storage (이미지)
+  - JWT 인증
+
 ```
 apps/web  ──→ Spring API (공개 엔드포인트)
 apps/admin ──→ Spring API (JWT 인증 필요)
@@ -31,13 +40,15 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 ## Phase 1: Spring Boot 프로젝트 설정
 
-**경로:** `apps/api` (모노레포에 추가)
+**경로:** `backend`
 
-- [ ] Spring Boot 3.x + Kotlin 프로젝트 생성 (Gradle)
-- [ ] 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, jjwt, postgresql driver
+- [ ] Spring Boot 3.x (2026년 기준 3.5.x 또는 3.6.x 안정 버전) + Java 프로젝트 생성 (Gradle)
+- [ ] Java 21 (또는 Java 25 LTS) JVM 타겟 설정
+- [ ] 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver
+- [ ] 추가 의존성: spring-boot-starter-validation (DTO 검증용), jjwt (0.12.x 이상)
 - [ ] Supabase PostgreSQL 연결 설정 (`application.yml`)
-- [ ] turbo.json에 api 앱 추가
-- [ ] `apps/api/.env.example` 작성
+- [ ] turbo.json에 backend 앱 추가
+- [ ] `backend/.env.example` 작성
 
 **검증:** `GET /health` 응답 확인
 
@@ -131,7 +142,7 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 - [ ] `src/lib/supabase.ts` 제거
 - [ ] 로그인 페이지 추가 + JWT 저장 (httpOnly cookie 권장)
 - [ ] 각 CRUD 페이지의 supabase 쿼리 → Spring API 호출로 교체
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` 환경변수 제거 (`apps/api`로 이동)
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` 환경변수 제거 (`backend`로 이동)
 
 **검증:** Supabase import가 남아있지 않은지 grep으로 확인
 
