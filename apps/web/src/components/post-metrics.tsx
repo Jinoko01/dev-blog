@@ -6,8 +6,8 @@ import { Heart, Eye } from "lucide-react";
 
 /** views 표시 + view 카운트 증가 + likes 읽기 */
 function usePostMetrics(slug: string) {
-  const [views, setViews] = useState(0);
-  const [likes, setLikes] = useState(0);
+  const [views, setViews] = useState<number | null>(null);
+  const [likes, setLikes] = useState<number | null>(null);
 
   useEffect(() => {
     const initMetrics = async () => {
@@ -28,11 +28,8 @@ function usePostMetrics(slug: string) {
 
       const today = new Date().toISOString().split("T")[0];
       const viewKey = `viewed_${slug}_${today}`;
-      const likedKey = `liked_${slug}`;
 
-      // [js-cache-storage] Read localStorage once per key and reuse the cached value
       const hasViewed = localStorage.getItem(viewKey);
-      const hasLiked = localStorage.getItem(likedKey);
 
       if (!hasViewed) {
         const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
@@ -52,11 +49,6 @@ function usePostMetrics(slug: string) {
 
       setViews(currentViews);
       setLikes(currentLikes);
-
-      // [js-cache-storage] Reuse cached hasLiked value instead of a second localStorage read
-      // if (hasLiked) {
-      //   setIsLiked(true);
-      // }
     };
 
     initMetrics();
@@ -67,7 +59,7 @@ function usePostMetrics(slug: string) {
 
 /** likes 읽기 + like 버튼 액션 전용 (view 증가 없음) */
 function useLikeMetrics(slug: string) {
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState<number | null>(null);
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
@@ -78,7 +70,7 @@ function useLikeMetrics(slug: string) {
         .eq("slug", slug)
         .single();
 
-      if (data) setLikes(data.likes);
+      setLikes(data ? data.likes : 0);
       if (localStorage.getItem(`liked_${slug}`)) setIsLiked(true);
     };
 
@@ -90,7 +82,7 @@ function useLikeMetrics(slug: string) {
 
     setIsLiked(true);
     localStorage.setItem(`liked_${slug}`, "true");
-    setLikes((prev) => prev + 1);
+    setLikes((prev) => (prev ?? 0) + 1);
 
     const { error } = await supabase.rpc("increment_like_count", {
       post_slug: slug,
@@ -117,6 +109,25 @@ function useLikeMetrics(slug: string) {
 /** header description 아래에 views/likes 수치를 텍스트로 표시하는 컴포넌트 */
 export function PostMetricsDisplay({ slug }: { slug: string }) {
   const { views, likes } = usePostMetrics(slug);
+  const isLoading = views === null || likes === null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-4 text-sm mt-4">
+        <span className="flex items-center gap-1.5 opacity-80">
+          <Eye className="w-4 h-4" />
+          <span className="w-8 h-4 rounded bg-current opacity-20 animate-pulse inline-block" />
+          <span className="opacity-70">views</span>
+        </span>
+        <span className="opacity-30">·</span>
+        <span className="flex items-center gap-1.5 opacity-80">
+          <Heart className="w-4 h-4" />
+          <span className="w-6 h-4 rounded bg-current opacity-20 animate-pulse inline-block" />
+          <span className="opacity-70">likes</span>
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center gap-4 text-sm mt-4">
@@ -142,14 +153,17 @@ export function PostLikeButton({ slug }: { slug: string }) {
   return (
     <button
       onClick={handleLike}
-      disabled={isLiked}
+      disabled={isLiked || likes === null}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${isLiked
           ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
           : "text-foreground/50 border-black/10 dark:border-white/10 hover:text-pink-400 hover:border-pink-300 dark:hover:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20"
         }`}
     >
       <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-      <span>{likes}</span>
+      {likes === null
+        ? <span className="w-4 h-3.5 rounded bg-current opacity-20 animate-pulse inline-block" />
+        : <span>{likes}</span>
+      }
     </button>
   );
 }
