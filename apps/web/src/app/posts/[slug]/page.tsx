@@ -8,7 +8,7 @@ import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
 import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import { TableOfContents } from "@/components/toc";
 
 export const revalidate = 60;
@@ -17,7 +17,7 @@ export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await props.params;
-  const { data: post } = await supabase
+  const { data: post } = await supabaseServer
     .from("posts")
     .select("title, description, thumbnail_url")
     .eq("slug", slug)
@@ -40,7 +40,7 @@ export async function generateMetadata(props: {
 }
 
 export async function generateStaticParams() {
-  const { data } = await supabase
+  const { data } = await supabaseServer
     .from("posts")
     .select("slug")
     .eq("published", true);
@@ -53,7 +53,7 @@ export default async function PostPage(props: {
   const params = await props.params;
   const { slug } = params;
 
-  const { data: post } = await supabase
+  const { data: post } = await supabaseServer
     .from("posts")
     .select("*, post_tags(tags(name))")
     .eq("slug", slug)
