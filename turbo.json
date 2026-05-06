@@ -11,36 +11,16 @@
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL",
         "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-        "SUPABASE_SERVICE_ROLE_KEY",
-        "DB_URL",
-        "DB_USERNAME",
-        "DB_PASSWORD",
-        "JWT_SECRET",
-        "ADMIN_USERNAME",
-        "ADMIN_PASSWORD",
-        "SUPABASE_URL",
-        "SUPABASE_STORAGE_BUCKET",
-        "SERVER_PORT"
+        "SUPABASE_SERVICE_ROLE_KEY"
       ],
       "outputs": [
         ".next/**",
-        "!.next/cache/**",
-        "build/libs/**",
-        "build/classes/**"
+        "!.next/cache/**"
       ]
     },
     "lint": {
       "dependsOn": [
         "^lint"
-      ]
-    },
-    "test": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "build/reports/**",
-        "build/test-results/**"
       ]
     },
     "dev": {
