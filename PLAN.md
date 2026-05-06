@@ -43,11 +43,10 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 **경로:** `backend`
 
 - [ ] Spring Boot 3.x (2026년 기준 3.5.x 또는 3.6.x 안정 버전) + Java 프로젝트 생성 (Gradle)
-- [ ] Java 21 (또는 Java 25 LTS) JVM 타겟 설정
-- [ ] 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver
+- [ ] Java 21 JVM 타겟 설정
+- [ ] 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver, lombok
 - [ ] 추가 의존성: spring-boot-starter-validation (DTO 검증용), jjwt (0.12.x 이상)
 - [ ] Supabase PostgreSQL 연결 설정 (`application.yml`)
-- [ ] turbo.json에 backend 앱 추가
 - [ ] `backend/.env.example` 작성
 
 **검증:** `GET /health` 응답 확인
@@ -62,13 +61,13 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 **Entity ↔ 현재 테이블 매핑**
 
-| Entity | 테이블 | 비고 |
-|---|---|---|
-| Post | posts | slug, published 포함 |
-| PostMetrics | post_metrics | views, likes |
-| Tag | tags | |
-| PostTag | post_tags | Post-Tag 조인 |
-| Algorithm | algorithms | tags는 배열 컬럼 |
+| Entity      | 테이블       | 비고                 |
+| ----------- | ------------ | -------------------- |
+| Post        | posts        | slug, published 포함 |
+| PostMetrics | post_metrics | views, likes         |
+| Tag         | tags         |                      |
+| PostTag     | post_tags    | Post-Tag 조인        |
+| Algorithm   | algorithms   | tags는 배열 컬럼     |
 
 **검증:** 기존 DB 레코드 JPA로 조회 확인
 
@@ -78,15 +77,15 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 `apps/web`에서 사용하는 읽기 전용 엔드포인트. 인증 불필요.
 
-| Method | Path | 현재 Supabase 쿼리 |
-|---|---|---|
-| GET | /api/posts | posts + post_metrics 조회 |
-| GET | /api/posts/{slug} | 단건 + 관련 게시글 |
-| GET | /api/algorithms | algorithms 목록 |
-| GET | /api/algorithms/{slug} | 단건 |
-| GET | /api/tags | tags 목록 |
-| POST | /api/posts/{slug}/view | increment_view_count RPC 대체 |
-| POST | /api/posts/{slug}/like | increment_like_count RPC 대체 |
+| Method | Path                   | 현재 Supabase 쿼리            |
+| ------ | ---------------------- | ----------------------------- |
+| GET    | /api/posts             | posts + post_metrics 조회     |
+| GET    | /api/posts/{slug}      | 단건 + 관련 게시글            |
+| GET    | /api/algorithms        | algorithms 목록               |
+| GET    | /api/algorithms/{slug} | 단건                          |
+| GET    | /api/tags              | tags 목록                     |
+| POST   | /api/posts/{slug}/view | increment_view_count RPC 대체 |
+| POST   | /api/posts/{slug}/like | increment_like_count RPC 대체 |
 
 **검증:** 기존 web app의 각 페이지 데이터와 응답 일치 확인
 
@@ -110,18 +109,21 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 `apps/admin`에서 사용하는 CRUD 엔드포인트. JWT 필요.
 
 **게시글**
+
 - [ ] `POST /api/admin/posts` — 생성 (tags 동시 upsert)
 - [ ] `PUT /api/admin/posts/{id}` — 수정
 - [ ] `PATCH /api/admin/posts/{id}/publish` — 발행 상태 토글
 - [ ] `DELETE /api/admin/posts/{id}` — 삭제
 
 **알고리즘**
+
 - [ ] `POST /api/admin/algorithms`
 - [ ] `PUT /api/admin/algorithms/{id}`
 - [ ] `PATCH /api/admin/algorithms/{id}/publish`
 - [ ] `DELETE /api/admin/algorithms/{id}`
 
 **이미지 업로드**
+
 - [ ] `POST /api/admin/upload` — Supabase Storage 서명 URL 생성 (현재 `/api/upload` 대체)
 
 **검증:** admin 앱에서 게시글 생성·수정·삭제 전 과정 동작 확인
@@ -167,13 +169,13 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 ## 예상 소요
 
-| Phase | 예상 |
-|---|---|
-| 1. 프로젝트 설정 | 0.5일 |
-| 2. 데이터 모델 | 1일 |
-| 3. 공개 API | 1일 |
-| 4. 인증 | 0.5일 |
-| 5. 관리자 API | 1.5일 |
-| 6. 프론트엔드 교체 | 2일 |
-| 7. 정리/배포 | 1일 |
-| **합계** | **약 7.5일** |
+| Phase              | 예상         |
+| ------------------ | ------------ |
+| 1. 프로젝트 설정   | 0.5일        |
+| 2. 데이터 모델     | 1일          |
+| 3. 공개 API        | 1일          |
+| 4. 인증            | 0.5일        |
+| 5. 관리자 API      | 1.5일        |
+| 6. 프론트엔드 교체 | 2일          |
+| 7. 정리/배포       | 1일          |
+| **합계**           | **약 7.5일** |

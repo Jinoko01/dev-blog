@@ -1,27 +1,35 @@
 ## Tech Stack
 
 ### Frontend
+
 - Next.js 16 (App Router), TypeScript strict, MDX
 - TailwindCSS v4, shadcn/ui, Framer Motion
 - Recharts (Chart), lucide-react (Icons)
 
 ### Backend
-- Spring Boot 3.x, Kotlin, Spring Data JPA
-- Spring Security + JWT (인증/인가)
-- PostgreSQL (Supabase 호스팅)
+
+- Spring Boot 3.x (2026년 기준 3.5.x 또는 3.6.x 안정 버전) + Java 프로젝트 생성 (Gradle)
+- Java 21 JVM 타겟 설정
+- 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver, lombok
+- 추가 의존성: spring-boot-starter-validation (DTO 검증용), jjwt (0.12.x 이상)
+- Supabase PostgreSQL 연결 설정 (`application.yml`)
+- `backend/.env.example` 작성
 
 ### Infra
+
 - Supabase
-    - Storage (Images, Backups)
-    - Database (PostgreSQL)
+  - Storage (Images, Backups)
+  - Database (PostgreSQL)
 - JWT 기반 Admin 인증
 
 ## Rules
+
 - 기획서/리포트에 가정치 금지. 실측 데이터만, 모르면 TBD 표시
 - 파일 삭제 전 반드시 확인 요청
 - 커밋 메시지는 영어로, conventional commits 형식
 
 ## Testing
+
 - pnpm test (unit), pnpm test:e2e (integration)
 - 테스트 없이 PR 올리지 않기
 - eslint 검사를 통과하도록 코드 포맷팅 하기
