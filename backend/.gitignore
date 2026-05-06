@@ -1,0 +1,20 @@
+.gradle/
+build/
+*.class
+
+# local env
+.env
+.env.local
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# OS
+.DS_Store
+
+# crash logs from build
+hs_err_pid*.log
