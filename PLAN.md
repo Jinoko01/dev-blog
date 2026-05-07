@@ -42,12 +42,12 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 **경로:** `backend`
 
-- [ ] Spring Boot 3.x (2026년 기준 3.5.x 또는 3.6.x 안정 버전) + Java 프로젝트 생성 (Gradle)
-- [ ] Java 21 JVM 타겟 설정
-- [ ] 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver, lombok
-- [ ] 추가 의존성: spring-boot-starter-validation (DTO 검증용), jjwt (0.12.x 이상)
-- [ ] Supabase PostgreSQL 연결 설정 (`application.yml`)
-- [ ] `backend/.env.example` 작성
+- [x] Spring Boot 3.x (2026년 기준 3.5.x 또는 3.6.x 안정 버전) + Java 프로젝트 생성 (Gradle)
+- [x] Java 21 JVM 타겟 설정
+- [x] 필수 의존성: spring-boot-starter-web, spring-boot-starter-data-jpa, spring-boot-starter-security, postgresql driver, lombok
+- [x] 추가 의존성: spring-boot-starter-validation (DTO 검증용), jjwt (0.12.x 이상)
+- [x] Supabase PostgreSQL 연결 설정 (`application.yml`)
+- [x] `backend/.env.example` 작성
 
 **검증:** `GET /health` 응답 확인
 
