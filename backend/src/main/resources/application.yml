@@ -32,7 +32,7 @@ management:
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration-ms: 86400000
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   admin:
     username: ${ADMIN_USERNAME}
     password: ${ADMIN_PASSWORD}
