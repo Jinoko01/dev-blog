@@ -89,6 +89,8 @@ Spring API ──→ Supabase Storage (서명 URL 생성)
 
 **검증:** 기존 web app의 각 페이지 데이터와 응답 일치 확인
 
+> ✅ 완료 (2026-05-08)
+
 ---
 
 ## Phase 4: 인증 구현
