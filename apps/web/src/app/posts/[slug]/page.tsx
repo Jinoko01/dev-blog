@@ -30,8 +30,8 @@ export async function generateMetadata(props: {
       title: post.title,
       description: post.description || undefined,
       type: "article",
-      ...(post.thumbnailUrl && {
-        images: [{ url: post.thumbnailUrl, width: 1200, height: 630 }],
+      ...(post.thumbnail_url && {
+        images: [{ url: post.thumbnail_url, width: 1200, height: 630 }],
       }),
     },
   };
@@ -80,10 +80,10 @@ export default async function PostPage(props: {
         )}
 
         <div
-          className={`relative z-10 w-full max-w-6xl mx-auto px-6 py-20 sm:px-12 sm:py-28 flex flex-col items-center text-center ${post.thumbnailUrl ? "text-white" : ""}`}
+          className={`relative z-10 w-full max-w-6xl mx-auto px-6 py-20 sm:px-12 sm:py-28 flex flex-col items-center text-center ${post.thumbnail_url ? "text-white" : ""}`}
         >
           <div
-            className={`flex items-center justify-center gap-3 sm:gap-4 mb-6 font-medium tracking-wide text-sm ${post.thumbnailUrl ? "text-white/80" : "text-foreground/60"}`}
+            className={`flex items-center justify-center gap-3 sm:gap-4 mb-6 font-medium tracking-wide text-sm ${post.thumbnail_url ? "text-white/80" : "text-foreground/60"}`}
           >
             <time dateTime={meta.date}>
               {new Date(meta.date).toLocaleDateString("ko-KR", {
@@ -98,7 +98,7 @@ export default async function PostPage(props: {
                 <span
                   key={tag}
                   className={
-                    post.thumbnailUrl
+                    post.thumbnail_url
                       ? "text-brand-300 font-semibold drop-shadow-sm"
                       : "text-brand-500 font-semibold"
                   }
@@ -109,19 +109,19 @@ export default async function PostPage(props: {
             </div>
           </div>
           <h1
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold font-display leading-[1.2] mb-6 tracking-tight drop-shadow-md ${post.thumbnailUrl ? "text-white" : "text-foreground"}`}
+            className={`text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold font-display leading-[1.2] mb-6 tracking-tight drop-shadow-md ${post.thumbnail_url ? "text-white" : "text-foreground"}`}
           >
             {meta.title}
           </h1>
           {meta.description && (
             <p
-              className={`text-lg sm:text-xl leading-relaxed max-w-2xl drop-shadow-sm ${post.thumbnailUrl ? "text-white/90" : "text-foreground/70"}`}
+              className={`text-lg sm:text-xl leading-relaxed max-w-2xl drop-shadow-sm ${post.thumbnail_url ? "text-white/90" : "text-foreground/70"}`}
             >
               {meta.description}
             </p>
           )}
           <div
-            className={`mt-5 ${post.thumbnailUrl ? "text-white/70" : "text-foreground/50"}`}
+            className={`mt-5 ${post.thumbnail_url ? "text-white/70" : "text-foreground/50"}`}
           >
             <PostMetricsDisplay slug={slug} />
           </div>
