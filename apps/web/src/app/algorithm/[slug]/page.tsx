@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import { codeToHtml } from "shiki";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
-import { supabase } from "@/lib/supabase";
+import { getAlgorithm } from "@/lib/api";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
 import { AlgorithmDescriptionModal } from "@/components/algorithm/algorithm-description-modal";
 import { Pre } from "@/components/mdx/pre";
@@ -60,13 +60,9 @@ export default async function AlgorithmDetailPage(props: {
 }) {
   const { slug } = await props.params;
 
-  const { data: algo, error } = await supabase
-    .from("algorithms")
-    .select("*")
-    .eq("id", slug)
-    .single();
+  const algo = await getAlgorithm(slug).catch(() => null);
 
-  if (error || !algo) {
+  if (!algo) {
     notFound();
   }
 
@@ -104,7 +100,7 @@ export default async function AlgorithmDetailPage(props: {
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="flex items-center gap-1.5 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
               <Calendar className="w-3.5 h-3.5" />
-              {new Date(algo.created_at).toLocaleDateString("en-US", {
+              {new Date(algo.createdAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "short",
                 day: "numeric",

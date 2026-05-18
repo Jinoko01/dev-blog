@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { PostMetadata } from "@/lib/mdx";
 import { PostList } from "@/components/post-list";
 import Link from "next/link";
 import { Eye, Heart } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 type SortType = "latest" | "popular";
 
@@ -17,7 +16,6 @@ export function HomeClient({
   topics?: string[];
 }) {
   const [sortType, setSortType] = useState<SortType>("latest");
-  const [totalVisits, setTotalVisits] = useState<number | null>(null);
 
   const sortedPosts = useMemo(() => {
     const copy = [...posts];
@@ -48,26 +46,6 @@ export function HomeClient({
     return copy.slice(0, 5);
   }, [posts]);
 
-  useEffect(() => {
-    const trackVisitor = async () => {
-      let sessionId = localStorage.getItem("devblog_session_id");
-      if (!sessionId) {
-        sessionId = crypto.randomUUID();
-        localStorage.setItem("devblog_session_id", sessionId);
-      }
-
-      const { data, error } = await supabase.rpc("track_page_view", {
-        p_session_id: sessionId,
-      });
-
-      if (!error && data !== null) {
-        setTotalVisits(data);
-      }
-    };
-
-    trackVisitor();
-  }, []);
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero Section */}
@@ -82,9 +60,7 @@ export function HomeClient({
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-y border-[color:var(--color-border)] py-4">
           <div className="flex items-center gap-2">
             <span>VISITS</span>
-            <span className="text-[color:var(--color-foreground)]">
-              {totalVisits !== null ? totalVisits : "-"}
-            </span>
+            <span className="text-[color:var(--color-foreground)]">-</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
           <div className="flex items-center gap-2">

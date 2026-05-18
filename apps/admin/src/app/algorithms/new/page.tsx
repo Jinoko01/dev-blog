@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createAlgorithm } from "@/lib/api";
 
 export default function NewAlgorithmPage() {
   const router = useRouter();
@@ -27,8 +27,8 @@ export default function NewAlgorithmPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const { error } = await supabase.from("algorithms").insert([
-      {
+    try {
+      await createAlgorithm({
         title: formData.title,
         platform: formData.platform,
         difficulty: formData.difficulty,
@@ -37,15 +37,15 @@ export default function NewAlgorithmPage() {
         code: formData.code,
         tags: tagsArray,
         published: formData.published,
-      },
-    ]);
-
-    setLoading(false);
-
-    if (error) {
-      alert("Error saving algorithm: " + error.message);
-    } else {
+      });
       router.push("/algorithms");
+    } catch (error) {
+      alert(
+        "Error saving algorithm: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
+    } finally {
+      setLoading(false);
     }
   }
 

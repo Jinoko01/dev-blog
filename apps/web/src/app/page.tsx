@@ -1,50 +1,20 @@
 import { HomeClient } from "@/components/home-client";
-import { supabase } from "@/lib/supabase";
+import { getPosts, toPostMetadata } from "@/lib/api";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
   // [async-parallel] Fetch posts and metrics in parallel — previously sequential (2 round trips → 1)
-  const [{ data: posts }, { data: metrics }] = await Promise.all([
-    supabase
-      .from("posts")
-      .select("*, post_tags(tags(name))")
-      .eq("published", true)
-      .order("created_at", { ascending: false }),
-    supabase.from("post_metrics").select("*"),
-  ]);
-
-  const metricsMap = new Map((metrics || []).map((m) => [m.slug, m]));
+  const posts = await getPosts();
 
   const uniqueTopics = new Set<string>();
 
-  // Map Supabase columns to expected properties
-  const formattedPosts = (posts || []).map((post) => {
-    const postTags = (
-      post.post_tags as Array<{ tags: { name: string } | null }> ?? []
-    ).map((pt) => pt.tags?.name).filter((n): n is string => Boolean(n));
-    postTags.forEach((tag) => uniqueTopics.add(tag));
-
-    const postObj = {
-      title: post.title,
-      date: post.created_at,
-      description: post.description || "",
-      tags: postTags,
-      slug: post.slug,
-      thumbnail_url: post.thumbnail_url,
-    };
-    const m = metricsMap.get(post.slug);
-    return {
-      ...postObj,
-      views: m ? m.views : 0,
-      likes: m ? m.likes : 0,
-    };
+  const formattedPosts = posts.map((post) => {
+    post.tags?.forEach((tag) => uniqueTopics.add(tag));
+    return toPostMetadata(post);
   });
 
   return (
-    <HomeClient
-      posts={formattedPosts}
-      topics={Array.from(uniqueTopics)}
-    />
+    <HomeClient posts={formattedPosts} topics={Array.from(uniqueTopics)} />
   );
 }

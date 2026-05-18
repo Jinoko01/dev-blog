@@ -8,7 +8,7 @@ import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
 import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
-import { supabaseServer } from "@/lib/supabase-server";
+import { getPost, getPosts } from "@/lib/api";
 import { TableOfContents } from "@/components/toc";
 
 export const revalidate = 60;
@@ -17,34 +17,29 @@ export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await props.params;
-  const { data: post } = await supabaseServer
-    .from("posts")
-    .select("title, description, thumbnail_url")
-    .eq("slug", slug)
-    .single();
+  const post = await getPost(slug).catch(() => null);
 
-  if (!post) return { title: "Not Found" };
+  if (!post) {
+    return { title: "Not Found" };
+  }
 
   return {
     title: post.title,
-    description: post.description,
+    description: post.description || undefined,
     openGraph: {
       title: post.title,
-      description: post.description,
+      description: post.description || undefined,
       type: "article",
-      ...(post.thumbnail_url && {
-        images: [{ url: post.thumbnail_url, width: 1200, height: 630 }],
+      ...(post.thumbnailUrl && {
+        images: [{ url: post.thumbnailUrl, width: 1200, height: 630 }],
       }),
     },
   };
 }
 
 export async function generateStaticParams() {
-  const { data } = await supabaseServer
-    .from("posts")
-    .select("slug")
-    .eq("published", true);
-  return (data || []).map((p) => ({ slug: p.slug }));
+  const data = await getPosts();
+  return data.map((p) => ({ slug: p.slug }));
 }
 
 export default async function PostPage(props: {
@@ -53,35 +48,27 @@ export default async function PostPage(props: {
   const params = await props.params;
   const { slug } = params;
 
-  const { data: post } = await supabaseServer
-    .from("posts")
-    .select("*, post_tags(tags(name))")
-    .eq("slug", slug)
-    .single();
+  const post = await getPost(slug).catch(() => null);
 
   if (!post) {
     notFound();
   }
 
-  const postTags = (
-    post.post_tags as Array<{ tags: { name: string } | null }> ?? []
-  ).map((pt) => pt.tags?.name).filter((n): n is string => Boolean(n));
-
   const meta = {
     title: post.title,
-    date: post.created_at,
+    date: post.createdAt,
     description: post.description,
-    tags: postTags,
+    tags: post.tags || [],
   };
-  const content = post.content;
+  const content = post.content || "";
 
   return (
     <div className="w-full min-w-0 min-h-screen relative z-10">
       <header className="relative w-full overflow-hidden border-b border-black/5 dark:border-white/5">
-        {post.thumbnail_url && (
+        {post.thumbnailUrl && (
           <>
             <Image
-              src={post.thumbnail_url}
+              src={post.thumbnailUrl}
               alt={post.title}
               fill
               sizes="100vw"
@@ -93,10 +80,10 @@ export default async function PostPage(props: {
         )}
 
         <div
-          className={`relative z-10 w-full max-w-6xl mx-auto px-6 py-20 sm:px-12 sm:py-28 flex flex-col items-center text-center ${post.thumbnail_url ? "text-white" : ""}`}
+          className={`relative z-10 w-full max-w-6xl mx-auto px-6 py-20 sm:px-12 sm:py-28 flex flex-col items-center text-center ${post.thumbnailUrl ? "text-white" : ""}`}
         >
           <div
-            className={`flex items-center justify-center gap-3 sm:gap-4 mb-6 font-medium tracking-wide text-sm ${post.thumbnail_url ? "text-white/80" : "text-foreground/60"}`}
+            className={`flex items-center justify-center gap-3 sm:gap-4 mb-6 font-medium tracking-wide text-sm ${post.thumbnailUrl ? "text-white/80" : "text-foreground/60"}`}
           >
             <time dateTime={meta.date}>
               {new Date(meta.date).toLocaleDateString("ko-KR", {
@@ -111,7 +98,7 @@ export default async function PostPage(props: {
                 <span
                   key={tag}
                   className={
-                    post.thumbnail_url
+                    post.thumbnailUrl
                       ? "text-brand-300 font-semibold drop-shadow-sm"
                       : "text-brand-500 font-semibold"
                   }
@@ -122,19 +109,19 @@ export default async function PostPage(props: {
             </div>
           </div>
           <h1
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold font-display leading-[1.2] mb-6 tracking-tight drop-shadow-md ${post.thumbnail_url ? "text-white" : "text-foreground"}`}
+            className={`text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold font-display leading-[1.2] mb-6 tracking-tight drop-shadow-md ${post.thumbnailUrl ? "text-white" : "text-foreground"}`}
           >
             {meta.title}
           </h1>
           {meta.description && (
             <p
-              className={`text-lg sm:text-xl leading-relaxed max-w-2xl drop-shadow-sm ${post.thumbnail_url ? "text-white/90" : "text-foreground/70"}`}
+              className={`text-lg sm:text-xl leading-relaxed max-w-2xl drop-shadow-sm ${post.thumbnailUrl ? "text-white/90" : "text-foreground/70"}`}
             >
               {meta.description}
             </p>
           )}
           <div
-            className={`mt-5 ${post.thumbnail_url ? "text-white/70" : "text-foreground/50"}`}
+            className={`mt-5 ${post.thumbnailUrl ? "text-white/70" : "text-foreground/50"}`}
           >
             <PostMetricsDisplay slug={slug} />
           </div>
@@ -145,7 +132,6 @@ export default async function PostPage(props: {
         <div className="hidden xl:block" />
 
         <article className="w-full min-w-0">
-
           {/* Prose Content */}
           <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
             <MDXRemote

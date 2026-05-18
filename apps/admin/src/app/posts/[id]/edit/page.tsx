@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import {
+  createSignedUploadUrl,
+  getPostForAdmin,
+  getPublicUrlFromSignedUploadUrl,
+  updatePost,
+} from "@/lib/api";
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -28,36 +33,17 @@ export default function EditPostPage() {
     }
 
     async function loadPost() {
-      // Fetch Post
-      const { data: post, error } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("id", postId)
-        .single();
-
-      if (error || !post) {
-        alert("Failed to load post: " + (error?.message || "Not found"));
+      const post = await getPostForAdmin(postId).catch((error) => {
+        alert(
+          "Failed to load post: " +
+            (error instanceof Error ? error.message : "Not found"),
+        );
         router.push("/posts");
         return;
-      }
+      });
 
-      // Fetch Tags
-      const { data: tagsData } = await supabase
-        .from("post_tags")
-        .select(
-          `
-          tags ( name )
-        `,
-        )
-        .eq("post_id", postId);
-
-      let tagsString = "";
-      if (tagsData) {
-        // Handle post_tags returning array containing tags object
-        const tagNames = tagsData
-          .map((pt: any) => pt.tags?.name)
-          .filter(Boolean);
-        tagsString = tagNames.join(", ");
+      if (!post) {
+        return;
       }
 
       setFormData({
@@ -66,7 +52,7 @@ export default function EditPostPage() {
         description: post.description || "",
         content: post.content || "",
         thumbnail_url: post.thumbnail_url || "",
-        tags: tagsString,
+        tags: post.tags.join(", "),
         published: post.published || false,
       });
 
@@ -76,32 +62,21 @@ export default function EditPostPage() {
     loadPost();
   }, [postId, router]);
 
-  const uploadImageToSupabase = async (file: File): Promise<string> => {
+  const uploadImage = async (file: File): Promise<string> => {
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      const upload = await createSignedUploadUrl(file.name);
+
+      const uploadResponse = await fetch(upload.signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+        body: file,
       });
 
-      const { token, path, error: apiError } = await res.json();
-      if (apiError || !token || !path) {
-        throw new Error(apiError || "Failed to get upload token");
+      if (!uploadResponse.ok) {
+        throw new Error("Storage upload failed");
       }
 
-      const { error: uploadError } = await supabase.storage
-        .from("blog-images")
-        .uploadToSignedUrl(path, token, file);
-
-      if (uploadError) {
-        throw new Error("Supabase Storage Error: " + uploadError.message);
-      }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("blog-images").getPublicUrl(path);
-
-      return publicUrl;
+      return getPublicUrlFromSignedUploadUrl(upload.signedUrl, upload.path);
     } catch (err: unknown) {
       console.error(err);
       alert(
@@ -131,7 +106,7 @@ export default function EditPostPage() {
       });
 
       setUploadingImage(true);
-      const publicUrl = await uploadImageToSupabase(file);
+      const publicUrl = await uploadImage(file);
       setUploadingImage(false);
 
       if (publicUrl) {
@@ -160,47 +135,25 @@ export default function EditPostPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const { error } = await supabase
-      .from("posts")
-      .update({
+    try {
+      await updatePost(postId, {
         title: formData.title,
         slug: formData.slug,
         description: formData.description,
         content: formData.content,
         thumbnail_url: formData.thumbnail_url,
         published: formData.published,
-      })
-      .eq("id", postId);
-
-    if (error) {
-      alert("Error saving post: " + error.message);
-      setLoading(false);
-      return;
-    }
-
-    // Replace old tags completely by deleting and recreating the mappings
-    await supabase.from("post_tags").delete().eq("post_id", postId);
-
-    if (tagsArray.length > 0) {
-      await supabase.from("tags").upsert(
-        tagsArray.map((name) => ({ name })),
-        { onConflict: "name", ignoreDuplicates: true },
+        tags: tagsArray,
+      });
+      router.push("/posts");
+    } catch (error) {
+      alert(
+        "Error saving post: " +
+          (error instanceof Error ? error.message : String(error)),
       );
-
-      const { data: dbTags } = await supabase
-        .from("tags")
-        .select("id")
-        .in("name", tagsArray);
-
-      if (dbTags && dbTags.length > 0) {
-        await supabase
-          .from("post_tags")
-          .insert(dbTags.map((t) => ({ post_id: postId, tag_id: t.id })));
-      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-    router.push("/posts");
   }
 
   if (fetching) {
@@ -275,7 +228,7 @@ export default function EditPostPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     setUploadingImage(true);
-                    const publicUrl = await uploadImageToSupabase(file);
+                    const publicUrl = await uploadImage(file);
                     if (publicUrl) {
                       setFormData((prev) => ({
                         ...prev,
