@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import {
+  createPost,
+  createSignedUploadUrl,
+  getPublicUrlFromSignedUploadUrl,
+} from "@/lib/api";
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -17,35 +21,21 @@ export default function NewPostPage() {
     published: false,
   });
 
-  const uploadImageToSupabase = async (file: File): Promise<string> => {
+  const uploadImage = async (file: File): Promise<string> => {
     try {
-      // 1. Get signed Upload URL token from our secure API
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      const upload = await createSignedUploadUrl(file.name);
+
+      const uploadResponse = await fetch(upload.signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+        body: file,
       });
 
-      const { token, path, error: apiError } = await res.json();
-      if (apiError || !token || !path) {
-        throw new Error(apiError || "Failed to get upload token");
+      if (!uploadResponse.ok) {
+        throw new Error("Storage upload failed");
       }
 
-      // 2. Upload file directly to Supabase storage using the signed token
-      const { error: uploadError } = await supabase.storage
-        .from("blog-images")
-        .uploadToSignedUrl(path, token, file);
-
-      if (uploadError) {
-        throw new Error("Supabase Storage Error: " + uploadError.message);
-      }
-
-      // 3. Retrieve the fully qualified public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("blog-images").getPublicUrl(path);
-
-      return publicUrl;
+      return getPublicUrlFromSignedUploadUrl(upload.signedUrl, upload.path);
     } catch (err: unknown) {
       console.error(err);
       alert(
@@ -78,7 +68,7 @@ export default function NewPostPage() {
 
       // Execute Secure Upload
       setUploadingImage(true);
-      const publicUrl = await uploadImageToSupabase(file);
+      const publicUrl = await uploadImage(file);
       setUploadingImage(false);
 
       if (publicUrl) {
@@ -115,50 +105,25 @@ export default function NewPostPage() {
       return chars.charAt(Math.floor(Math.random() * chars.length));
     }).join("");
 
-    const { data: post, error } = await supabase
-      .from("posts")
-      .insert([
-        {
-          title: formData.title,
-          slug: generatedSlug,
-          description: formData.description,
-          content: formData.content,
-          thumbnail_url: formData.thumbnail_url,
-          published: formData.published,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      alert("Error saving post: " + error.message);
-      setLoading(false);
-      return;
-    }
-
-    if (tagsArray.length > 0) {
-      // Ensure tags exist in the tags table
-      await supabase.from("tags").upsert(
-        tagsArray.map((name) => ({ name })),
-        { onConflict: "name", ignoreDuplicates: true },
+    try {
+      await createPost({
+        title: formData.title,
+        slug: generatedSlug,
+        description: formData.description,
+        content: formData.content,
+        thumbnail_url: formData.thumbnail_url,
+        published: formData.published,
+        tags: tagsArray,
+      });
+      router.push("/posts");
+    } catch (error) {
+      alert(
+        "Error saving post: " +
+          (error instanceof Error ? error.message : String(error)),
       );
-
-      // Fetch the IDs of these tags
-      const { data: dbTags } = await supabase
-        .from("tags")
-        .select("id")
-        .in("name", tagsArray);
-
-      // Insert relationships
-      if (dbTags && dbTags.length > 0) {
-        await supabase
-          .from("post_tags")
-          .insert(dbTags.map((t) => ({ post_id: post.id, tag_id: t.id })));
-      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-    router.push("/posts");
   }
 
   return (
@@ -214,7 +179,7 @@ export default function NewPostPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     setUploadingImage(true);
-                    const publicUrl = await uploadImageToSupabase(file);
+                    const publicUrl = await uploadImage(file);
                     if (publicUrl) {
                       setFormData((prev) => ({
                         ...prev,

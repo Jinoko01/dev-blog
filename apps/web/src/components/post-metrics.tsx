@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getPost, incrementPostLike, incrementPostView } from "@/lib/api";
 import { Heart, Eye } from "lucide-react";
 
 /** views 표시 + view 카운트 증가 + likes 읽기 */
@@ -11,20 +11,9 @@ function usePostMetrics(slug: string) {
 
   useEffect(() => {
     const initMetrics = async () => {
-      const { data } = await supabase
-        .from("post_metrics")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-      let currentViews = data ? data.views : 0;
-      const currentLikes = data ? data.likes : 0;
-
-      if (!data) {
-        await supabase
-          .from("post_metrics")
-          .insert({ slug, views: 0, likes: 0 });
-      }
+      const post = await getPost(slug);
+      let currentViews = post.views || 0;
+      let currentLikes = post.likes || 0;
 
       const today = new Date().toISOString().split("T")[0];
       const viewKey = `viewed_${slug}_${today}`;
@@ -32,19 +21,10 @@ function usePostMetrics(slug: string) {
       const hasViewed = localStorage.getItem(viewKey);
 
       if (!hasViewed) {
-        const { error } = await supabase.rpc("increment_view_count", { post_slug: slug });
-        if (!error) {
-          currentViews += 1;
-          localStorage.setItem(viewKey, "true");
-        } else {
-          // Fallback if RPC doesn't exist
-          currentViews += 1;
-          await supabase
-            .from("post_metrics")
-            .update({ views: currentViews })
-            .eq("slug", slug);
-          localStorage.setItem(viewKey, "true");
-        }
+        const metrics = await incrementPostView(slug);
+        currentViews = metrics.views;
+        currentLikes = metrics.likes;
+        localStorage.setItem(viewKey, "true");
       }
 
       setViews(currentViews);
@@ -64,43 +44,26 @@ function useLikeMetrics(slug: string) {
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const { data } = await supabase
-        .from("post_metrics")
-        .select("likes")
-        .eq("slug", slug)
-        .single();
-
-      setLikes(data ? data.likes : 0);
-      if (localStorage.getItem(`liked_${slug}`)) setIsLiked(true);
+      const post = await getPost(slug);
+      setLikes(post.likes || 0);
+      if (localStorage.getItem(`liked_${slug}`)) {
+        setIsLiked(true);
+      }
     };
 
     fetchLikes();
   }, [slug]);
 
   const handleLike = async () => {
-    if (isLiked) return;
+    if (isLiked) {
+      return;
+    }
 
     setIsLiked(true);
     localStorage.setItem(`liked_${slug}`, "true");
     setLikes((prev) => (prev ?? 0) + 1);
 
-    const { error } = await supabase.rpc("increment_like_count", {
-      post_slug: slug,
-    });
-    if (error) {
-      // Fallback
-      const { data } = await supabase
-        .from("post_metrics")
-        .select("likes")
-        .eq("slug", slug)
-        .single();
-      if (data) {
-        await supabase
-          .from("post_metrics")
-          .update({ likes: data.likes + 1 })
-          .eq("slug", slug);
-      }
-    }
+    await incrementPostLike(slug);
   };
 
   return { likes, isLiked, handleLike };
@@ -154,16 +117,18 @@ export function PostLikeButton({ slug }: { slug: string }) {
     <button
       onClick={handleLike}
       disabled={isLiked || likes === null}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${isLiked
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
+        isLiked
           ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
           : "text-foreground/50 border-black/10 dark:border-white/10 hover:text-pink-400 hover:border-pink-300 dark:hover:border-pink-700 hover:bg-pink-50 dark:hover:bg-pink-950/20"
-        }`}
+      }`}
     >
       <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-      {likes === null
-        ? <span className="w-4 h-3.5 rounded bg-current opacity-20 animate-pulse inline-block" />
-        : <span>{likes}</span>
-      }
+      {likes === null ? (
+        <span className="w-4 h-3.5 rounded bg-current opacity-20 animate-pulse inline-block" />
+      ) : (
+        <span>{likes}</span>
+      )}
     </button>
   );
 }

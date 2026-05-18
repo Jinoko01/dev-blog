@@ -17,19 +17,26 @@ export function CodeTabs({
 }) {
   // Normalize tabs prop to array
   const parsedTabs = React.useMemo(() => {
-    if (!tabs) return [];
-    if (Array.isArray(tabs)) return tabs;
+    if (!tabs) {
+      return [];
+    }
+    if (Array.isArray(tabs)) {
+      return tabs;
+    }
     if (typeof tabs === "string") {
       // Handle potential stringified array like "['npm', 'yarn']" just in case
       if (tabs.trim().startsWith("[") && tabs.trim().endsWith("]")) {
         try {
           // Replace single quotes with double quotes for JSON parsing
           return JSON.parse(tabs.replace(/'/g, '"'));
-        } catch (e) {
+        } catch {
           // Fallback to simple split
         }
       }
-      return tabs.split(",").map((t) => t.trim()).filter(Boolean);
+      return tabs
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
     return [];
   }, [tabs]);
@@ -39,7 +46,11 @@ export function CodeTabs({
 
   useEffect(() => {
     // Only update if current activeTab is no longer in the list
-    if (parsedTabs && parsedTabs.length > 0 && !parsedTabs.includes(activeTab)) {
+    if (
+      parsedTabs &&
+      parsedTabs.length > 0 &&
+      !parsedTabs.includes(activeTab)
+    ) {
       setActiveTab(parsedTabs[0]);
     }
   }, [parsedTabs, activeTab]);
@@ -47,8 +58,13 @@ export function CodeTabs({
   if (!parsedTabs || parsedTabs.length === 0) {
     return (
       <div className="border border-red-500 p-4 rounded text-white bg-red-900/50">
-        <p className="font-bold">Error: CodeTabs requires a 'tabs' array or comma-separated string.</p>
-        <p>Example: <code>{'<CodeTabs tabs="npm, yarn, pnpm, bun">'}</code></p>
+        <p className="font-bold">
+          Error: CodeTabs requires a &apos;tabs&apos; array or comma-separated
+          string.
+        </p>
+        <p>
+          Example: <code>{'<CodeTabs tabs="npm, yarn, pnpm, bun">'}</code>
+        </p>
         <div className="mt-4">{children}</div>
       </div>
     );
@@ -90,7 +106,7 @@ export function CodeTab({
   const { activeTab } = useContext(TabsContext);
   const [copied, setCopied] = useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
-  
+
   // Always render but hide with CSS to prevent flashing or context issues during hydration
   const isHidden = activeTab !== "" && activeTab !== title;
 
@@ -102,15 +118,20 @@ export function CodeTab({
       setTimeout(() => setCopied(false), 2000);
     }
   };
-  
+
   return (
-    <div style={{ display: isHidden ? "none" : "block" }} className="w-full relative group">
-      <div 
+    <div
+      style={{ display: isHidden ? "none" : "block" }}
+      className="w-full relative group"
+    >
+      <div
         ref={contentRef}
         className="px-4 py-2 overflow-x-auto text-base font-mono text-white/80 [&>div]:!my-0 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_pre]:!border-none [&_pre]:!shadow-none [&_pre]:!rounded-none [&_button]:hidden"
       >
         {typeof children === "string" ? (
-          <pre className="m-0! p-0!"><code>{children.trim()}</code></pre>
+          <pre className="m-0! p-0!">
+            <code>{children.trim()}</code>
+          </pre>
         ) : (
           children
         )}

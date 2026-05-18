@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
 import { ArticlesClient } from "@/components/articles-client";
+import { getTags } from "@/lib/api";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -9,14 +9,8 @@ export const metadata = {
 };
 
 export default async function ArticlesPage() {
-  const { data: tagsData } = await supabase
-    .from("tags")
-    .select("name")
-    .order("name");
-
-  const initialTags = tagsData
-    ? Array.from(new Set(tagsData.map((t) => t.name)))
-    : [];
+  const tagsData = await getTags();
+  const initialTags = Array.from(new Set(tagsData.map((t) => t.name))).sort();
 
   return <ArticlesClient initialTags={initialTags} />;
 }

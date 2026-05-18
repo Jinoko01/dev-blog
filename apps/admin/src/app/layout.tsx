@@ -32,6 +32,7 @@ export default function RootLayout({
               { href: "/", label: "Dashboard" },
               { href: "/posts", label: "Posts" },
               { href: "/algorithms", label: "Algorithms" },
+              { href: "/login", label: "Login" },
               { href: "/settings", label: "Settings" },
             ].map((item) => (
               <Link

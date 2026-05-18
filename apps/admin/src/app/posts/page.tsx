@@ -2,22 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import {
+  deletePost as deletePostById,
+  getPosts,
+  togglePostPublish,
+  type AdminPost,
+} from "@/lib/api";
 import { Plus, Edit, Trash2 } from "lucide-react";
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState<Array<Record<string, any>>>([]);
+  const [posts, setPosts] = useState<AdminPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function fetchPosts() {
     setLoading(true);
-    const { data } = await supabase
-      .from("posts")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) {
+    try {
+      const data = await getPosts();
       setPosts(data);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to load posts");
     }
     setLoading(false);
   }
@@ -26,8 +29,8 @@ export default function PostsPage() {
     fetchPosts();
   }, []);
 
-  async function togglePublish(id: string, current: boolean) {
-    await supabase.from("posts").update({ published: !current }).eq("id", id);
+  async function togglePublish(id: string) {
+    await togglePostPublish(id);
     fetchPosts();
   }
 
@@ -35,7 +38,7 @@ export default function PostsPage() {
     if (!confirm("Are you sure you want to delete this post?")) {
       return;
     }
-    await supabase.from("posts").delete().eq("id", id);
+    await deletePostById(id);
     fetchPosts();
   }
 
@@ -80,7 +83,7 @@ export default function PostsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => togglePublish(post.id, post.published)}
+                      onClick={() => togglePublish(post.id)}
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         post.published
                           ? "bg-green-100 text-green-700 hover:bg-green-200"

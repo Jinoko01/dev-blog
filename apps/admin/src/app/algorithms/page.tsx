@@ -2,22 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import {
+  deleteAlgorithm,
+  getAlgorithms,
+  toggleAlgorithmPublish,
+  type AdminAlgorithm,
+} from "@/lib/api";
 import { Plus, Edit, Trash2 } from "lucide-react";
 
 export default function AlgorithmsPage() {
-  const [algos, setAlgos] = useState<Array<Record<string, any>>>([]);
+  const [algos, setAlgos] = useState<AdminAlgorithm[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function fetchAlgos() {
     setLoading(true);
-    const { data } = await supabase
-      .from("algorithms")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) {
+    try {
+      const data = await getAlgorithms();
       setAlgos(data);
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : "Failed to load algorithms",
+      );
     }
     setLoading(false);
   }
@@ -26,11 +31,8 @@ export default function AlgorithmsPage() {
     fetchAlgos();
   }, []);
 
-  async function togglePublish(id: string, current: boolean) {
-    await supabase
-      .from("algorithms")
-      .update({ published: !current })
-      .eq("id", id);
+  async function togglePublish(id: string) {
+    await toggleAlgorithmPublish(id);
     fetchAlgos();
   }
 
@@ -38,7 +40,7 @@ export default function AlgorithmsPage() {
     if (!confirm("Are you sure you want to delete this archive?")) {
       return;
     }
-    await supabase.from("algorithms").delete().eq("id", id);
+    await deleteAlgorithm(id);
     fetchAlgos();
   }
 
@@ -101,7 +103,7 @@ export default function AlgorithmsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => togglePublish(algo.id, algo.published)}
+                      onClick={() => togglePublish(algo.id)}
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         algo.published
                           ? "bg-green-100 text-green-700 hover:bg-green-200"
