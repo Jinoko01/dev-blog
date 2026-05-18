@@ -250,9 +250,9 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                     {/* Thumbnail */}
                     {/* [rendering-conditional-render] Use ternary instead of && to avoid accidental 0/false rendering */}
                     <div className="w-full md:w-60 lg:w-[180px] aspect-video relative overflow-hidden bg-muted shrink-0 border border-border/50">
-                      {article.thumbnail_url ? (
+                      {article.thumbnailUrl ? (
                         <Image
-                          src={article.thumbnail_url}
+                          src={article.thumbnailUrl}
                           alt={article.title}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 240px, 180px"
@@ -272,7 +272,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
                           </span>
                           <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                             <Calendar className="w-3.5 h-3.5" />
-                            {new Date(article.created_at)
+                            {new Date(article.createdAt)
                               .toLocaleDateString("en-US", {
                                 year: "numeric",
                                 month: "2-digit",

@@ -9,9 +9,9 @@ export type ApiPostSummary = {
   title: string;
   slug: string;
   description?: string | null;
-  thumbnailUrl?: string | null;
+  thumbnail_url?: string | null;
   published: boolean;
-  createdAt: string;
+  created_at: string;
   tags?: string[];
   views?: number;
   likes?: number;
@@ -27,8 +27,8 @@ export type ApiArticle = {
   title: string;
   slug: string;
   description?: string | null;
-  thumbnailUrl?: string | null;
-  createdAt: string;
+  thumbnail_url?: string | null;
+  created_at: string;
   views?: number;
   likes?: number;
   tags?: string[];
@@ -113,11 +113,11 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}) {
 export function toPostMetadata(post: ApiPostSummary) {
   return {
     title: post.title,
-    date: post.createdAt,
+    date: post.created_at,
     description: post.description || "",
     tags: post.tags || [],
     slug: post.slug,
-    thumbnail_url: post.thumbnailUrl || null,
+    thumbnailUrl: post.thumbnail_url || null,
     views: post.views || 0,
     likes: post.likes || 0,
   };
@@ -129,8 +129,8 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
     title: article.title,
     slug: article.slug,
     description: article.description || "",
-    thumbnail_url: article.thumbnailUrl || null,
-    created_at: article.createdAt,
+    thumbnailUrl: article.thumbnail_url || null,
+    createdAt: article.created_at,
     views: article.views || 0,
     likes: article.likes || 0,
     tags: article.tags || [],

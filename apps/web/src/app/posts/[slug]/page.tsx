@@ -56,7 +56,7 @@ export default async function PostPage(props: {
 
   const meta = {
     title: post.title,
-    date: post.createdAt,
+    date: post.created_at,
     description: post.description,
     tags: post.tags || [],
   };
@@ -65,10 +65,10 @@ export default async function PostPage(props: {
   return (
     <div className="w-full min-w-0 min-h-screen relative z-10">
       <header className="relative w-full overflow-hidden border-b border-black/5 dark:border-white/5">
-        {post.thumbnailUrl && (
+        {post.thumbnail_url && (
           <>
             <Image
-              src={post.thumbnailUrl}
+              src={post.thumbnail_url}
               alt={post.title}
               fill
               sizes="100vw"

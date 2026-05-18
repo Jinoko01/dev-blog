@@ -58,9 +58,9 @@ export function PostList({
               {variant === "figma" ? (
                 <>
                   <div className="aspect-video relative overflow-hidden bg-muted">
-                    {(post as any).thumbnail_url ? (
+                    {(post as any).thumbnailUrl ? (
                       <Image
-                        src={(post as any).thumbnail_url}
+                        src={(post as any).thumbnailUrl}
                         alt={post.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
