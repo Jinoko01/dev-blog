@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PostMetadata } from "@/lib/mdx";
 import { PostList } from "@/components/post-list";
 import Link from "next/link";
 import { Eye, Heart } from "lucide-react";
+import { recordVisit } from "@/lib/api";
 
 type SortType = "latest" | "popular";
 
@@ -18,6 +19,18 @@ export function HomeClient({
   totalVisitors?: number;
 }) {
   const [sortType, setSortType] = useState<SortType>("latest");
+
+  useEffect(() => {
+    const STORAGE_KEY = "blog_session_id";
+    let sessionId = localStorage.getItem(STORAGE_KEY);
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem(STORAGE_KEY, sessionId);
+    }
+    recordVisit(sessionId).catch(() => {
+      // 방문 기록 실패는 무시
+    });
+  }, []);
 
   const sortedPosts = useMemo(() => {
     const copy = [...posts];
