@@ -4,8 +4,7 @@ import { getPosts, toPostMetadata } from "@/lib/api";
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
-  // [async-parallel] Fetch posts and metrics in parallel — previously sequential (2 round trips → 1)
-  const posts = await getPosts();
+  const { posts, totalVisitors } = await getPosts();
 
   const uniqueTopics = new Set<string>();
 
@@ -15,6 +14,10 @@ export default async function Home() {
   });
 
   return (
-    <HomeClient posts={formattedPosts} topics={Array.from(uniqueTopics)} />
+    <HomeClient
+      posts={formattedPosts}
+      topics={Array.from(uniqueTopics)}
+      totalVisitors={totalVisitors}
+    />
   );
 }
