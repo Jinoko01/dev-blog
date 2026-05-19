@@ -4,7 +4,7 @@ import { getPosts, toPostMetadata } from "@/lib/api";
 export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
-  const { posts, totalVisitors } = await getPosts();
+  const { posts, total_visitors: totalVisitors } = await getPosts();
 
   const uniqueTopics = new Set<string>();
 

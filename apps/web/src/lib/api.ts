@@ -19,7 +19,7 @@ export type ApiPostSummary = {
 
 export type ApiPostsResponse = {
   posts: ApiPostSummary[];
-  totalVisitors: number;
+  total_visitors: number;
 };
 
 export type ApiPostDetail = ApiPostSummary & {
