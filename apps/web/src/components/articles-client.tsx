@@ -21,8 +21,8 @@ type Article = {
   title: string;
   slug: string;
   description: string;
-  thumbnail_url: string | null;
-  created_at: string;
+  thumbnailUrl: string | null;
+  createdAt: string;
   views: number;
   likes: number;
   tags: string[];
