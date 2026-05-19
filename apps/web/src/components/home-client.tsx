@@ -1,25 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import type { PostMetadata } from "@/lib/mdx";
-import { PostList } from "@/components/post-list";
-import Link from "next/link";
-import { Eye, Heart } from "lucide-react";
 import { recordVisit } from "@/lib/api";
-
-type SortType = "latest" | "popular";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { LandingMarquee } from "@/components/landing/landing-marquee";
+import { AboutSection } from "@/components/landing/about-section";
+import { CompetenciesSection } from "@/components/landing/competencies-section";
+import { TechStackSection } from "@/components/landing/tech-stack-section";
+import { LatestSection } from "@/components/landing/latest-section";
+import { CtaSection } from "@/components/landing/cta-section";
 
 export function HomeClient({
   posts,
-  topics = [],
   totalVisitors = 0,
 }: {
   posts: PostMetadata[];
   topics?: string[];
   totalVisitors?: number;
 }) {
-  const [sortType, setSortType] = useState<SortType>("latest");
-
   useEffect(() => {
     const STORAGE_KEY = "blog_session_id";
     let sessionId = localStorage.getItem(STORAGE_KEY);
@@ -27,179 +26,18 @@ export function HomeClient({
       sessionId = crypto.randomUUID();
       localStorage.setItem(STORAGE_KEY, sessionId);
     }
-    recordVisit(sessionId).catch(() => {
-      // 방문 기록 실패는 무시
-    });
+    recordVisit(sessionId).catch(() => {});
   }, []);
 
-  const sortedPosts = useMemo(() => {
-    const copy = [...posts];
-    copy.sort((a: any, b: any) => {
-      if (sortType === "popular") {
-        const scoreA = (a.views || 0) + (a.likes || 0) * 2;
-        const scoreB = (b.views || 0) + (b.likes || 0) * 2;
-        if (scoreA !== scoreB) {
-          return scoreB - scoreA;
-        }
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    return copy;
-  }, [posts, sortType]);
-
-  const popularPosts = useMemo(() => {
-    const copy = [...posts];
-    copy.sort((a: any, b: any) => {
-      const scoreA = (a.views || 0) + (a.likes || 0) * 2;
-      const scoreB = (b.views || 0) + (b.likes || 0) * 2;
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-    return copy.slice(0, 5);
-  }, [posts]);
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero Section */}
-      <div className="mb-16 mt-8">
-        <h1 className="text-5xl md:text-7xl lg:text-[100px] leading-[0.9] font-black tracking-tighter text-center text-[color:var(--color-foreground)] mb-12 uppercase">
-          FRONTEND
-          <br />
-          ARCHITECTURE
-        </h1>
-
-        {/* Stats Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-y border-[color:var(--color-border)] py-4">
-          <div className="flex items-center gap-2">
-            <span>VISITS</span>
-            <span className="text-[color:var(--color-foreground)]">
-              {totalVisitors.toLocaleString()}
-            </span>
-          </div>
-          <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
-          <div className="flex items-center gap-2">
-            <span>TOTAL POSTS</span>
-            <span className="text-[color:var(--color-foreground)]">
-              {posts.length || 8}
-            </span>
-          </div>
-          <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
-          <div className="flex items-center gap-2">
-            <span>SYSTEM STATUS</span>
-            <span className="text-[color:var(--color-primary)]">OPTIMIZED</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="flex items-center justify-between border-b border-[color:var(--color-border)]/50 pb-2">
-            <h2 className="text-sm font-bold tracking-widest text-[color:var(--color-primary)] uppercase">
-              LATEST ARTICLES
-            </h2>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setSortType("latest")}
-                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
-                  sortType === "latest"
-                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
-                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
-                }`}
-              >
-                LATEST
-              </button>
-              <button
-                onClick={() => setSortType("popular")}
-                className={`pb-2 -mb-[9px] px-1 text-xs font-bold tracking-widest transition-colors border-b-2 cursor-pointer ${
-                  sortType === "popular"
-                    ? "border-[color:var(--color-primary)] text-[color:var(--color-primary)]"
-                    : "border-transparent text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"
-                }`}
-              >
-                POPULAR
-              </button>
-            </div>
-          </div>
-
-          <PostList allPosts={sortedPosts} variant="figma" />
-        </div>
-
-        <div className="space-y-12 lg:pl-4 lg:min-w-[300px]">
-          <div>
-            <h3 className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-b border-[color:var(--color-border)]/50 pb-2 mb-4">
-              TOPICS
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {topics.length > 0 ? (
-                [...topics].map((topic) => (
-                  <span
-                    key={topic}
-                    className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-[color:var(--color-secondary)]/80 text-[color:var(--color-secondary-foreground)] rounded-sm border border-[color:var(--color-border)]"
-                  >
-                    {topic}
-                  </span>
-                ))
-              ) : (
-                <span className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)]">
-                  NO TOPICS FOUND
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-b border-[color:var(--color-border)]/50 pb-2 mb-4">
-              TRENDING
-            </h3>
-            <div className="space-y-3">
-              {popularPosts.length > 0 ? (
-                popularPosts.map((post, index) => (
-                  <Link
-                    key={post.slug}
-                    href={`/posts/${post.slug}`}
-                    className="block group"
-                  >
-                    <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-[color:var(--color-secondary)]/40 transition-colors">
-                      <span className="shrink-0 text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] w-5">
-                        0{index + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[color:var(--color-foreground)] group-hover:text-[color:var(--color-primary)] transition-colors line-clamp-2">
-                          {post.title}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1.5 text-[10px] font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            {(post as any).views || 0}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Heart className="w-3 h-3" />
-                            {(post as any).likes || 0}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="text-xs font-bold tracking-widest uppercase text-[color:var(--color-muted-foreground)]">
-                  No Trending Posts
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="w-full h-64 bg-[color:var(--color-secondary)]/30 border border-[color:var(--color-border)] flex items-center justify-center rounded-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-linear-to-tr from-[color:var(--color-primary)]/10 to-transparent" />
-            <span className="text-xs font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase relative z-10">
-              AD SPACE
-            </span>
-          </div>
-        </div>
-      </div>
+    <div style={{ width: "100%" }}>
+      <LandingHero />
+      <LandingMarquee />
+      <AboutSection totalVisitors={totalVisitors} />
+      <CompetenciesSection />
+      <TechStackSection />
+      <LatestSection posts={posts} />
+      <CtaSection />
     </div>
   );
 }
