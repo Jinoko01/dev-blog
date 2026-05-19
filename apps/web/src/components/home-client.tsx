@@ -11,9 +11,11 @@ type SortType = "latest" | "popular";
 export function HomeClient({
   posts,
   topics = [],
+  totalVisitors = 0,
 }: {
   posts: PostMetadata[];
   topics?: string[];
+  totalVisitors?: number;
 }) {
   const [sortType, setSortType] = useState<SortType>("latest");
 
@@ -60,7 +62,9 @@ export function HomeClient({
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold tracking-widest text-[color:var(--color-muted-foreground)] uppercase border-y border-[color:var(--color-border)] py-4">
           <div className="flex items-center gap-2">
             <span>VISITS</span>
-            <span className="text-[color:var(--color-foreground)]">-</span>
+            <span className="text-[color:var(--color-foreground)]">
+              {totalVisitors.toLocaleString()}
+            </span>
           </div>
           <div className="w-1 h-1 rounded-full bg-[color:var(--color-border)]" />
           <div className="flex items-center gap-2">

@@ -17,6 +17,11 @@ export type ApiPostSummary = {
   likes?: number;
 };
 
+export type ApiPostsResponse = {
+  posts: ApiPostSummary[];
+  totalVisitors: number;
+};
+
 export type ApiPostDetail = ApiPostSummary & {
   content?: string | null;
   relatedPosts?: ApiPostSummary[];
@@ -138,7 +143,7 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
 }
 
 export async function getPosts() {
-  return apiFetch<ApiPostSummary[]>("/api/posts", {
+  return apiFetch<ApiPostsResponse>("/api/posts", {
     next: { revalidate: 60 },
   });
 }
