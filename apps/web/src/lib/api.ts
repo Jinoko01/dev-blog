@@ -215,3 +215,11 @@ export async function incrementPostLike(slug: string) {
     },
   );
 }
+
+export async function recordVisit(sessionId: string): Promise<void> {
+  await apiFetch<void>("/api/visits", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+}
