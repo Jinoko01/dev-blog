@@ -38,8 +38,8 @@ export async function generateMetadata(props: {
 }
 
 export async function generateStaticParams() {
-  const data = await getPosts();
-  return data.map((p) => ({ slug: p.slug }));
+  const { posts } = await getPosts();
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export default async function PostPage(props: {
