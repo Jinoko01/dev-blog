@@ -7,7 +7,17 @@
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
       "Bash(find *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(mkdir -p /tmp/design-bundle)",
+      "Read(//tmp/**)",
+      "Bash(cp \"C:/Users/D/.claude/projects/C--project-dev-blog/8fc96a2f-9a98-4c30-be0c-0ccff689e322/tool-results/webfetch-1779192364854-buq7wj.bin\" design.tar.gz)",
+      "Bash(tar -tzf design.tar.gz)",
+      "Bash(tar -xzf design.tar.gz)",
+      "Bash(pnpm --filter web exec tsc --noEmit)",
+      "Bash(pnpm --filter web exec next lint)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm --filter web build)"
     ]
   }
 }

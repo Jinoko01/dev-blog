@@ -41,13 +41,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <head>
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
-          crossOrigin="anonymous"
-        />
-      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen font-sans transition-colors duration-500`}
       >
@@ -66,6 +59,11 @@ export default function RootLayout({
             <BottomNav />
           </div>
         </ThemeProvider>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}`}
+          crossOrigin="anonymous"
+        />
       </body>
     </html>
   );
