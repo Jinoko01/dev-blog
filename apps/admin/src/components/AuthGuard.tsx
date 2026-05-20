@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAdminToken } from "@/lib/api";
 
-export default function AuthGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -20,7 +16,9 @@ export default function AuthGuard({
     }
   }, [router]);
 
-  if (!ready) return null;
+  if (!ready) {
+    return null;
+  }
 
   return <>{children}</>;
 }
