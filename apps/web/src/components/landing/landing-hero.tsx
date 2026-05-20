@@ -2,6 +2,7 @@
 
 import { ArrowRight, Github } from "lucide-react";
 import { useEffect, useState } from "react";
+import { InteractiveGrid } from "./interactive-grid";
 
 const WORD = ["O", "K", "O", "J", "I", "N"];
 
@@ -12,17 +13,20 @@ export function LandingHero() {
     return () => clearTimeout(id);
   }, []);
 
+  const handleAboutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document
+      .getElementById("about")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <section className="hero-wrap flex-1 flex flex-col">
-      <div className="hero-grid" aria-hidden="true" />
+      <div className="hero-grid" aria-hidden="true">
+        <InteractiveGrid />
+      </div>
 
-      <div className="relative flex-1 max-w-7xl w-full mx-auto px-6 flex flex-col items-center text-center gap-8 justify-center">
-        <div className="hero-status inline-flex items-center gap-2.5 px-3.5 py-2 border border-border rounded-full bg-card/70 backdrop-blur-sm">
-          <span className="status-dot" aria-hidden="true" />
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-foreground">
-            Available
-          </span>
-        </div>
+      <div className="relative pointer-events-none flex-1 max-w-7xl w-full mx-auto px-6 flex flex-col items-center text-center gap-8 justify-center [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
 
         <h1 className="hero-display text-center">
           <span className="block text-[0.18em] font-bold tracking-[0.2em] text-muted-foreground mb-[0.3em]">
@@ -59,12 +63,7 @@ export function LandingHero() {
           <a
             href="#about"
             className="hero-btn-primary inline-flex items-center gap-2.5 px-5.5 py-3.5 bg-primary text-white text-[12px] font-bold tracking-[0.2em] uppercase rounded-full transition-[transform,background] duration-200"
-            onClick={(e) => {
-              e.preventDefault();
-              document
-                .getElementById("about")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
+            onClick={handleAboutClick}
           >
             About me <ArrowRight size={14} />
           </a>
@@ -72,7 +71,7 @@ export function LandingHero() {
             href="https://github.com/Jinoko01"
             target="_blank"
             rel="noopener noreferrer"
-            className="hero-btn-ghost inline-flex items-center gap-2.5 px-5.5 py-3.5 border border-border text-[12px] font-bold tracking-[0.2em] uppercase rounded-full text-foreground transition-all duration-200"
+            className="hero-btn-ghost bg-white inline-flex items-center gap-2.5 px-5.5 py-3.5 border border-border text-[12px] font-bold tracking-[0.2em] uppercase rounded-full text-foreground transition-all duration-200"
           >
             <Github size={14} /> GitHub
           </a>

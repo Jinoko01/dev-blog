@@ -17,7 +17,12 @@
       "Bash(pnpm --filter web exec tsc --noEmit)",
       "Bash(pnpm --filter web exec next lint)",
       "Bash(pnpm lint *)",
-      "Bash(pnpm --filter web build)"
+      "Bash(pnpm --filter web build)",
+      "Skill(frontend-design)",
+      "Bash(gunzip -c design.gz)",
+      "Bash(tar -tf design.tar)",
+      "Bash(tar -xf design.tar)",
+      "Bash(pnpm exec *)"
     ]
   }
 }
