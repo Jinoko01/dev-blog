@@ -1,11 +1,11 @@
-import { Layers, Zap, Code2, Sparkles, type LucideIcon } from "lucide-react";
+import { Code2, Layers, Sparkles, Zap, type LucideIcon } from "lucide-react";
 import { RevealWrap } from "./reveal-wrap";
 
-const COMPETENCIES: {
+const COMPETENCIES: Array<{
   icon: LucideIcon;
   title: string;
   body: string;
-}[] = [
+}> = [
   {
     icon: Layers,
     title: "Design Systems",
@@ -30,27 +30,17 @@ const COMPETENCIES: {
 
 export function CompetenciesSection() {
   return (
-    <section className="section section--alt">
-      <div className="section__inner">
-        <div className="section__head">
-          <div>
-            <div className="section__num">02 — Core</div>
+    <section className="w-full py-[clamp(64px,8vw,128px)] bg-card border-y border-border">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-end justify-between gap-6 mb-[clamp(40px,5vw,64px)] pb-4 border-b border-border">
+          <div className="flex flex-col gap-3">
+            <div className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground">
+              02 — Core
+            </div>
             <h2 className="section__title">
               핵심 역량,&nbsp;<span className="underline">네 가지</span>
             </h2>
           </div>
-          <p
-            style={{
-              margin: 0,
-              maxWidth: 360,
-              fontSize: 14,
-              lineHeight: 1.65,
-              color: "var(--muted-foreground)",
-            }}
-          >
-            한 가지 분야의 깊이도 중요하지만, 인접한 분야와 연결되는 능력이 더
-            중요하다고 믿습니다.
-          </p>
         </div>
 
         <div className="comp-grid">

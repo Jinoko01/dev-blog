@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
-import type { PostMetadata } from "@/lib/mdx";
-import { recordVisit } from "@/lib/api";
-import { LandingHero } from "@/components/landing/landing-hero";
-import { LandingMarquee } from "@/components/landing/landing-marquee";
 import { AboutSection } from "@/components/landing/about-section";
 import { CompetenciesSection } from "@/components/landing/competencies-section";
-import { TechStackSection } from "@/components/landing/tech-stack-section";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { LandingMarquee } from "@/components/landing/landing-marquee";
 import { LatestSection } from "@/components/landing/latest-section";
-import { CtaSection } from "@/components/landing/cta-section";
+import { TechStackSection } from "@/components/landing/tech-stack-section";
+import { recordVisit } from "@/lib/api";
+import type { PostMetadata } from "@/lib/mdx";
+import { useEffect } from "react";
 
 export function HomeClient({
   posts,
@@ -30,14 +29,15 @@ export function HomeClient({
   }, []);
 
   return (
-    <div style={{ width: "100%" }}>
-      <LandingHero />
-      <LandingMarquee />
+    <div className="w-full">
+      <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+        <LandingHero />
+        <LandingMarquee />
+      </div>
       <AboutSection totalVisitors={totalVisitors} />
       <CompetenciesSection />
       <TechStackSection />
       <LatestSection posts={posts} />
-      <CtaSection />
     </div>
   );
 }

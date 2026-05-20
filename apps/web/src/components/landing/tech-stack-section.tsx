@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Sparkles } from "lucide-react";
+import { useState } from "react";
 import { RevealWrap } from "./reveal-wrap";
 
 type StackItem = { name: string; cat: string; accent: string };
@@ -12,19 +12,19 @@ const STACK: StackItem[] = [
   { name: "Next.js", cat: "Frontend", accent: "#000000" },
   { name: "Tailwind", cat: "Frontend", accent: "#38bdf8" },
   { name: "Framer Motion", cat: "Frontend", accent: "#bb4b96" },
-  { name: "shadcn/ui", cat: "Frontend", accent: "#71717a" },
+  { name: "Zustand", cat: "Frontend", accent: "#452a18" },
+  { name: "Jotai", cat: "Frontend", accent: "#edf2f7" },
   { name: "Spring Boot", cat: "Backend", accent: "#6db33f" },
   { name: "Java 21", cat: "Backend", accent: "#ed8b00" },
   { name: "Supabase", cat: "Backend", accent: "#3ecf8e" },
   { name: "PostgreSQL", cat: "Backend", accent: "#336791" },
-  { name: "Gradle", cat: "Tooling", accent: "#02303a" },
-  { name: "Turborepo", cat: "Tooling", accent: "#ff2e88" },
-  { name: "Vite", cat: "Tooling", accent: "#646cff" },
-  { name: "Vitest", cat: "Tooling", accent: "#fcc72b" },
-  { name: "Figma", cat: "Design", accent: "#f24e1e" },
+  { name: "Turborepo", cat: "Tool", accent: "#ff2e88" },
+  { name: "Vite", cat: "Tool", accent: "#646cff" },
+  { name: "Vitest", cat: "Tool", accent: "#fcc72b" },
+  { name: "Figma", cat: "Tool", accent: "#f24e1e" },
 ];
 
-const CATEGORIES = ["Frontend", "Backend", "Tooling", "Design", "Content"];
+const CATEGORIES = ["Frontend", "Backend", "Tool", "Design"];
 
 export function TechStackSection() {
   const [filter, setFilter] = useState("All");
@@ -32,11 +32,13 @@ export function TechStackSection() {
     filter === "All" ? STACK : STACK.filter((s) => s.cat === filter);
 
   return (
-    <section className="section">
-      <div className="section__inner">
-        <div className="section__head">
-          <div>
-            <div className="section__num">03 — Tech Stack</div>
+    <section className="w-full py-[clamp(64px,8vw,128px)]">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-end justify-between gap-6 mb-[clamp(40px,5vw,64px)] pb-4 border-b border-border">
+          <div className="flex flex-col gap-3">
+            <div className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground">
+              03 — Tech Stack
+            </div>
             <h2 className="section__title">
               주로 쓰는 <span className="underline">Tech</span>
             </h2>
@@ -68,9 +70,7 @@ export function TechStackSection() {
                 </div>
                 <div>
                   <div className="stack-tile__name">{t.name}</div>
-                  <div className="stack-tile__cat" style={{ marginTop: 6 }}>
-                    {t.cat}
-                  </div>
+                  <div className="stack-tile__cat mt-1.5">{t.cat}</div>
                 </div>
               </div>
             </RevealWrap>
@@ -78,22 +78,10 @@ export function TechStackSection() {
         </div>
 
         <RevealWrap delay={120}>
-          <p
-            style={{
-              margin: "48px auto 0",
-              fontSize: 14,
-              color: "var(--muted-foreground)",
-              textAlign: "center",
-              maxWidth: 640,
-            }}
-          >
+          <p className="mt-12 mx-auto text-sm text-muted-foreground text-center max-w-160">
             <Sparkles
               size={14}
-              style={{
-                verticalAlign: "middle",
-                marginRight: 8,
-                color: "var(--primary)",
-              }}
+              className="align-middle mr-2 text-primary inline"
             />
             신기술을 배우는 것을 좋아합니다. 요즘은 하네스 엔지니어링에 관심이
             많습니다.
