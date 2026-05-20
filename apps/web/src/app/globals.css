@@ -31,6 +31,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  --animate-igrid-fade: igrid-fade var(--igrid-fade, 1100ms) ease-out forwards;
+
   --font-sans: var(--font-inter), sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
 }
@@ -360,29 +362,31 @@ h6 {
 .hero-grid {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(
-      to right,
-      color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 64px 64px;
+  color: var(--foreground);
+  pointer-events: auto;
   mask-image: radial-gradient(
-    ellipse 80% 70% at 50% 50%,
+    ellipse 85% 75% at 50% 45%,
     black 30%,
-    transparent 90%
+    transparent 95%
   );
   -webkit-mask-image: radial-gradient(
-    ellipse 80% 70% at 50% 50%,
+    ellipse 85% 75% at 50% 45%,
     black 30%,
-    transparent 90%
+    transparent 95%
   );
-  pointer-events: none;
+}
+
+/* Interactive grid pattern (magicui-style) */
+@keyframes igrid-fade {
+  0% {
+    fill-opacity: 0.17;
+  }
+  35% {
+    fill-opacity: 0.06;
+  }
+  100% {
+    fill-opacity: 0;
+  }
 }
 .hero-display {
   font-family: var(--font-display);
@@ -590,7 +594,6 @@ h6 {
   position: relative;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--border);
   background: var(--secondary);
   aspect-ratio: 4 / 5;
   transition: transform 600ms var(--ease-emphasized);
@@ -748,7 +751,7 @@ h6 {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   padding: 18px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -758,9 +761,57 @@ h6 {
     border-color 200ms,
     box-shadow 280ms,
     background 200ms;
-  min-height: 112px;
+  min-height: 140px;
   position: relative;
   overflow: hidden;
+}
+.stack-tile__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tech-logo {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  filter: grayscale(1);
+  opacity: 0.85;
+  transition:
+    filter 280ms var(--ease-emphasized),
+    opacity 280ms;
+}
+.tech-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.tech-logo--fallback {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.stack-tile:hover .tech-logo,
+.stack-tile:focus-visible .tech-logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+.dark .tech-logo {
+  filter: grayscale(1) invert(0.85);
+  opacity: 0.8;
+}
+.dark .stack-tile:hover .tech-logo,
+.dark .stack-tile:focus-visible .tech-logo {
+  filter: grayscale(0) invert(0);
+  opacity: 1;
 }
 .stack-tile::before {
   content: "";

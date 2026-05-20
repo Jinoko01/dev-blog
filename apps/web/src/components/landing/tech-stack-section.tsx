@@ -4,25 +4,48 @@ import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { RevealWrap } from "./reveal-wrap";
 
-type StackItem = { name: string; cat: string; accent: string };
+type StackItem = {
+  name: string;
+  cat: string;
+  slug: string;
+  accent: string;
+};
 
 const STACK: StackItem[] = [
-  { name: "React", cat: "Frontend", accent: "#61dafb" },
-  { name: "TypeScript", cat: "Frontend", accent: "#3178c6" },
-  { name: "Next.js", cat: "Frontend", accent: "#000000" },
-  { name: "Tailwind", cat: "Frontend", accent: "#38bdf8" },
-  { name: "Framer Motion", cat: "Frontend", accent: "#bb4b96" },
-  { name: "Zustand", cat: "Frontend", accent: "#452a18" },
-  { name: "Jotai", cat: "Frontend", accent: "#edf2f7" },
-  { name: "Spring Boot", cat: "Backend", accent: "#6db33f" },
-  { name: "Java 21", cat: "Backend", accent: "#ed8b00" },
-  { name: "Supabase", cat: "Backend", accent: "#3ecf8e" },
-  { name: "PostgreSQL", cat: "Backend", accent: "#336791" },
-  { name: "Turborepo", cat: "Tool", accent: "#ff2e88" },
-  { name: "Vite", cat: "Tool", accent: "#646cff" },
-  { name: "Vitest", cat: "Tool", accent: "#fcc72b" },
-  { name: "Figma", cat: "Tool", accent: "#f24e1e" },
+  { name: "React", cat: "Frontend", slug: "react", accent: "#61dafb" },
+  {
+    name: "TypeScript",
+    cat: "Frontend",
+    slug: "typescript",
+    accent: "#3178c6",
+  },
+  { name: "Next.js", cat: "Frontend", slug: "nextdotjs", accent: "#000000" },
+  { name: "Tailwind", cat: "Frontend", slug: "tailwindcss", accent: "#38bdf8" },
+  { name: "Framer Motion", cat: "Frontend", slug: "framer", accent: "#bb4b96" },
+  { name: "Zustand", cat: "Frontend", slug: "zustand", accent: "#452a18" },
+  { name: "Jotai", cat: "Frontend", slug: "jotai", accent: "#edf2f7" },
+  {
+    name: "Node.js",
+    cat: "Backend",
+    slug: "nodedotjs",
+    accent: "#5fa04e",
+  },
+  {
+    name: "Spring Boot",
+    cat: "Backend",
+    slug: "springboot",
+    accent: "#6db33f",
+  },
+  { name: "Java 21", cat: "Backend", slug: "openjdk", accent: "#ed8b00" },
+  { name: "Supabase", cat: "Backend", slug: "supabase", accent: "#3ecf8e" },
+  { name: "PostgreSQL", cat: "Backend", slug: "postgresql", accent: "#336791" },
+  { name: "Turborepo", cat: "Tool", slug: "turborepo", accent: "#ff2e88" },
+  { name: "Vite", cat: "Tool", slug: "vite", accent: "#646cff" },
+  { name: "Vitest", cat: "Tool", slug: "vitest", accent: "#fcc72b" },
+  { name: "Figma", cat: "Tool", slug: "figma", accent: "#f24e1e" },
 ];
+
+const STACK_INDEX = new Map(STACK.map((item, i) => [item, i + 1]));
 
 const CATEGORIES = ["Frontend", "Backend", "Tool", "Design"];
 
@@ -65,8 +88,11 @@ export function TechStackSection() {
                 style={{ "--tile-accent": t.accent } as React.CSSProperties}
                 tabIndex={0}
               >
-                <div className="stack-tile__num">
-                  {String(STACK.indexOf(t) + 1).padStart(2, "0")}
+                <div className="stack-tile__top">
+                  <TechLogo slug={t.slug} name={t.name} accent={t.accent} />
+                  <div className="stack-tile__num">
+                    {String(STACK_INDEX.get(t)).padStart(2, "0")}
+                  </div>
                 </div>
                 <div>
                   <div className="stack-tile__name">{t.name}</div>
@@ -89,5 +115,38 @@ export function TechStackSection() {
         </RevealWrap>
       </div>
     </section>
+  );
+}
+
+function TechLogo({
+  slug,
+  name,
+  accent,
+}: {
+  slug: string;
+  name: string;
+  accent: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (failed || !slug) {
+    return (
+      <div className="tech-logo tech-logo--fallback" aria-hidden="true">
+        <span style={{ color: accent || "var(--primary)" }}>
+          {name.charAt(0)}
+        </span>
+      </div>
+    );
+  }
+  const hex = (accent || "").replace("#", "").trim() || "currentColor";
+  return (
+    <div className="tech-logo">
+      <img
+        src={`https://cdn.simpleicons.org/${slug}/${hex}`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+    </div>
   );
 }

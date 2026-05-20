@@ -9,21 +9,18 @@ function useCountUp(target: number, duration = 1200) {
   const [value, setValue] = useState(0);
 
   useEffect(() => {
-    const start = Date.now();
-    let id: ReturnType<typeof setTimeout>;
+    const start = performance.now();
+    let rafId: number;
 
-    const tick = () => {
-      const t = Math.min(1, (Date.now() - start) / duration);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - t, 3);
       setValue(Math.round(eased * target));
-
-      if (t < 1) {
-        id = setTimeout(tick, 16);
-      }
+      if (t < 1) rafId = requestAnimationFrame(tick);
     };
-    tick();
+    rafId = requestAnimationFrame(tick);
 
-    return () => clearTimeout(id);
+    return () => cancelAnimationFrame(rafId);
   }, [target, duration]);
 
   return value;
