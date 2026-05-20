@@ -140,13 +140,35 @@ async function adminFetch<T>(
     throw new Error("Admin login is required.");
   }
 
-  return apiFetch<T>(path, {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers: {
+      Accept: "application/json",
       Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
+
+  if (response.status === 401) {
+    clearAdminToken();
+    if (typeof window !== "undefined") {
+      window.location.replace("/login");
+    }
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body?.message || body?.error || `${response.status} ${path}`;
+    throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
 }
 
 function toAdminPost(post: ApiPost): AdminPost {
