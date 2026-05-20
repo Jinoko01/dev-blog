@@ -18,7 +18,7 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
 
-  if (pathname === "/login") {
+  if (pathname.startsWith("/login")) {
     return <>{children}</>;
   }
 

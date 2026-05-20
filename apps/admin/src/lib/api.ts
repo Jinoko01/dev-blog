@@ -137,9 +137,6 @@ async function adminFetch<T>(
 ) {
   const token = getAdminToken();
   if (!token) {
-    if (typeof window !== "undefined") {
-      window.location.replace("/login");
-    }
     throw new Error("Admin login is required.");
   }
 
