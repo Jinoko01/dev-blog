@@ -47,7 +47,7 @@ const STACK: StackItem[] = [
 
 const STACK_INDEX = new Map(STACK.map((item, i) => [item, i + 1]));
 
-const CATEGORIES = ["Frontend", "Backend", "Tool", "Design"];
+const CATEGORIES = ["Frontend", "Backend", "Tool"];
 
 export function TechStackSection() {
   const [filter, setFilter] = useState("All");
