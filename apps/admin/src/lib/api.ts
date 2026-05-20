@@ -31,9 +31,9 @@ type ApiPost = {
   slug: string;
   description?: string | null;
   content?: string | null;
-  thumbnailUrl?: string | null;
+  thumbnail_url?: string | null;
   published: boolean;
-  createdAt: string;
+  created_at: string;
   tags?: string[];
 };
 
@@ -47,7 +47,7 @@ type ApiAlgorithm = {
   code: string;
   tags?: string[];
   published: boolean;
-  createdAt: string;
+  created_at: string;
 };
 
 type PostPayload = {
@@ -178,9 +178,9 @@ function toAdminPost(post: ApiPost): AdminPost {
     slug: post.slug,
     description: post.description || "",
     content: post.content || "",
-    thumbnail_url: post.thumbnailUrl || "",
+    thumbnail_url: post.thumbnail_url || "",
     published: post.published,
-    created_at: post.createdAt,
+    created_at: post.created_at,
     tags: post.tags || [],
   };
 }
@@ -196,7 +196,7 @@ function toAdminAlgorithm(algo: ApiAlgorithm): AdminAlgorithm {
     code: algo.code || "",
     tags: algo.tags || [],
     published: algo.published,
-    created_at: algo.createdAt,
+    created_at: algo.created_at,
   };
 }
 
