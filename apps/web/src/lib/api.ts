@@ -178,6 +178,9 @@ export async function getArticles(query: ArticleQuery) {
   const suffix = params.toString() ? `?${params.toString()}` : "";
   const page = await apiFetch<{ data: ApiArticle[]; count: number }>(
     `/api/articles${suffix}`,
+    {
+      next: { revalidate: 60 },
+    },
   );
 
   return {

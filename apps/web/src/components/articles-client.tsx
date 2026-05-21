@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -12,23 +12,18 @@ import {
   ChevronRight,
   Calendar,
 } from "lucide-react";
-import { getArticles } from "@/lib/api";
+import { getArticles, type ArticleListItem } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 import Image from "next/image";
 
-type Article = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  thumbnailUrl: string | null;
-  createdAt: string;
-  views: number;
-  likes: number;
-  tags: string[];
-};
+type Article = ArticleListItem;
 
 type SortOption = "latest" | "views" | "likes";
+type ArticlesClientProps = {
+  initialTags: string[];
+  initialArticles: Article[];
+  initialTotalCount: number;
+};
 
 // [rerender-no-inline-components] Defined at module level — was previously inside ArticlesClient,
 // which caused React to unmount+remount the component tree on every parent render.
@@ -69,19 +64,35 @@ function HighlightText({
   );
 }
 
-export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
+export function ArticlesClient({
+  initialTags,
+  initialArticles,
+  initialTotalCount,
+}: ArticlesClientProps) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("latest");
   const [page, setPage] = useState(1);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [loading, setLoading] = useState(false);
+  const hasUsedInitialArticles = useRef(false);
 
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
+    const isInitialQuery =
+      !debouncedQuery &&
+      selectedTag === null &&
+      sortOption === "latest" &&
+      page === 1;
+
+    if (!hasUsedInitialArticles.current && isInitialQuery) {
+      hasUsedInitialArticles.current = true;
+      return;
+    }
+
     async function fetchArticles() {
       setLoading(true);
       try {
@@ -100,6 +111,7 @@ export function ArticlesClient({ initialTags }: { initialTags: string[] }) {
       setLoading(false);
     }
 
+    hasUsedInitialArticles.current = true;
     fetchArticles();
   }, [debouncedQuery, selectedTag, sortOption, page]);
 

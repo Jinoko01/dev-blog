@@ -51,3 +51,39 @@ test("frontend source does not hardcode the backend API origin", async () => {
 
   assert.deepEqual(offenders, []);
 });
+
+test("articles page preloads initial article data for ISR", async () => {
+  const pageSource = await readFile(
+    path.join(root, "apps/web/src/app/articles/page.tsx"),
+    "utf8",
+  );
+  const clientSource = await readFile(
+    path.join(root, "apps/web/src/components/articles-client.tsx"),
+    "utf8",
+  );
+
+  assert.match(
+    pageSource,
+    /import \{ getArticles, getTags \} from "@\/lib\/api";/,
+  );
+  assert.match(
+    pageSource,
+    /getArticles\(\{\s*sort: "latest",\s*page: 1,?\s*\}\)/s,
+  );
+  assert.match(pageSource, /initialArticles=\{initialArticles\}/);
+  assert.match(pageSource, /initialTotalCount=\{articlesData\.count\}/);
+  assert.match(clientSource, /initialArticles/);
+  assert.doesNotMatch(clientSource, /useState<Article\[\]>\(\[\]\)/);
+});
+
+test("getArticles uses the same ISR revalidation window as getTags", async () => {
+  const apiSource = await readFile(
+    path.join(root, "apps/web/src/lib/api.ts"),
+    "utf8",
+  );
+
+  assert.match(
+    apiSource,
+    /`\/api\/articles\$\{suffix\}`,\s*\{\s*next: \{\s*revalidate: 60\s*\},\s*\}/s,
+  );
+});
