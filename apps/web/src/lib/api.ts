@@ -82,6 +82,22 @@ export type ArticleQuery = {
   page?: number;
 };
 
+type CacheEntry<T> = { data: T; expiry: number };
+const articleCache = new Map<string, CacheEntry<unknown>>();
+const CACHE_TTL_MS = 60_000;
+
+function getCached<T>(key: string): T | null {
+  const entry = articleCache.get(key) as CacheEntry<T> | undefined;
+  if (entry && entry.expiry > Date.now()) {
+    return entry.data;
+  }
+  return null;
+}
+
+function setCached<T>(key: string, data: T): void {
+  articleCache.set(key, { data, expiry: Date.now() + CACHE_TTL_MS });
+}
+
 export function getApiBaseUrl() {
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
@@ -144,19 +160,19 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
 
 export async function getPosts() {
   return apiFetch<ApiPostsResponse>("/api/posts", {
-    next: { revalidate: 60 },
+    next: { revalidate: 600 },
   });
 }
 
 export async function getPost(slug: string) {
   return apiFetch<ApiPostDetail>(`/api/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 60 },
+    next: { revalidate: 600 },
   });
 }
 
 export async function getTags() {
   return apiFetch<ApiTag[]>("/api/tags", {
-    next: { revalidate: 60 },
+    next: { revalidate: 600 },
   });
 }
 
@@ -176,22 +192,30 @@ export async function getArticles(query: ArticleQuery) {
   }
 
   const suffix = params.toString() ? `?${params.toString()}` : "";
-  const page = await apiFetch<{ data: ApiArticle[]; count: number }>(
-    `/api/articles${suffix}`,
-    {
-      next: { revalidate: 60 },
-    },
-  );
+  const path = `/api/articles${suffix}`;
 
-  return {
+  type ArticlesResult = { data: ArticleListItem[]; count: number };
+  const cached = getCached<ArticlesResult>(path);
+  if (cached) {
+    return cached;
+  }
+
+  const page = await apiFetch<{ data: ApiArticle[]; count: number }>(path, {
+    next: { revalidate: 60 },
+  });
+
+  const result: ArticlesResult = {
     data: page.data.map(toArticleListItem),
     count: page.count,
   };
+
+  setCached(path, result);
+  return result;
 }
 
 export async function getAlgorithms() {
   return apiFetch<ApiAlgorithm[]>("/api/algorithms", {
-    next: { revalidate: 60 },
+    next: { revalidate: 600 },
   });
 }
 
