@@ -22,7 +22,10 @@ export function InteractiveGrid({
   const lastCell = useRef<string | null>(null);
 
   useEffect(() => {
-    if (hovered.size === 0) return;
+    if (hovered.size === 0) {
+      return;
+    }
+
     const id = setInterval(() => {
       const now = Date.now();
       setHovered((prev) => {
@@ -37,6 +40,7 @@ export function InteractiveGrid({
         return changed ? next : prev;
       });
     }, 800);
+
     return () => clearInterval(id);
   }, [hovered.size, fadeMs]);
 
@@ -53,8 +57,10 @@ export function InteractiveGrid({
     const rect = svg.getBoundingClientRect();
     const cellX = Math.floor((e.clientX - rect.left) / width);
     const cellY = Math.floor((e.clientY - rect.top) / height);
+
     if (cellX >= 0 && cellX < cols && cellY >= 0 && cellY < rows) {
       const key = `${cellX},${cellY}`;
+
       if (key !== lastCell.current) {
         lastCell.current = key;
         hit(cellX, cellY);
@@ -108,7 +114,11 @@ export function InteractiveGrid({
             y={y * height}
             width={width}
             height={height}
-            className={hovered.has(key) ? "fill-primary animate-igrid-fade" : "fill-transparent"}
+            className={
+              hovered.has(key)
+                ? "fill-primary animate-igrid-fade"
+                : "fill-transparent"
+            }
           />
         );
       })}

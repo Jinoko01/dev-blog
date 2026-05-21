@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { InteractiveGrid } from "./interactive-grid";
 
@@ -27,7 +27,6 @@ export function LandingHero() {
       </div>
 
       <div className="relative pointer-events-none flex-1 max-w-7xl w-full mx-auto px-6 flex flex-col items-center text-center gap-8 justify-center [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
-
         <h1 className="hero-display text-center">
           <span className="block text-[0.18em] font-bold tracking-[0.2em] text-muted-foreground mb-[0.3em]">
             Hello, I&apos;m
@@ -66,14 +65,6 @@ export function LandingHero() {
             onClick={handleAboutClick}
           >
             About me <ArrowRight size={14} />
-          </a>
-          <a
-            href="https://github.com/Jinoko01"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-btn-ghost bg-white inline-flex items-center gap-2.5 px-5.5 py-3.5 border border-border text-[12px] font-bold tracking-[0.2em] uppercase rounded-full text-foreground transition-all duration-200"
-          >
-            <Github size={14} /> GitHub
           </a>
         </div>
       </div>
