@@ -3,12 +3,16 @@
 import { Github, Mail } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { RevealWrap } from "./reveal-wrap";
+import { RevealWrap, useInViewOnce } from "./reveal-wrap";
 
-function useCountUp(target: number, duration = 1200) {
+function useCountUp(target: number, shouldStart: boolean, duration = 1200) {
   const [value, setValue] = useState(0);
 
   useEffect(() => {
+    if (!shouldStart) {
+      return;
+    }
+
     const start = performance.now();
     let rafId: number;
 
@@ -16,12 +20,14 @@ function useCountUp(target: number, duration = 1200) {
       const t = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - t, 3);
       setValue(Math.round(eased * target));
-      if (t < 1) rafId = requestAnimationFrame(tick);
+      if (t < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
     };
     rafId = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(rafId);
-  }, [target, duration]);
+  }, [target, duration, shouldStart]);
 
   return value;
 }
@@ -35,9 +41,11 @@ function Stat({
   unit: string;
   label: string;
 }) {
-  const shown = useCountUp(value);
+  const [statRef, isInView] = useInViewOnce<HTMLDivElement>();
+  const shown = useCountUp(value, isInView);
+
   return (
-    <div>
+    <div ref={statRef}>
       <div className="stat__value">
         {shown}
         <span className="stat__unit">{unit}</span>

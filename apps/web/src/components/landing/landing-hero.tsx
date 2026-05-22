@@ -3,15 +3,25 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { InteractiveGrid } from "./interactive-grid";
+import { useInViewOnce } from "./reveal-wrap";
 
 const WORD = ["O", "K", "O", "J", "I", "N"];
 
 export function LandingHero() {
   const [letterIn, setLetterIn] = useState(false);
+  const [heroRef, heroInView] = useInViewOnce<HTMLElement>({
+    rootMargin: "0px",
+    threshold: 0.35,
+  });
+
   useEffect(() => {
+    if (!heroInView) {
+      return;
+    }
+
     const id = setTimeout(() => setLetterIn(true), 0);
     return () => clearTimeout(id);
-  }, []);
+  }, [heroInView]);
 
   const handleAboutClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -21,7 +31,10 @@ export function LandingHero() {
   };
 
   return (
-    <section className="hero-wrap flex-1 flex flex-col">
+    <section
+      ref={heroRef}
+      className={`hero-wrap flex-1 flex flex-col${heroInView ? " is-visible" : ""}`}
+    >
       <div className="hero-grid" aria-hidden="true">
         <InteractiveGrid />
       </div>

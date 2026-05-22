@@ -417,15 +417,19 @@ h6 {
 .hero-status,
 .hero-cta {
   opacity: 0;
+}
+.hero-wrap.is-visible .hero-subtitle,
+.hero-wrap.is-visible .hero-status,
+.hero-wrap.is-visible .hero-cta {
   animation: lp-fade-up 800ms var(--ease-emphasized) forwards;
 }
-.hero-subtitle {
+.hero-wrap.is-visible .hero-subtitle {
   animation-delay: 0.9s;
 }
-.hero-status {
+.hero-wrap.is-visible .hero-status {
   animation-delay: 0.4s;
 }
-.hero-cta {
+.hero-wrap.is-visible .hero-cta {
   animation-delay: 1.35s;
 }
 @keyframes lp-fade-up {
@@ -493,6 +497,8 @@ h6 {
   text-transform: uppercase;
   color: var(--muted-foreground);
   opacity: 0;
+}
+.hero-wrap.is-visible .scroll-cue {
   animation: lp-fade-up 800ms var(--ease-emphasized) 1.6s forwards;
 }
 .scroll-cue .bar {
@@ -521,6 +527,13 @@ h6 {
 }
 
 /* Marquee */
+.marquee-track {
+  animation: marquee-slide var(--marquee-duration, 28s) linear infinite;
+  animation-play-state: paused;
+}
+.marquee-track.is-running {
+  animation-play-state: running;
+}
 @keyframes marquee-slide {
   from {
     transform: translate3d(0, 0, 0);
