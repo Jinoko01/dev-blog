@@ -57,8 +57,12 @@ function Stat({
 
 export function AboutSection({
   totalVisitors = 0,
+  postCount = 0,
+  algorithmCount = 0,
 }: {
   totalVisitors?: number;
+  postCount?: number;
+  algorithmCount?: number;
 }) {
   return (
     <section id="about" className="w-full py-[clamp(64px,8vw,128px)]">
@@ -140,8 +144,8 @@ export function AboutSection({
 
         <RevealWrap delay={120}>
           <div className="stats mt-20">
-            <Stat value={42} unit="" label="Articles published" />
-            <Stat value={128} unit="" label="Problems solved" />
+            <Stat value={postCount} unit="" label="Articles published" />
+            <Stat value={algorithmCount} unit="" label="Problems solved" />
             <Stat value={totalVisitors} unit="" label="Total visitors" />
           </div>
         </RevealWrap>

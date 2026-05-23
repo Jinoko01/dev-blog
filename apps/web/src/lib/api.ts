@@ -250,3 +250,14 @@ export async function recordVisit(sessionId: string): Promise<void> {
     body: JSON.stringify({ session_id: sessionId }),
   });
 }
+
+export type ApiStats = {
+  post_count: number;
+  algorithm_count: number;
+};
+
+export async function getStats() {
+  return apiFetch<ApiStats>("/api/stats", {
+    next: { revalidate: 60 },
+  });
+}

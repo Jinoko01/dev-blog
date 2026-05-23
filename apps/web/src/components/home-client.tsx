@@ -13,10 +13,14 @@ import { useEffect } from "react";
 export function HomeClient({
   posts,
   totalVisitors = 0,
+  postCount = 0,
+  algorithmCount = 0,
 }: {
   posts: PostMetadata[];
   topics?: string[];
   totalVisitors?: number;
+  postCount?: number;
+  algorithmCount?: number;
 }) {
   useEffect(() => {
     const STORAGE_KEY = "blog_session_id";
@@ -34,7 +38,11 @@ export function HomeClient({
         <LandingHero />
         <LandingMarquee />
       </div>
-      <AboutSection totalVisitors={totalVisitors} />
+      <AboutSection
+        totalVisitors={totalVisitors}
+        postCount={postCount}
+        algorithmCount={algorithmCount}
+      />
       <CompetenciesSection />
       <TechStackSection />
       <LatestSection posts={posts} />
