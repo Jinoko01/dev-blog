@@ -98,21 +98,32 @@ function setCached<T>(key: string, data: T): void {
   articleCache.set(key, { data, expiry: Date.now() + CACHE_TTL_MS });
 }
 
+/**
+ * API base URL을 반환한다.
+ *
+ * [클라이언트]
+ *   빈 문자열("")을 반환해 /api/... (Next.js Route Handler)를 경유한다.
+ *   mutation 후 Route Handler가 revalidateTag()를 호출해 캐시를 즉시 무효화한다.
+ *
+ * [서버 / 빌드 타임]
+ *   API_BASE_URL (Spring Boot)을 직접 반환한다.
+ *   빌드 타임에는 Next.js 앱 자체가 아직 실행 중이 아니므로
+ *   /api/... 자기 자신을 호출하면 ECONNREFUSED가 발생한다.
+ *   서버 컴포넌트의 ISR 갱신은 페이지 레벨 revalidate와
+ *   클라이언트 mutation 후 revalidateTag()로 처리한다.
+ */
 export function getApiBaseUrl() {
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
-
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API base URL is not configured. Set NEXT_PUBLIC_API_BASE_URL in .env.",
-    );
+  if (typeof window !== "undefined") {
+    return "";
   }
-
-  return apiBaseUrl.replace(/\/$/, "");
+  return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(
+    /\/$/,
+    "",
+  );
 }
 
 async function apiFetch<T>(path: string, options: FetchOptions = {}) {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...options,
     headers: {
       Accept: "application/json",
@@ -121,7 +132,7 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`Backend API request failed: ${response.status} ${path}`);
+    throw new Error(`API request failed: ${response.status} ${path}`);
   }
 
   if (response.status === 204) {
@@ -159,19 +170,19 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
 }
 
 export async function getPosts() {
-  return apiFetch<ApiPostsResponse>("/api/posts", {
+  return apiFetch<ApiPostsResponse>("/posts", {
     next: { revalidate: 600 },
   });
 }
 
 export async function getPost(slug: string) {
-  return apiFetch<ApiPostDetail>(`/api/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 600 },
+  return apiFetch<ApiPostDetail>(`/posts/${encodeURIComponent(slug)}`, {
+    cache: "no-store",
   });
 }
 
 export async function getTags() {
-  return apiFetch<ApiTag[]>("/api/tags", {
+  return apiFetch<ApiTag[]>("/tags", {
     next: { revalidate: 600 },
   });
 }
@@ -192,7 +203,7 @@ export async function getArticles(query: ArticleQuery) {
   }
 
   const suffix = params.toString() ? `?${params.toString()}` : "";
-  const path = `/api/articles${suffix}`;
+  const path = `/articles${suffix}`;
 
   type ArticlesResult = { data: ArticleListItem[]; count: number };
   const cached = getCached<ArticlesResult>(path);
@@ -214,46 +225,37 @@ export async function getArticles(query: ArticleQuery) {
 }
 
 export async function getAlgorithms() {
-  return apiFetch<ApiAlgorithm[]>("/api/algorithms", {
+  return apiFetch<ApiAlgorithm[]>("/algorithms", {
     next: { revalidate: 600 },
   });
 }
 
 export async function getAlgorithm(id: string) {
-  return apiFetch<ApiAlgorithm>(`/api/algorithms/${encodeURIComponent(id)}`, {
+  return apiFetch<ApiAlgorithm>(`/algorithms/${encodeURIComponent(id)}`, {
     next: { revalidate: 3600 },
   });
 }
 
 export async function incrementPostView(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/view`,
-    {
-      method: "POST",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/view`, {
+    method: "POST",
+  });
 }
 
 export async function incrementPostLike(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/like`,
-    {
-      method: "POST",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/like`, {
+    method: "POST",
+  });
 }
 
 export async function decrementPostLike(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/like`,
-    {
-      method: "DELETE",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/like`, {
+    method: "DELETE",
+  });
 }
 
 export async function recordVisit(sessionId: string): Promise<void> {
-  await apiFetch<void>("/api/visits", {
+  await apiFetch<void>("/visits", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId }),
@@ -266,7 +268,7 @@ export type ApiStats = {
 };
 
 export async function getStats() {
-  return apiFetch<ApiStats>("/api/stats", {
+  return apiFetch<ApiStats>("/stats", {
     next: { revalidate: 60 },
   });
 }

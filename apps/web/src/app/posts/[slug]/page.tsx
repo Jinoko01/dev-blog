@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Provider as JotaiProvider } from "jotai";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
@@ -63,6 +64,7 @@ export default async function PostPage(props: {
   const content = post.content || "";
 
   return (
+    <JotaiProvider>
     <div className="w-full min-w-0 min-h-screen relative z-10">
       <header className="relative w-full overflow-hidden border-b border-black/5 dark:border-white/5">
         {post.thumbnail_url && (
@@ -167,5 +169,6 @@ export default async function PostPage(props: {
         </aside>
       </div>
     </div>
+    </JotaiProvider>
   );
 }
