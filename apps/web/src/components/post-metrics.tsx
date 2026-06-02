@@ -1,22 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useAtom, useSetAtom } from "jotai";
+import { incrementPostView } from "@/lib/api";
 import {
-  incrementPostLike,
-  decrementPostLike,
-  incrementPostView,
-} from "@/lib/api";
+  likesAtomFamily,
+  initLikesAtom,
+  toggleLikeAtom,
+} from "@/store/post-metrics";
 import { Heart, Eye } from "lucide-react";
 
-/** views 표시 + view 카운트 증가 + likes 읽기 */
-function usePostMetrics(
-  slug: string,
-  initialViews: number,
-  initialLikes: number,
-) {
+/** views 표시 + view 카운트 증가 */
+function usePostViews(slug: string, initialViews: number) {
   const [views, setViews] = useState(initialViews);
-  const [likes, setLikes] = useState(initialLikes);
+  const initLikes = useSetAtom(initLikesAtom);
 
   useEffect(() => {
     const initMetrics = async () => {
@@ -26,61 +23,16 @@ function usePostMetrics(
       if (!localStorage.getItem(viewKey)) {
         const metrics = await incrementPostView(slug);
         setViews(metrics.views);
-        setLikes(metrics.likes);
+        // view 증가 응답에서 받은 최신 likes로 atom 업데이트
+        initLikes({ slug, initialLikes: metrics.likes });
         localStorage.setItem(viewKey, "true");
       }
     };
 
     initMetrics();
-  }, [slug]);
+  }, [slug, initLikes]);
 
-  return { views, likes };
-}
-
-/** likes 읽기 + like 버튼 액션 전용 (view 증가 없음) */
-function useLikeMetrics(slug: string, initialLikes: number) {
-  const [likes, setLikes] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(false);
-
-  useEffect(() => {
-    setIsLiked(Boolean(localStorage.getItem(`liked_${slug}`)));
-  }, [slug]);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (liked: boolean) =>
-      liked ? decrementPostLike(slug) : incrementPostLike(slug),
-    onMutate: (liked: boolean) => {
-      // 낙관적 업데이트
-      const nextLiked = !liked;
-      setIsLiked(nextLiked);
-      setLikes((prev) => (prev ?? 0) + (nextLiked ? 1 : -1));
-      if (nextLiked) {
-        localStorage.setItem(`liked_${slug}`, "true");
-      } else {
-        localStorage.removeItem(`liked_${slug}`);
-      }
-    },
-    onError: (_err, liked: boolean) => {
-      // 실패 시 롤백
-      setIsLiked(liked);
-      setLikes((prev) => (prev ?? 0) + (liked ? 1 : -1));
-      if (liked) {
-        localStorage.setItem(`liked_${slug}`, "true");
-      } else {
-        localStorage.removeItem(`liked_${slug}`);
-      }
-    },
-    onSuccess: (data) => {
-      setLikes(data.likes);
-    },
-  });
-
-  const handleLike = () => {
-    if (isPending) return;
-    mutate(isLiked);
-  };
-
-  return { likes, isLiked, handleLike, isPending };
+  return views;
 }
 
 /** header description 아래에 views/likes 수치를 텍스트로 표시하는 컴포넌트 */
@@ -93,7 +45,14 @@ export function PostMetricsDisplay({
   initialViews: number;
   initialLikes: number;
 }) {
-  const { views, likes } = usePostMetrics(slug, initialViews, initialLikes);
+  const views = usePostViews(slug, initialViews);
+  const initLikes = useSetAtom(initLikesAtom);
+  const [{ likes }] = useAtom(likesAtomFamily(slug));
+
+  // atom 초기화 (view를 이미 카운트한 날에도 초기값 설정)
+  useEffect(() => {
+    initLikes({ slug, initialLikes });
+  }, [slug, initialLikes, initLikes]);
 
   return (
     <div className="flex items-center justify-center gap-4 text-sm mt-4">
@@ -120,14 +79,17 @@ export function PostLikeButton({
   slug: string;
   initialLikes: number;
 }) {
-  const { likes, isLiked, handleLike, isPending } = useLikeMetrics(
-    slug,
-    initialLikes,
-  );
+  const initLikes = useSetAtom(initLikesAtom);
+  const [{ likes, isLiked, isPending }] = useAtom(likesAtomFamily(slug));
+  const toggleLike = useSetAtom(toggleLikeAtom);
+
+  useEffect(() => {
+    initLikes({ slug, initialLikes });
+  }, [slug, initialLikes, initLikes]);
 
   return (
     <button
-      onClick={handleLike}
+      onClick={() => toggleLike(slug)}
       disabled={isPending}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
         isLiked
