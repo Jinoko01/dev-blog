@@ -43,9 +43,7 @@ function useLikeMetrics(slug: string, initialLikes: number) {
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(`liked_${slug}`)) {
-      setIsLiked(true);
-    }
+    setIsLiked(Boolean(localStorage.getItem(`liked_${slug}`)));
   }, [slug]);
 
   const { mutate, isPending } = useMutation({

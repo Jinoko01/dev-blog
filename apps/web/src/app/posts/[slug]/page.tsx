@@ -124,10 +124,11 @@ export default async function PostPage(props: {
             className={`mt-5 ${post.thumbnail_url ? "text-white/70" : "text-foreground/50"}`}
           >
             <PostMetricsDisplay
-                slug={slug}
-                initialViews={post.views ?? 0}
-                initialLikes={post.likes ?? 0}
-              />
+              key={slug}
+              slug={slug}
+              initialViews={post.views ?? 0}
+              initialLikes={post.likes ?? 0}
+            />
           </div>
         </div>
       </header>
@@ -154,7 +155,7 @@ export default async function PostPage(props: {
 
           {/* Giscus Comments */}
           <div className="mt-20">
-            <GiscusComments slug={slug} initialLikes={post.likes ?? 0} />
+            <GiscusComments key={slug} slug={slug} initialLikes={post.likes ?? 0} />
           </div>
         </article>
 

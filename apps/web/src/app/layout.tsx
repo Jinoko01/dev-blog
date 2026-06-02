@@ -46,21 +46,21 @@ export default function RootLayout({
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen font-sans transition-colors duration-500`}
       >
         <QueryProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex flex-col min-h-screen pb-16 sm:pb-0">
-            <Header />
-            <main className="flex-1 w-full flex flex-col items-center">
-              {children}
-            </main>
-            <Footer />
-            <BottomNav />
-          </div>
-        </ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="flex flex-col min-h-screen pb-16 sm:pb-0">
+              <Header />
+              <main className="flex-1 w-full flex flex-col items-center">
+                {children}
+              </main>
+              <Footer />
+              <BottomNav />
+            </div>
+          </ThemeProvider>
         </QueryProvider>
         <Script
           async
