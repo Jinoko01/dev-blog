@@ -243,6 +243,15 @@ export async function incrementPostLike(slug: string) {
   );
 }
 
+export async function decrementPostLike(slug: string) {
+  return apiFetch<ApiPostMetrics>(
+    `/api/posts/${encodeURIComponent(slug)}/like`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export async function recordVisit(sessionId: string): Promise<void> {
   await apiFetch<void>("/api/visits", {
     method: "POST",
