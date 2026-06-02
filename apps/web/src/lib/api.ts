@@ -99,20 +99,15 @@ function setCached<T>(key: string, data: T): void {
 }
 
 export function getApiBaseUrl() {
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
-
-  if (!apiBaseUrl) {
-    throw new Error(
-      "API base URL is not configured. Set NEXT_PUBLIC_API_BASE_URL in .env.",
-    );
-  }
-
-  return apiBaseUrl.replace(/\/$/, "");
+  // 클라이언트: 상대 경로 (브라우저가 자동으로 origin 붙임)
+  if (typeof window !== "undefined") return "";
+  // 서버 컴포넌트: 절대 경로 필요
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  return appUrl.replace(/\/$/, "");
 }
 
 async function apiFetch<T>(path: string, options: FetchOptions = {}) {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...options,
     headers: {
       Accept: "application/json",
@@ -121,7 +116,7 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`Backend API request failed: ${response.status} ${path}`);
+    throw new Error(`API request failed: ${response.status} ${path}`);
   }
 
   if (response.status === 204) {
@@ -159,19 +154,19 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
 }
 
 export async function getPosts() {
-  return apiFetch<ApiPostsResponse>("/api/posts", {
+  return apiFetch<ApiPostsResponse>("/posts", {
     next: { revalidate: 600 },
   });
 }
 
 export async function getPost(slug: string) {
-  return apiFetch<ApiPostDetail>(`/api/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 600 },
+  return apiFetch<ApiPostDetail>(`/posts/${encodeURIComponent(slug)}`, {
+    next: { revalidate: 60 },
   });
 }
 
 export async function getTags() {
-  return apiFetch<ApiTag[]>("/api/tags", {
+  return apiFetch<ApiTag[]>("/tags", {
     next: { revalidate: 600 },
   });
 }
@@ -192,7 +187,7 @@ export async function getArticles(query: ArticleQuery) {
   }
 
   const suffix = params.toString() ? `?${params.toString()}` : "";
-  const path = `/api/articles${suffix}`;
+  const path = `/articles${suffix}`;
 
   type ArticlesResult = { data: ArticleListItem[]; count: number };
   const cached = getCached<ArticlesResult>(path);
@@ -214,20 +209,20 @@ export async function getArticles(query: ArticleQuery) {
 }
 
 export async function getAlgorithms() {
-  return apiFetch<ApiAlgorithm[]>("/api/algorithms", {
+  return apiFetch<ApiAlgorithm[]>("/algorithms", {
     next: { revalidate: 600 },
   });
 }
 
 export async function getAlgorithm(id: string) {
-  return apiFetch<ApiAlgorithm>(`/api/algorithms/${encodeURIComponent(id)}`, {
+  return apiFetch<ApiAlgorithm>(`/algorithms/${encodeURIComponent(id)}`, {
     next: { revalidate: 3600 },
   });
 }
 
 export async function incrementPostView(slug: string) {
   return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/view`,
+    `/posts/${encodeURIComponent(slug)}/view`,
     {
       method: "POST",
     },
@@ -236,7 +231,7 @@ export async function incrementPostView(slug: string) {
 
 export async function incrementPostLike(slug: string) {
   return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/like`,
+    `/posts/${encodeURIComponent(slug)}/like`,
     {
       method: "POST",
     },
@@ -245,7 +240,7 @@ export async function incrementPostLike(slug: string) {
 
 export async function decrementPostLike(slug: string) {
   return apiFetch<ApiPostMetrics>(
-    `/api/posts/${encodeURIComponent(slug)}/like`,
+    `/posts/${encodeURIComponent(slug)}/like`,
     {
       method: "DELETE",
     },
@@ -253,7 +248,7 @@ export async function decrementPostLike(slug: string) {
 }
 
 export async function recordVisit(sessionId: string): Promise<void> {
-  await apiFetch<void>("/api/visits", {
+  await apiFetch<void>("/visits", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ session_id: sessionId }),
@@ -266,7 +261,7 @@ export type ApiStats = {
 };
 
 export async function getStats() {
-  return apiFetch<ApiStats>("/api/stats", {
+  return apiFetch<ApiStats>("/stats", {
     next: { revalidate: 60 },
   });
 }
