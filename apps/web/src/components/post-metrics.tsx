@@ -1,34 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPost, incrementPostLike, incrementPostView } from "@/lib/api";
+import { useMutation } from "@tanstack/react-query";
+import {
+  incrementPostLike,
+  decrementPostLike,
+  incrementPostView,
+} from "@/lib/api";
 import { Heart, Eye } from "lucide-react";
 
 /** views 표시 + view 카운트 증가 + likes 읽기 */
-function usePostMetrics(slug: string) {
-  const [views, setViews] = useState<number | null>(null);
-  const [likes, setLikes] = useState<number | null>(null);
+function usePostMetrics(
+  slug: string,
+  initialViews: number,
+  initialLikes: number,
+) {
+  const [views, setViews] = useState(initialViews);
+  const [likes, setLikes] = useState(initialLikes);
 
   useEffect(() => {
     const initMetrics = async () => {
-      const post = await getPost(slug);
-      let currentViews = post.views || 0;
-      let currentLikes = post.likes || 0;
-
       const today = new Date().toISOString().split("T")[0];
       const viewKey = `viewed_${slug}_${today}`;
 
-      const hasViewed = localStorage.getItem(viewKey);
-
-      if (!hasViewed) {
+      if (!localStorage.getItem(viewKey)) {
         const metrics = await incrementPostView(slug);
-        currentViews = metrics.views;
-        currentLikes = metrics.likes;
+        setViews(metrics.views);
+        setLikes(metrics.likes);
         localStorage.setItem(viewKey, "true");
       }
-
-      setViews(currentViews);
-      setLikes(currentLikes);
     };
 
     initMetrics();
@@ -38,59 +38,62 @@ function usePostMetrics(slug: string) {
 }
 
 /** likes 읽기 + like 버튼 액션 전용 (view 증가 없음) */
-function useLikeMetrics(slug: string) {
-  const [likes, setLikes] = useState<number | null>(null);
+function useLikeMetrics(slug: string, initialLikes: number) {
+  const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
-    const fetchLikes = async () => {
-      const post = await getPost(slug);
-      setLikes(post.likes || 0);
-      if (localStorage.getItem(`liked_${slug}`)) {
-        setIsLiked(true);
-      }
-    };
-
-    fetchLikes();
+    setIsLiked(Boolean(localStorage.getItem(`liked_${slug}`)));
   }, [slug]);
 
-  const handleLike = async () => {
-    if (isLiked) {
-      return;
-    }
+  const { mutate, isPending } = useMutation({
+    mutationFn: (liked: boolean) =>
+      liked ? decrementPostLike(slug) : incrementPostLike(slug),
+    onMutate: (liked: boolean) => {
+      // 낙관적 업데이트
+      const nextLiked = !liked;
+      setIsLiked(nextLiked);
+      setLikes((prev) => (prev ?? 0) + (nextLiked ? 1 : -1));
+      if (nextLiked) {
+        localStorage.setItem(`liked_${slug}`, "true");
+      } else {
+        localStorage.removeItem(`liked_${slug}`);
+      }
+    },
+    onError: (_err, liked: boolean) => {
+      // 실패 시 롤백
+      setIsLiked(liked);
+      setLikes((prev) => (prev ?? 0) + (liked ? 1 : -1));
+      if (liked) {
+        localStorage.setItem(`liked_${slug}`, "true");
+      } else {
+        localStorage.removeItem(`liked_${slug}`);
+      }
+    },
+    onSuccess: (data) => {
+      setLikes(data.likes);
+    },
+  });
 
-    setIsLiked(true);
-    localStorage.setItem(`liked_${slug}`, "true");
-    setLikes((prev) => (prev ?? 0) + 1);
-
-    await incrementPostLike(slug);
+  const handleLike = () => {
+    if (isPending) return;
+    mutate(isLiked);
   };
 
-  return { likes, isLiked, handleLike };
+  return { likes, isLiked, handleLike, isPending };
 }
 
 /** header description 아래에 views/likes 수치를 텍스트로 표시하는 컴포넌트 */
-export function PostMetricsDisplay({ slug }: { slug: string }) {
-  const { views, likes } = usePostMetrics(slug);
-  const isLoading = views === null || likes === null;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center gap-4 text-sm mt-4">
-        <span className="flex items-center gap-1.5 opacity-80">
-          <Eye className="w-4 h-4" />
-          <span className="w-8 h-4 rounded bg-current opacity-20 animate-pulse inline-block" />
-          <span className="opacity-70">views</span>
-        </span>
-        <span className="opacity-30">·</span>
-        <span className="flex items-center gap-1.5 opacity-80">
-          <Heart className="w-4 h-4" />
-          <span className="w-6 h-4 rounded bg-current opacity-20 animate-pulse inline-block" />
-          <span className="opacity-70">likes</span>
-        </span>
-      </div>
-    );
-  }
+export function PostMetricsDisplay({
+  slug,
+  initialViews,
+  initialLikes,
+}: {
+  slug: string;
+  initialViews: number;
+  initialLikes: number;
+}) {
+  const { views, likes } = usePostMetrics(slug, initialViews, initialLikes);
 
   return (
     <div className="flex items-center justify-center gap-4 text-sm mt-4">
@@ -110,13 +113,22 @@ export function PostMetricsDisplay({ slug }: { slug: string }) {
 }
 
 /** Comments 제목 우측에 표시할 like 버튼 컴포넌트 */
-export function PostLikeButton({ slug }: { slug: string }) {
-  const { likes, isLiked, handleLike } = useLikeMetrics(slug);
+export function PostLikeButton({
+  slug,
+  initialLikes,
+}: {
+  slug: string;
+  initialLikes: number;
+}) {
+  const { likes, isLiked, handleLike, isPending } = useLikeMetrics(
+    slug,
+    initialLikes,
+  );
 
   return (
     <button
       onClick={handleLike}
-      disabled={isLiked || likes === null}
+      disabled={isPending}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
         isLiked
           ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
@@ -124,11 +136,7 @@ export function PostLikeButton({ slug }: { slug: string }) {
       }`}
     >
       <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-      {likes === null ? (
-        <span className="w-4 h-3.5 rounded bg-current opacity-20 animate-pulse inline-block" />
-      ) : (
-        <span>{likes}</span>
-      )}
+      <span>{likes}</span>
     </button>
   );
 }
