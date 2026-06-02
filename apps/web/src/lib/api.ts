@@ -161,7 +161,7 @@ export async function getPosts() {
 
 export async function getPost(slug: string) {
   return apiFetch<ApiPostDetail>(`/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 60 },
+    cache: "no-store",
   });
 }
 
