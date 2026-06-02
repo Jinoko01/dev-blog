@@ -100,9 +100,14 @@ function setCached<T>(key: string, data: T): void {
 
 export function getApiBaseUrl() {
   // 클라이언트: 상대 경로로 Route Handler 경유 (revalidateTag 동작)
-  if (typeof window !== "undefined") return "";
+  if (typeof window !== "undefined") {
+    return "";
+  }
   // 서버/빌드 타임: Spring Boot 직접 호출 (순환 참조 방지)
-  return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
+  return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(
+    /\/$/,
+    "",
+  );
 }
 
 async function apiFetch<T>(path: string, options: FetchOptions = {}) {
@@ -220,30 +225,21 @@ export async function getAlgorithm(id: string) {
 }
 
 export async function incrementPostView(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/posts/${encodeURIComponent(slug)}/view`,
-    {
-      method: "POST",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/view`, {
+    method: "POST",
+  });
 }
 
 export async function incrementPostLike(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/posts/${encodeURIComponent(slug)}/like`,
-    {
-      method: "POST",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/like`, {
+    method: "POST",
+  });
 }
 
 export async function decrementPostLike(slug: string) {
-  return apiFetch<ApiPostMetrics>(
-    `/posts/${encodeURIComponent(slug)}/like`,
-    {
-      method: "DELETE",
-    },
-  );
+  return apiFetch<ApiPostMetrics>(`/posts/${encodeURIComponent(slug)}/like`, {
+    method: "DELETE",
+  });
 }
 
 export async function recordVisit(sessionId: string): Promise<void> {
