@@ -99,11 +99,10 @@ function setCached<T>(key: string, data: T): void {
 }
 
 export function getApiBaseUrl() {
-  // 클라이언트: 상대 경로 (브라우저가 자동으로 origin 붙임)
+  // 클라이언트: 상대 경로로 Route Handler 경유 (revalidateTag 동작)
   if (typeof window !== "undefined") return "";
-  // 서버 컴포넌트: 절대 경로 필요
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  return appUrl.replace(/\/$/, "");
+  // 서버/빌드 타임: Spring Boot 직접 호출 (순환 참조 방지)
+  return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(/\/$/, "");
 }
 
 async function apiFetch<T>(path: string, options: FetchOptions = {}) {
