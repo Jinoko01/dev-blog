@@ -1,91 +1,90 @@
-# Post Likes Shared State — Design Spec
+# 게시물 좋아요 공유 상태 — 설계 스펙
 
-**Date:** 2026-06-02  
-**Status:** Approved
+**날짜:** 2026-06-02  
+**상태:** 승인됨
 
-## Problem
+## 문제
 
-`PostMetricsDisplay` (header) and `PostLikeButton` (comments area) each maintain their own independent `likes` state. Clicking the like button in the comments section does NOT update the header like count. Additionally, `getPost` fetch cache (600s) is misaligned with page-level ISR revalidation (60s), causing stale `initialLikes` after page reload.
+`PostMetricsDisplay` (헤더)와 `PostLikeButton` (댓글 영역)이 각각 독립된 `likes` 상태를 가집니다. 댓글 위 좋아요 버튼을 클릭해도 헤더의 좋아요 수가 업데이트되지 않습니다. 또한 `getPost` fetch 캐시(600초)가 페이지 ISR 주기(60초)와 맞지 않아 페이지 새로고침 후 `initialLikes` 값이 오래된 값으로 표시됩니다.
 
-## Solution
+## 해결 방향
 
-Replace per-component local `likes` state with **Jotai `atomFamily`**, scoped per slug. This guarantees:
+컴포넌트별 로컬 `likes` state를 **Jotai `atomFamily`** (slug별 격리)로 교체합니다.
 
-1. Both components read/write the same atom → always in sync.
-2. slug 전환 시 별도 reset 로직 없이 자동 격리 (slug별 atom 인스턴스).
+1. 두 컴포넌트가 동일한 atom을 읽고 쓰므로 항상 동기화됩니다.
+2. slug 전환 시 별도 reset 로직 없이 atom이 자동 격리됩니다. (PR #30 버그 재발 방지)
 
-## Architecture
+## 아키텍처
 
-### New Files
+### 신규 파일
 
 ```
 apps/web/src/store/
-  post-metrics.ts           # atomFamily definition + like action atoms
+  post-metrics.ts     # atomFamily 정의 + 좋아요 액션
 ```
 
-### Modified Files
+### 수정 파일
 
 ```
 apps/web/src/components/
-  post-metrics.tsx          # useAtom(likesAtom(slug)) 으로 교체
-  giscus-comments.tsx       # 변경 없음 (PostLikeButton은 post-metrics.tsx 내부)
-apps/web/src/app/posts/[slug]/page.tsx  # Provider 감싸기 (JotaiProvider)
-apps/web/src/lib/api.ts     # getPost revalidate: 600 → 60
+  post-metrics.tsx    # 로컬 state → useAtom(likesAtomFamily(slug)) 로 교체
+apps/web/src/app/posts/[slug]/page.tsx  # JotaiProvider 감싸기
+apps/web/src/lib/api.ts                 # getPost revalidate 600 → 60
 ```
 
-## Data Flow
+## 데이터 흐름
 
 ```
-page.tsx (Server Component)
-  └─ <JotaiProvider>         ← Next.js App Router 격리용
+page.tsx (서버 컴포넌트)
+  └─ <JotaiProvider>          ← Next.js App Router 격리용
        ├─ PostMetricsDisplay
-       │    └─ useAtom(likesAtomFamily(slug))   → likes 읽기
+       │    └─ useAtom(likesAtomFamily(slug))   → likes 읽기만
        └─ GiscusComments
             └─ PostLikeButton
-                 └─ useAtom(likesAtomFamily(slug))   → likes 읽기/쓰기
+                 └─ useAtom(likesAtomFamily(slug))   → likes 읽기 + 쓰기
 ```
 
-## Store Design (`store/post-metrics.ts`)
+## 스토어 설계 (`store/post-metrics.ts`)
 
 ```ts
 // atom 구조
 likesAtomFamily(slug: string) → atom<{ likes: number; isLiked: boolean; isPending: boolean }>
 
-// actions
-handleLike(slug) → optimistic update → API call → onSuccess sync / onError rollback
+// 액션
+handleLike(slug) → 낙관적 업데이트 → API 호출 → 성공 시 서버값 동기화 / 실패 시 롤백
 ```
 
-- `atomFamily`는 slug를 key로 atom 인스턴스를 자동 생성/캐싱
-- 낙관적 업데이트 + 에러 롤백 로직을 store action으로 이동
-- `localStorage`(`liked_${slug}`) 읽기/쓰기는 store action 내부에서 처리
+- `atomFamily`는 slug를 key로 atom 인스턴스를 자동 생성 및 캐싱
+- 낙관적 업데이트 + 에러 롤백 로직을 스토어 액션으로 이동
+- `localStorage`(`liked_${slug}`) 읽기/쓰기는 스토어 액션 내부에서 처리
 
-## `PostMetricsDisplay` 변경
+## PostMetricsDisplay 변경
 
 - `usePostMetrics` hook의 `likes` state → `likesAtomFamily(slug)` atom으로 교체
-- `views` 상태와 view increment 로직은 기존 유지 (likes와 분리)
+- `views` 상태 및 view increment 로직은 기존 유지 (likes와 분리)
 - view increment 응답에서 받은 `likes` 값으로 atom 초기화 (최초 1회)
 
-## ISR Fix
+## ISR 버그 수정
 
 ```ts
 // api.ts
 export async function getPost(slug: string) {
   return apiFetch<ApiPostDetail>(`/api/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 60 },  // 600 → 60
+    next: { revalidate: 60 },  // 600 → 60 으로 변경
   });
 }
 ```
 
-## Dependencies
+## 의존성
 
 ```
-pnpm add jotai   # apps/web workspace
+pnpm add jotai   # apps/web 워크스페이스
 ```
 
-Jotai는 `atomFamily` 포함 기본 패키지에 내장. 추가 패키지 불필요.
+`atomFamily`는 jotai 기본 패키지에 포함되어 있어 추가 패키지 불필요합니다.
 
-## Out of Scope
+## 범위 외
 
 - `PostMetricsDisplay`의 views 카운트 로직 변경 없음
-- 다른 페이지(알고리즘 등) likes 상태 관리 변경 없음
-- 서버 사이드 likes 로직 변경 없음
+- 알고리즘 등 다른 페이지의 likes 상태 관리 변경 없음
+- 백엔드 likes 로직 변경 없음
