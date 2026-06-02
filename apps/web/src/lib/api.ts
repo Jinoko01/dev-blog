@@ -98,12 +98,24 @@ function setCached<T>(key: string, data: T): void {
   articleCache.set(key, { data, expiry: Date.now() + CACHE_TTL_MS });
 }
 
+/**
+ * API base URL을 반환한다.
+ *
+ * [클라이언트]
+ *   빈 문자열("")을 반환해 /api/... (Next.js Route Handler)를 경유한다.
+ *   mutation 후 Route Handler가 revalidateTag()를 호출해 캐시를 즉시 무효화한다.
+ *
+ * [서버 / 빌드 타임]
+ *   API_BASE_URL (Spring Boot)을 직접 반환한다.
+ *   빌드 타임에는 Next.js 앱 자체가 아직 실행 중이 아니므로
+ *   /api/... 자기 자신을 호출하면 ECONNREFUSED가 발생한다.
+ *   서버 컴포넌트의 ISR 갱신은 페이지 레벨 revalidate와
+ *   클라이언트 mutation 후 revalidateTag()로 처리한다.
+ */
 export function getApiBaseUrl() {
-  // 클라이언트: 상대 경로로 Route Handler 경유 (revalidateTag 동작)
   if (typeof window !== "undefined") {
     return "";
   }
-  // 서버/빌드 타임: Spring Boot 직접 호출 (순환 참조 방지)
   return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(
     /\/$/,
     "",
