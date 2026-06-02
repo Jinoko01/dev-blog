@@ -1,77 +1,133 @@
-# 게시물 좋아요 공유 상태 — 설계 스펙
+# 게시물 좋아요 공유 상태 + API 프록시 Route Handler — 설계 스펙
 
 **날짜:** 2026-06-02  
 **상태:** 승인됨
 
 ## 문제
 
-`PostMetricsDisplay` (헤더)와 `PostLikeButton` (댓글 영역)이 각각 독립된 `likes` 상태를 가집니다. 댓글 위 좋아요 버튼을 클릭해도 헤더의 좋아요 수가 업데이트되지 않습니다. 또한 `getPost` fetch 캐시(600초)가 페이지 ISR 주기(60초)와 맞지 않아 페이지 새로고침 후 `initialLikes` 값이 오래된 값으로 표시됩니다.
+1. `PostMetricsDisplay` (헤더)와 `PostLikeButton` (댓글 영역)이 독립된 `likes` state를 가져 동기화되지 않음
+2. `getPost` fetch 캐시(600초)가 페이지 ISR 주기(60초)와 맞지 않아 새로고침 후 `initialLikes`가 오래된 값으로 표시됨
+3. 좋아요 클릭 후 새로고침 시 최신 likes 수가 즉시 반영되지 않음
+4. 프론트엔드가 Spring Boot 백엔드를 직접 호출해 Next.js 캐시 제어 불가
 
 ## 해결 방향
 
-컴포넌트별 로컬 `likes` state를 **Jotai `atomFamily`** (slug별 격리)로 교체합니다.
+### 1. Next.js Catch-all Route Handler (API 프록시)
 
-1. 두 컴포넌트가 동일한 atom을 읽고 쓰므로 항상 동기화됩니다.
-2. slug 전환 시 별도 reset 로직 없이 atom이 자동 격리됩니다. (PR #30 버그 재발 방지)
+모든 API 요청을 Next.js Route Handler를 통해 Spring Boot로 프록시합니다.
+
+```
+브라우저 → Next.js /api/[...path]/route.ts → Spring Boot
+```
+
+- **GET 요청**: `fetch` 태그를 붙여 캐시. 리소스별 태그 설정.
+- **변경 요청 (POST/DELETE)**: Spring Boot 호출 후, 관련 태그를 `revalidateTag`로 즉시 무효화.
+
+### 2. Jotai atomFamily로 likes 공유 상태 관리
+
+`PostMetricsDisplay`와 `PostLikeButton`이 동일한 Jotai atom을 공유합니다.
 
 ## 아키텍처
 
 ### 신규 파일
 
 ```
+apps/web/src/app/api/[...path]/
+  route.ts          # catch-all 프록시 핸들러
+
 apps/web/src/store/
-  post-metrics.ts     # atomFamily 정의 + 좋아요 액션
+  post-metrics.ts   # likesAtomFamily 정의 + 좋아요 액션
 ```
 
 ### 수정 파일
 
 ```
-apps/web/src/components/
-  post-metrics.tsx    # 로컬 state → useAtom(likesAtomFamily(slug)) 로 교체
-apps/web/src/app/posts/[slug]/page.tsx  # JotaiProvider 감싸기
-apps/web/src/lib/api.ts                 # getPost revalidate 600 → 60
+apps/web/src/lib/api.ts
+  - apiFetch 호출 URL을 Spring Boot → Next.js /api/... 로 변경
+  - getPost fetch에 revalidateTag용 태그 추가
+  - getPost revalidate: 600 → 60
+
+apps/web/src/components/post-metrics.tsx
+  - 로컬 likes state → useAtom(likesAtomFamily(slug)) 로 교체
+
+apps/web/src/app/posts/[slug]/page.tsx
+  - JotaiProvider 감싸기
 ```
 
-## 데이터 흐름
-
-```
-page.tsx (서버 컴포넌트)
-  └─ <JotaiProvider>          ← Next.js App Router 격리용
-       ├─ PostMetricsDisplay
-       │    └─ useAtom(likesAtomFamily(slug))   → likes 읽기만
-       └─ GiscusComments
-            └─ PostLikeButton
-                 └─ useAtom(likesAtomFamily(slug))   → likes 읽기 + 쓰기
-```
-
-## 스토어 설계 (`store/post-metrics.ts`)
+## Route Handler 설계 (`app/api/[...path]/route.ts`)
 
 ```ts
-// atom 구조
-likesAtomFamily(slug: string) → atom<{ likes: number; isLiked: boolean; isPending: boolean }>
+// GET: Spring Boot로 포워딩 + fetch 태그 캐싱
+export async function GET(req, { params }) {
+  const path = params.path.join('/')
+  const tag = resolveTag(path)   // 예: 'post-my-slug', 'posts', 'algorithms'
+  return fetch(`${BACKEND_URL}/api/${path}`, {
+    next: { revalidate: 60, tags: [tag] }
+  })
+}
 
-// 액션
-handleLike(slug) → 낙관적 업데이트 → API 호출 → 성공 시 서버값 동기화 / 실패 시 롤백
+// POST/DELETE: Spring Boot로 포워딩 + revalidateTag
+export async function POST(req, { params }) {
+  const path = params.path.join('/')
+  const res = await fetch(`${BACKEND_URL}/api/${path}`, {
+    method: 'POST',
+    body: await req.text(),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  revalidateTag(resolveTag(path))
+  return res
+}
+
+export async function DELETE(req, { params }) { /* 동일 패턴 */ }
 ```
 
-- `atomFamily`는 slug를 key로 atom 인스턴스를 자동 생성 및 캐싱
-- 낙관적 업데이트 + 에러 롤백 로직을 스토어 액션으로 이동
-- `localStorage`(`liked_${slug}`) 읽기/쓰기는 스토어 액션 내부에서 처리
+### 태그 전략 (`resolveTag`)
 
-## PostMetricsDisplay 변경
+| 경로 패턴 | 태그 |
+|-----------|------|
+| `posts` | `posts` |
+| `posts/:slug` | `post-{slug}` |
+| `posts/:slug/view` | `post-{slug}` |
+| `posts/:slug/like` | `post-{slug}` |
+| `algorithms` | `algorithms` |
+| `algorithms/:id` | `algorithm-{id}` |
+| `articles` | `articles` |
+| `tags` | `tags` |
+| `stats` | `stats` |
+| `visits` | (태그 없음, revalidate 불필요) |
 
-- `usePostMetrics` hook의 `likes` state → `likesAtomFamily(slug)` atom으로 교체
-- `views` 상태 및 view increment 로직은 기존 유지 (likes와 분리)
-- view increment 응답에서 받은 `likes` 값으로 atom 초기화 (최초 1회)
-
-## ISR 버그 수정
+## Jotai 스토어 설계 (`store/post-metrics.ts`)
 
 ```ts
-// api.ts
-export async function getPost(slug: string) {
-  return apiFetch<ApiPostDetail>(`/api/posts/${encodeURIComponent(slug)}`, {
-    next: { revalidate: 60 },  // 600 → 60 으로 변경
-  });
+// slug별 atom 인스턴스 자동 생성/격리
+likesAtomFamily(slug) → atom<{ likes: number; isLiked: boolean; isPending: boolean }>
+
+// 액션: 낙관적 업데이트 → API 호출 → 성공 시 서버값 동기화 / 실패 시 롤백
+```
+
+- `localStorage`(`liked_${slug}`) 읽기/쓰기는 스토어 액션 내부 처리
+- slug 전환 시 atom 자동 격리 (PR #30 버그 재발 방지)
+
+## `api.ts` 변경
+
+```ts
+// 변경 전
+async function apiFetch(path, options) {
+  fetch(`${NEXT_PUBLIC_API_BASE_URL}${path}`, ...)
+}
+
+// 변경 후
+async function apiFetch(path, options) {
+  fetch(`/api${path}`, ...)   // Next.js Route Handler로 라우팅
+}
+```
+
+서버 컴포넌트에서 호출 시 절대 URL이 필요하므로, 서버/클라이언트 환경에 따라 base URL을 분기합니다.
+
+```ts
+function getBaseUrl() {
+  if (typeof window !== 'undefined') return ''          // 클라이언트: 상대 경로
+  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'  // 서버: 절대 경로
 }
 ```
 
@@ -81,10 +137,8 @@ export async function getPost(slug: string) {
 pnpm add jotai   # apps/web 워크스페이스
 ```
 
-`atomFamily`는 jotai 기본 패키지에 포함되어 있어 추가 패키지 불필요합니다.
-
 ## 범위 외
 
-- `PostMetricsDisplay`의 views 카운트 로직 변경 없음
-- 알고리즘 등 다른 페이지의 likes 상태 관리 변경 없음
-- 백엔드 likes 로직 변경 없음
+- admin 앱 API 호출 변경 없음
+- Spring Boot 백엔드 코드 변경 없음
+- 알고리즘 페이지 likes 상태 관리 변경 없음 (posts만 적용)
