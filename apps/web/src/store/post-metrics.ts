@@ -21,14 +21,22 @@ export const likesAtomFamily = atomFamily((_slug: string) =>
  */
 export const initLikesAtom = atom(
   null,
-  (get, set, { slug, initialLikes }: { slug: string; initialLikes: number }) => {
+  (
+    get,
+    set,
+    { slug, initialLikes }: { slug: string; initialLikes: number },
+  ) => {
     const current = get(likesAtomFamily(slug));
     if (current.likes === 0 && !current.isLiked) {
       const isLiked =
         typeof window !== "undefined"
           ? Boolean(localStorage.getItem(`liked_${slug}`))
           : false;
-      set(likesAtomFamily(slug), { likes: initialLikes, isLiked, isPending: false });
+      set(likesAtomFamily(slug), {
+        likes: initialLikes,
+        isLiked,
+        isPending: false,
+      });
     }
   },
 );
@@ -36,50 +44,47 @@ export const initLikesAtom = atom(
 /**
  * 좋아요 토글 액션. 낙관적 업데이트 후 API 호출, 실패 시 롤백.
  */
-export const toggleLikeAtom = atom(
-  null,
-  async (get, set, slug: string) => {
-    const state = get(likesAtomFamily(slug));
-    if (state.isPending) return;
+export const toggleLikeAtom = atom(null, async (get, set, slug: string) => {
+  const state = get(likesAtomFamily(slug));
+  if (state.isPending) return;
 
-    const wasLiked = state.isLiked;
-    const nextLiked = !wasLiked;
+  const wasLiked = state.isLiked;
+  const nextLiked = !wasLiked;
 
-    // 낙관적 업데이트
+  // 낙관적 업데이트
+  set(likesAtomFamily(slug), {
+    likes: state.likes + (nextLiked ? 1 : -1),
+    isLiked: nextLiked,
+    isPending: true,
+  });
+
+  if (nextLiked) {
+    localStorage.setItem(`liked_${slug}`, "true");
+  } else {
+    localStorage.removeItem(`liked_${slug}`);
+  }
+
+  try {
+    const data = wasLiked
+      ? await decrementPostLike(slug)
+      : await incrementPostLike(slug);
+
     set(likesAtomFamily(slug), {
-      likes: state.likes + (nextLiked ? 1 : -1),
+      likes: data.likes,
       isLiked: nextLiked,
-      isPending: true,
+      isPending: false,
     });
-
-    if (nextLiked) {
+  } catch {
+    // 롤백
+    set(likesAtomFamily(slug), {
+      likes: state.likes,
+      isLiked: wasLiked,
+      isPending: false,
+    });
+    if (wasLiked) {
       localStorage.setItem(`liked_${slug}`, "true");
     } else {
       localStorage.removeItem(`liked_${slug}`);
     }
-
-    try {
-      const data = wasLiked
-        ? await decrementPostLike(slug)
-        : await incrementPostLike(slug);
-
-      set(likesAtomFamily(slug), {
-        likes: data.likes,
-        isLiked: nextLiked,
-        isPending: false,
-      });
-    } catch {
-      // 롤백
-      set(likesAtomFamily(slug), {
-        likes: state.likes,
-        isLiked: wasLiked,
-        isPending: false,
-      });
-      if (wasLiked) {
-        localStorage.setItem(`liked_${slug}`, "true");
-      } else {
-        localStorage.removeItem(`liked_${slug}`);
-      }
-    }
-  },
-);
+  }
+});

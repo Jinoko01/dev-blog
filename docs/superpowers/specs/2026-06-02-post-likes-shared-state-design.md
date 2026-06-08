@@ -59,42 +59,44 @@ apps/web/src/app/posts/[slug]/page.tsx
 ```ts
 // GET: Spring Boot로 포워딩 + fetch 태그 캐싱
 export async function GET(req, { params }) {
-  const path = params.path.join('/')
-  const tag = resolveTag(path)   // 예: 'post-my-slug', 'posts', 'algorithms'
+  const path = params.path.join("/");
+  const tag = resolveTag(path); // 예: 'post-my-slug', 'posts', 'algorithms'
   return fetch(`${BACKEND_URL}/api/${path}`, {
-    next: { revalidate: 60, tags: [tag] }
-  })
+    next: { revalidate: 60, tags: [tag] },
+  });
 }
 
 // POST/DELETE: Spring Boot로 포워딩 + revalidateTag
 export async function POST(req, { params }) {
-  const path = params.path.join('/')
+  const path = params.path.join("/");
   const res = await fetch(`${BACKEND_URL}/api/${path}`, {
-    method: 'POST',
+    method: "POST",
     body: await req.text(),
-    headers: { 'Content-Type': 'application/json' }
-  })
-  revalidateTag(resolveTag(path))
-  return res
+    headers: { "Content-Type": "application/json" },
+  });
+  revalidateTag(resolveTag(path));
+  return res;
 }
 
-export async function DELETE(req, { params }) { /* 동일 패턴 */ }
+export async function DELETE(req, { params }) {
+  /* 동일 패턴 */
+}
 ```
 
 ### 태그 전략 (`resolveTag`)
 
-| 경로 패턴 | 태그 |
-|-----------|------|
-| `posts` | `posts` |
-| `posts/:slug` | `post-{slug}` |
-| `posts/:slug/view` | `post-{slug}` |
-| `posts/:slug/like` | `post-{slug}` |
-| `algorithms` | `algorithms` |
-| `algorithms/:id` | `algorithm-{id}` |
-| `articles` | `articles` |
-| `tags` | `tags` |
-| `stats` | `stats` |
-| `visits` | (태그 없음, revalidate 불필요) |
+| 경로 패턴          | 태그                           |
+| ------------------ | ------------------------------ |
+| `posts`            | `posts`                        |
+| `posts/:slug`      | `post-{slug}`                  |
+| `posts/:slug/view` | `post-{slug}`                  |
+| `posts/:slug/like` | `post-{slug}`                  |
+| `algorithms`       | `algorithms`                   |
+| `algorithms/:id`   | `algorithm-{id}`               |
+| `articles`         | `articles`                     |
+| `tags`             | `tags`                         |
+| `stats`            | `stats`                        |
+| `visits`           | (태그 없음, revalidate 불필요) |
 
 ## Jotai 스토어 설계 (`store/post-metrics.ts`)
 
@@ -126,8 +128,8 @@ async function apiFetch(path, options) {
 
 ```ts
 function getBaseUrl() {
-  if (typeof window !== 'undefined') return ''          // 클라이언트: 상대 경로
-  return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'  // 서버: 절대 경로
+  if (typeof window !== "undefined") return ""; // 클라이언트: 상대 경로
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"; // 서버: 절대 경로
 }
 ```
 

@@ -13,40 +13,45 @@
 ## 파일 맵
 
 ### 백엔드 (`C:\project\dev-blog-backend`)
-| 역할 | 경로 |
-|------|------|
-| 새로 생성: DTO | `src/main/java/com/okojin/dev/blog/domain/stats/dto/StatsDto.java` |
-| 새로 생성: Service | `src/main/java/com/okojin/dev/blog/domain/stats/service/StatsService.java` |
-| 새로 생성: Controller | `src/main/java/com/okojin/dev/blog/domain/stats/controller/StatsController.java` |
-| 새로 생성: Test | `src/test/java/com/okojin/dev/blog/domain/stats/controller/StatsControllerTest.java` |
-| 수정: PostRepository | `src/main/java/com/okojin/dev/blog/domain/post/repository/PostRepository.java` |
+
+| 역할                      | 경로                                                                                     |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| 새로 생성: DTO            | `src/main/java/com/okojin/dev/blog/domain/stats/dto/StatsDto.java`                       |
+| 새로 생성: Service        | `src/main/java/com/okojin/dev/blog/domain/stats/service/StatsService.java`               |
+| 새로 생성: Controller     | `src/main/java/com/okojin/dev/blog/domain/stats/controller/StatsController.java`         |
+| 새로 생성: Test           | `src/test/java/com/okojin/dev/blog/domain/stats/controller/StatsControllerTest.java`     |
+| 수정: PostRepository      | `src/main/java/com/okojin/dev/blog/domain/post/repository/PostRepository.java`           |
 | 수정: AlgorithmRepository | `src/main/java/com/okojin/dev/blog/domain/algorithm/repository/AlgorithmRepository.java` |
-| 수정: SecurityConfig | `src/main/java/com/okojin/dev/blog/config/SecurityConfig.java` |
+| 수정: SecurityConfig      | `src/main/java/com/okojin/dev/blog/config/SecurityConfig.java`                           |
 
 ### 프론트엔드 (`C:\project\dev-blog\apps\web`)
-| 역할 | 경로 |
-|------|------|
-| 수정: API 함수 | `src/lib/api.ts` |
-| 수정: 홈 서버 컴포넌트 | `src/app/page.tsx` |
-| 수정: HomeClient | `src/components/home-client.tsx` |
-| 수정: AboutSection | `src/components/landing/about-section.tsx` |
+
+| 역할                   | 경로                                       |
+| ---------------------- | ------------------------------------------ |
+| 수정: API 함수         | `src/lib/api.ts`                           |
+| 수정: 홈 서버 컴포넌트 | `src/app/page.tsx`                         |
+| 수정: HomeClient       | `src/components/home-client.tsx`           |
+| 수정: AboutSection     | `src/components/landing/about-section.tsx` |
 
 ---
 
 ## Task 1: Repository에 countByPublishedTrue() 추가
 
 **Files:**
+
 - Modify: `src/main/java/com/okojin/dev/blog/domain/post/repository/PostRepository.java`
 - Modify: `src/main/java/com/okojin/dev/blog/domain/algorithm/repository/AlgorithmRepository.java`
 
 - [ ] **Step 1: PostRepository에 count 메서드 추가**
 
 `PostRepository.java`의 기존 인터페이스에 아래 줄을 추가한다:
+
 ```java
 long countByPublishedTrue();
 ```
 
 최종 파일:
+
 ```java
 package com.okojin.dev.blog.domain.post.repository;
 
@@ -82,11 +87,13 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 - [ ] **Step 2: AlgorithmRepository에 count 메서드 추가**
 
 `AlgorithmRepository.java`의 기존 인터페이스에 아래 줄을 추가한다:
+
 ```java
 long countByPublishedTrue();
 ```
 
 최종 파일:
+
 ```java
 package com.okojin.dev.blog.domain.algorithm.repository;
 
@@ -121,6 +128,7 @@ git commit -m "feat: add countByPublishedTrue to Post/Algorithm repositories"
 ## Task 2: StatsDto 생성
 
 **Files:**
+
 - Create: `src/main/java/com/okojin/dev/blog/domain/stats/dto/StatsDto.java`
 
 - [ ] **Step 1: StatsDto 파일 생성**
@@ -144,6 +152,7 @@ git commit -m "feat: add StatsDto record"
 ## Task 3: StatsService 생성
 
 **Files:**
+
 - Create: `src/main/java/com/okojin/dev/blog/domain/stats/service/StatsService.java`
 
 - [ ] **Step 1: StatsService 파일 생성**
@@ -187,6 +196,7 @@ git commit -m "feat: add StatsService"
 ## Task 4: StatsController 생성 + SecurityConfig 수정
 
 **Files:**
+
 - Create: `src/main/java/com/okojin/dev/blog/domain/stats/controller/StatsController.java`
 - Modify: `src/main/java/com/okojin/dev/blog/config/SecurityConfig.java`
 
@@ -227,10 +237,13 @@ public class StatsController {
 - [ ] **Step 2: SecurityConfig에서 `/api/stats` 공개 허용**
 
 `SecurityConfig.java`의 `authorizeHttpRequests` 블록에서 아래 줄을:
+
 ```java
 .requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/algorithms/**", "/api/tags/**", "/api/articles/**").permitAll()
 ```
+
 다음과 같이 변경한다:
+
 ```java
 .requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/algorithms/**", "/api/tags/**", "/api/articles/**", "/api/stats").permitAll()
 ```
@@ -249,6 +262,7 @@ git commit -m "feat: add GET /api/stats endpoint"
 ## Task 5: StatsControllerTest 작성 및 실행
 
 **Files:**
+
 - Create: `src/test/java/com/okojin/dev/blog/domain/stats/controller/StatsControllerTest.java`
 
 - [ ] **Step 1: StatsControllerTest 파일 생성**
@@ -330,6 +344,7 @@ git commit -m "test: add StatsControllerTest"
 ## Task 6: 프론트엔드 api.ts에 getStats() 추가
 
 **Files:**
+
 - Modify: `apps/web/src/lib/api.ts`
 
 - [ ] **Step 1: ApiStats 타입과 getStats() 함수 추가**
@@ -362,6 +377,7 @@ git commit -m "feat: add getStats API function"
 ## Task 7: page.tsx에서 getStats() 호출 및 props 전달
 
 **Files:**
+
 - Modify: `apps/web/src/app/page.tsx`
 
 - [ ] **Step 1: page.tsx 수정**
@@ -415,6 +431,7 @@ git commit -m "feat: fetch real stats for AboutSection"
 ## Task 8: HomeClient와 AboutSection props 연결
 
 **Files:**
+
 - Modify: `apps/web/src/components/home-client.tsx`
 - Modify: `apps/web/src/components/landing/about-section.tsx`
 
@@ -491,11 +508,14 @@ export function AboutSection({
 ```
 
 그리고 stats 부분을:
+
 ```typescript
 <Stat value={42} unit="" label="Articles published" />
 <Stat value={128} unit="" label="Problems solved" />
 ```
+
 아래로 교체한다:
+
 ```typescript
 <Stat value={postCount} unit="" label="Articles published" />
 <Stat value={algorithmCount} unit="" label="Problems solved" />

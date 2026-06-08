@@ -12,19 +12,20 @@
 
 ## 파일 구조
 
-| 파일 | 역할 |
-|------|------|
-| `apps/web/src/app/api/[...path]/route.ts` | 신규: catch-all 프록시 핸들러 |
-| `apps/web/src/store/post-metrics.ts` | 신규: likesAtomFamily + handleLike 액션 |
-| `apps/web/src/lib/api.ts` | 수정: base URL 분기, getPost revalidate 수정 |
-| `apps/web/src/components/post-metrics.tsx` | 수정: 로컬 state → Jotai atom |
-| `apps/web/src/app/posts/[slug]/page.tsx` | 수정: JotaiProvider 감싸기 |
+| 파일                                       | 역할                                         |
+| ------------------------------------------ | -------------------------------------------- |
+| `apps/web/src/app/api/[...path]/route.ts`  | 신규: catch-all 프록시 핸들러                |
+| `apps/web/src/store/post-metrics.ts`       | 신규: likesAtomFamily + handleLike 액션      |
+| `apps/web/src/lib/api.ts`                  | 수정: base URL 분기, getPost revalidate 수정 |
+| `apps/web/src/components/post-metrics.tsx` | 수정: 로컬 state → Jotai atom                |
+| `apps/web/src/app/posts/[slug]/page.tsx`   | 수정: JotaiProvider 감싸기                   |
 
 ---
 
 ### Task 1: Jotai 설치
 
 **Files:**
+
 - Modify: `apps/web/package.json`
 
 - [ ] **Step 1: Jotai 설치**
@@ -53,6 +54,7 @@ git commit -m "chore: add jotai to web app"
 ### Task 2: Catch-all Route Handler 프록시 생성
 
 **Files:**
+
 - Create: `apps/web/src/app/api/[...path]/route.ts`
 
 - [ ] **Step 1: 파일 생성**
@@ -97,7 +99,9 @@ export async function GET(
 
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
-    ...(tag ? { next: { revalidate: 60, tags: [tag] } } : { cache: "no-store" }),
+    ...(tag
+      ? { next: { revalidate: 60, tags: [tag] } }
+      : { cache: "no-store" }),
   });
 
   const body = res.status === 204 ? null : await res.json();
@@ -111,7 +115,9 @@ async function mutate(
 ): Promise<NextResponse> {
   const url = buildBackendUrl(segments, "");
   const contentType = req.headers.get("content-type") ?? "";
-  const body = contentType.includes("application/json") ? await req.text() : undefined;
+  const body = contentType.includes("application/json")
+    ? await req.text()
+    : undefined;
 
   const res = await fetch(url, {
     method,
@@ -163,6 +169,7 @@ git commit -m "feat: add catch-all route handler proxy with revalidateTag"
 ### Task 3: api.ts — base URL 분기 및 getPost revalidate 수정
 
 **Files:**
+
 - Modify: `apps/web/src/lib/api.ts`
 
 - [ ] **Step 1: `getApiBaseUrl` 함수를 서버/클라이언트 분기로 교체**
@@ -239,6 +246,7 @@ git commit -m "fix: proxy all API calls through Next.js route handler, fix getPo
 ### Task 4: Jotai store 생성 — likesAtomFamily
 
 **Files:**
+
 - Create: `apps/web/src/store/post-metrics.ts`
 
 - [ ] **Step 1: 파일 생성**
@@ -270,7 +278,11 @@ export const likesAtomFamily = atomFamily((_slug: string) =>
  */
 export const initLikesAtom = atom(
   null,
-  (get, set, { slug, initialLikes }: { slug: string; initialLikes: number }) => {
+  (
+    get,
+    set,
+    { slug, initialLikes }: { slug: string; initialLikes: number },
+  ) => {
     const current = get(likesAtomFamily(slug));
     // 이미 초기화된 경우(isPending 등 상태 있음) 덮어쓰지 않는다
     if (current.likes === 0 && !current.isLiked) {
@@ -278,7 +290,11 @@ export const initLikesAtom = atom(
         typeof window !== "undefined"
           ? Boolean(localStorage.getItem(`liked_${slug}`))
           : false;
-      set(likesAtomFamily(slug), { likes: initialLikes, isLiked, isPending: false });
+      set(likesAtomFamily(slug), {
+        likes: initialLikes,
+        isLiked,
+        isPending: false,
+      });
     }
   },
 );
@@ -286,53 +302,50 @@ export const initLikesAtom = atom(
 /**
  * 좋아요 토글 액션. 낙관적 업데이트 후 API 호출, 실패 시 롤백.
  */
-export const toggleLikeAtom = atom(
-  null,
-  async (get, set, slug: string) => {
-    const state = get(likesAtomFamily(slug));
-    if (state.isPending) return;
+export const toggleLikeAtom = atom(null, async (get, set, slug: string) => {
+  const state = get(likesAtomFamily(slug));
+  if (state.isPending) return;
 
-    const wasLiked = state.isLiked;
-    const nextLiked = !wasLiked;
+  const wasLiked = state.isLiked;
+  const nextLiked = !wasLiked;
 
-    // 낙관적 업데이트
+  // 낙관적 업데이트
+  set(likesAtomFamily(slug), {
+    likes: state.likes + (nextLiked ? 1 : -1),
+    isLiked: nextLiked,
+    isPending: true,
+  });
+
+  if (nextLiked) {
+    localStorage.setItem(`liked_${slug}`, "true");
+  } else {
+    localStorage.removeItem(`liked_${slug}`);
+  }
+
+  try {
+    const data = wasLiked
+      ? await decrementPostLike(slug)
+      : await incrementPostLike(slug);
+
     set(likesAtomFamily(slug), {
-      likes: state.likes + (nextLiked ? 1 : -1),
+      likes: data.likes,
       isLiked: nextLiked,
-      isPending: true,
+      isPending: false,
     });
-
-    if (nextLiked) {
+  } catch {
+    // 롤백
+    set(likesAtomFamily(slug), {
+      likes: state.likes,
+      isLiked: wasLiked,
+      isPending: false,
+    });
+    if (wasLiked) {
       localStorage.setItem(`liked_${slug}`, "true");
     } else {
       localStorage.removeItem(`liked_${slug}`);
     }
-
-    try {
-      const data = wasLiked
-        ? await decrementPostLike(slug)
-        : await incrementPostLike(slug);
-
-      set(likesAtomFamily(slug), {
-        likes: data.likes,
-        isLiked: nextLiked,
-        isPending: false,
-      });
-    } catch {
-      // 롤백
-      set(likesAtomFamily(slug), {
-        likes: state.likes,
-        isLiked: wasLiked,
-        isPending: false,
-      });
-      if (wasLiked) {
-        localStorage.setItem(`liked_${slug}`, "true");
-      } else {
-        localStorage.removeItem(`liked_${slug}`);
-      }
-    }
-  },
-);
+  }
+});
 ```
 
 - [ ] **Step 2: 타입 체크**
@@ -355,6 +368,7 @@ git commit -m "feat: add likesAtomFamily and toggleLikeAtom with optimistic upda
 ### Task 5: post-metrics.tsx — Jotai atom으로 교체
 
 **Files:**
+
 - Modify: `apps/web/src/components/post-metrics.tsx`
 
 - [ ] **Step 1: 파일 전체 교체**
@@ -367,7 +381,11 @@ git commit -m "feat: add likesAtomFamily and toggleLikeAtom with optimistic upda
 import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { incrementPostView } from "@/lib/api";
-import { likesAtomFamily, initLikesAtom, toggleLikeAtom } from "@/store/post-metrics";
+import {
+  likesAtomFamily,
+  initLikesAtom,
+  toggleLikeAtom,
+} from "@/store/post-metrics";
 import { Heart, Eye } from "lucide-react";
 
 /** views 표시 + view 카운트 증가 */
@@ -484,6 +502,7 @@ git commit -m "feat: replace local likes state with shared Jotai atom"
 ### Task 6: page.tsx — JotaiProvider로 감싸기
 
 **Files:**
+
 - Modify: `apps/web/src/app/posts/[slug]/page.tsx`
 
 - [ ] **Step 1: JotaiProvider import 추가 및 JSX 감싸기**
@@ -536,6 +555,7 @@ git commit -m "feat: wrap post page with JotaiProvider for scoped likes state"
 ### Task 7: 환경변수 확인 및 동작 검증
 
 **Files:**
+
 - 확인: `apps/web/.env.local` (또는 `.env`)
 
 - [ ] **Step 1: `NEXT_PUBLIC_APP_URL` 환경변수 확인**

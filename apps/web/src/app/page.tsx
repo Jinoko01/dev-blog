@@ -5,10 +5,9 @@ export const revalidate = 60;
 
 export default async function Home() {
   try {
-    const [{ posts, total_visitors: totalVisitors }, stats] = await Promise.all([
-      getPosts(),
-      getStats(),
-    ]);
+    const [{ posts, total_visitors: totalVisitors }, stats] = await Promise.all(
+      [getPosts(), getStats()],
+    );
 
     const uniqueTopics = new Set<string>();
     const formattedPosts = (posts ?? []).map((post) => {
@@ -26,6 +25,13 @@ export default async function Home() {
       />
     );
   } catch {
-    return <HomeClient posts={[]} totalVisitors={0} postCount={0} algorithmCount={0} />;
+    return (
+      <HomeClient
+        posts={[]}
+        totalVisitors={0}
+        postCount={0}
+        algorithmCount={0}
+      />
+    );
   }
 }

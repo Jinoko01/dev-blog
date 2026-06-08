@@ -55,7 +55,9 @@ export async function GET(
 
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
-    ...(tag ? { next: { revalidate: 60, tags: [tag] } } : { cache: "no-store" }),
+    ...(tag
+      ? { next: { revalidate: 60, tags: [tag] } }
+      : { cache: "no-store" }),
   });
 
   return proxyResponse(res);
@@ -68,7 +70,9 @@ async function mutate(
 ): Promise<NextResponse> {
   const url = buildBackendUrl(segments, "");
   const contentType = req.headers.get("content-type") ?? "";
-  const body = contentType.includes("application/json") ? await req.text() : undefined;
+  const body = contentType.includes("application/json")
+    ? await req.text()
+    : undefined;
 
   const res = await fetch(url, {
     method,

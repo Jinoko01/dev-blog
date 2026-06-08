@@ -13,6 +13,7 @@
 ### Task 1: Add AuthGuard component
 
 **Files:**
+
 - Create: `apps/admin/src/components/AuthGuard.tsx`
 
 - [ ] **Step 1: Create the AuthGuard component**
@@ -26,11 +27,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAdminToken } from "@/lib/api";
 
-export default function AuthGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -51,9 +48,11 @@ export default function AuthGuard({
 - [ ] **Step 2: Verify the file was created correctly**
 
 Run:
+
 ```powershell
 Get-Content "apps\admin\src\components\AuthGuard.tsx"
 ```
+
 Expected: file contents printed without error.
 
 - [ ] **Step 3: Commit**
@@ -68,6 +67,7 @@ git commit -m "feat(admin): add AuthGuard client component for route protection"
 ### Task 2: Add LogoutButton component
 
 **Files:**
+
 - Create: `apps/admin/src/components/LogoutButton.tsx`
 
 - [ ] **Step 1: Create the LogoutButton component**
@@ -111,9 +111,11 @@ git commit -m "feat(admin): add LogoutButton component"
 ### Task 3: Update layout to use AuthGuard and LogoutButton
 
 **Files:**
+
 - Modify: `apps/admin/src/app/layout.tsx`
 
 The current layout is a Server Component with a sidebar that has a "Login" nav link. We need to:
+
 1. Wrap the entire `<body>` content (except `/login` page itself) with `AuthGuard`
 2. Replace the "Login" sidebar link with `LogoutButton`
 
@@ -229,6 +231,7 @@ git commit -m "feat(admin): integrate AuthGuard and logout button into layout"
 ### Task 4: Handle 401 responses in adminFetch
 
 **Files:**
+
 - Modify: `apps/admin/src/lib/api.ts`
 
 When a token expires, the backend returns 401. The current `apiFetch` throws a generic error but does not clear the stale token or redirect. We fix this in `adminFetch`.
@@ -322,4 +325,5 @@ While logged out, navigate directly to `http://localhost:3000/login`. Expected: 
 ```bash
 cd apps/admin && pnpm lint
 ```
+
 Expected: no errors.

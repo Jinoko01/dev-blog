@@ -33,31 +33,31 @@ arguments:
 
 ```yaml
 ---
-name: skill-name              # 소문자, 숫자, 하이픈만 사용 (최대 64자)
-description: skill 설명          # Claude가 자동 호출 시기를 판단하는 데 사용
+name: skill-name # 소문자, 숫자, 하이픈만 사용 (최대 64자)
+description: skill 설명 # Claude가 자동 호출 시기를 판단하는 데 사용
 disable-model-invocation: true # 수동 호출만 원할 때 true
-allowed-tools:                 # skill 실행 시 자동 승인할 도구 목록 (선택)
+allowed-tools: # skill 실행 시 자동 승인할 도구 목록 (선택)
   - Bash(git *)
 ---
 ```
 
 ### Frontmatter 선택 필드
 
-| 필드 | 설명 |
-|---|---|
-| `name` | slash command 이름. 생략 시 디렉토리 이름 사용 |
-| `description` | skill 설명. 자동 호출 판단에 사용 |
-| `when_to_use` | 추가 트리거 조건 설명 |
-| `argument-hint` | 자동완성에 표시할 인수 힌트 (예: `[filename]`) |
-| `arguments` | 명명된 위치 인수 목록 |
-| `disable-model-invocation` | `true`면 `/name`으로만 호출 가능 |
-| `user-invocable` | `false`면 Claude만 호출 가능 (메뉴에서 숨김) |
-| `allowed-tools` | 자동 승인할 도구 목록 |
-| `context` | `fork`면 subagent에서 실행 |
-| `agent` | `context: fork` 시 사용할 에이전트 유형 |
-| `model` | 사용할 모델 |
-| `effort` | 노력 수준 (`low`, `medium`, `high`, `max`) |
-| `paths` | 활성화 조건 glob 패턴 |
+| 필드                       | 설명                                           |
+| -------------------------- | ---------------------------------------------- |
+| `name`                     | slash command 이름. 생략 시 디렉토리 이름 사용 |
+| `description`              | skill 설명. 자동 호출 판단에 사용              |
+| `when_to_use`              | 추가 트리거 조건 설명                          |
+| `argument-hint`            | 자동완성에 표시할 인수 힌트 (예: `[filename]`) |
+| `arguments`                | 명명된 위치 인수 목록                          |
+| `disable-model-invocation` | `true`면 `/name`으로만 호출 가능               |
+| `user-invocable`           | `false`면 Claude만 호출 가능 (메뉴에서 숨김)   |
+| `allowed-tools`            | 자동 승인할 도구 목록                          |
+| `context`                  | `fork`면 subagent에서 실행                     |
+| `agent`                    | `context: fork` 시 사용할 에이전트 유형        |
+| `model`                    | 사용할 모델                                    |
+| `effort`                   | 노력 수준 (`low`, `medium`, `high`, `max`)     |
+| `paths`                    | 활성화 조건 glob 패턴                          |
 
 ### 콘텐츠 작성 규칙
 
@@ -70,10 +70,12 @@ allowed-tools:                 # skill 실행 시 자동 승인할 도구 목록
 ### Skill 유형별 가이드
 
 **참조 콘텐츠** (코딩 규칙, 스타일 가이드 등):
+
 - `disable-model-invocation: false` (기본값) — Claude가 관련 시 자동 로드
 - `user-invocable: false`로 설정 가능
 
 **작업 콘텐츠** (배포, 커밋 등 특정 작업):
+
 - `disable-model-invocation: true` — 사용자가 직접 호출
 - `allowed-tools`로 필요한 도구 사전 승인
 
