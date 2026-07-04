@@ -116,10 +116,19 @@ export function getApiBaseUrl() {
   if (typeof window !== "undefined") {
     return "";
   }
-  return (process.env.API_BASE_URL ?? "http://localhost:8080").replace(
-    /\/$/,
-    "",
-  );
+  const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8080";
+  console.log(apiBaseUrl);
+  return apiBaseUrl.replace(/\/$/, "");
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
 }
 
 async function apiFetch<T>(path: string, options: FetchOptions = {}) {
@@ -132,7 +141,10 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${path}`);
+    throw new ApiError(
+      response.status,
+      `API request failed: ${response.status} ${path}`,
+    );
   }
 
   if (response.status === 204) {

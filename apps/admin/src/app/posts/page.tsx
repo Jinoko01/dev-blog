@@ -35,77 +35,127 @@ export default function PostsPage() {
   }
 
   async function deletePost(id: string) {
-    if (!confirm("Are you sure you want to delete this post?")) {
-      return;
-    }
+    if (!confirm("Are you sure you want to delete this post?")) return;
     await deletePostById(id);
     fetchPosts();
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Posts</h1>
+        <h1 className="text-3xl font-black tracking-tight text-[color:var(--color-foreground)]">
+          Posts
+        </h1>
         <Link
           href="/posts/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium flex items-center gap-2 transition"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[color:var(--color-primary)] text-white text-sm font-bold rounded-lg transition hover:opacity-90"
         >
-          <Plus size={18} />
-          <span>New Post</span>
+          <Plus size={16} />
+          New Post
         </Link>
       </div>
 
-      <div className="bg-white border text-sm border-gray-200 shadow-sm rounded-xl overflow-hidden">
+      <div
+        className="overflow-hidden text-[14px]"
+        style={{
+          background: "var(--card)",
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+        }}
+      >
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading posts...</div>
+          <div className="p-8 text-center text-[13px] text-[color:var(--color-muted-foreground)]">
+            Loading posts...
+          </div>
         ) : posts.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No posts found.</div>
+          <div className="p-12 text-center border border-dashed border-[color:var(--color-border)] rounded-lg m-4">
+            <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-[color:var(--color-muted-foreground)] mb-2">
+              Empty
+            </p>
+            <p className="text-[13px] text-[color:var(--color-muted-foreground)]">
+              No posts found. Create your first post to get started.
+            </p>
+          </div>
         ) : (
-          <table className="w-full text-left border-collapse">
+          <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 font-medium text-gray-600">Title</th>
-                <th className="px-6 py-4 font-medium text-gray-600">Slug</th>
-                <th className="px-6 py-4 font-medium text-gray-600">Date</th>
-                <th className="px-6 py-4 font-medium text-gray-600">Status</th>
-                <th className="px-6 py-4 font-medium text-gray-600 text-right">
-                  Actions
-                </th>
+              <tr
+                style={{
+                  background:
+                    "color-mix(in oklch, var(--secondary) 60%, transparent)",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
+                {["Title", "Slug", "Date", "Status", "Actions"].map(
+                  (h, i) => (
+                    <th
+                      key={h}
+                      className="px-6 py-3.5"
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "var(--muted-foreground)",
+                        textAlign: i === 4 ? "right" : "left",
+                      }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody>
               {posts.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 font-medium">{post.title}</td>
-                  <td className="px-6 py-4 text-gray-500">{post.slug}</td>
-                  <td className="px-6 py-4 text-gray-500 text-xs">
-                    {new Date(post.created_at).toLocaleDateString()}
+                <tr
+                  key={post.id}
+                  className="border-b border-[color:var(--color-border)] hover:bg-[color:var(--color-secondary)]/50 transition-colors"
+                >
+                  <td className="px-6 py-3.5 font-semibold text-[color:var(--color-foreground)]">
+                    {post.title}
                   </td>
-                  <td className="px-6 py-4">
+                  <td
+                    className="px-6 py-3.5 text-[12px] text-[color:var(--color-muted-foreground)]"
+                    style={{ fontFamily: "var(--font-mono, monospace)" }}
+                  >
+                    {post.slug}
+                  </td>
+                  <td
+                    className="px-6 py-3.5 text-[12px] text-[color:var(--color-muted-foreground)]"
+                    style={{ fontFamily: "var(--font-mono, monospace)" }}
+                  >
+                    {new Date(post.created_at).toLocaleDateString("en-US")}
+                  </td>
+                  <td className="px-6 py-3.5">
                     <button
                       onClick={() => togglePublish(post.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        post.published
-                          ? "bg-green-100 text-green-700 hover:bg-green-200"
-                          : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                      }`}
+                      className="cursor-pointer px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase transition-colors"
+                      style={{
+                        background: post.published
+                          ? "rgba(22,163,74,0.12)"
+                          : "rgba(217,119,6,0.12)",
+                        color: post.published ? "#15803d" : "#b45309",
+                      }}
                     >
                       {post.published ? "Published" : "Draft"}
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-6 py-3.5 text-right">
+                    <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/posts/${post.id}/edit`}
-                        className="p-2 text-gray-400 hover:text-blue-600 transition"
+                        className="p-2 rounded text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-primary)] transition-colors"
+                        aria-label="Edit"
                       >
-                        <Edit size={16} />
+                        <Edit size={15} />
                       </Link>
                       <button
                         onClick={() => deletePost(post.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 transition"
+                        className="p-2 rounded text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-destructive)] transition-colors cursor-pointer"
+                        aria-label="Delete"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </td>

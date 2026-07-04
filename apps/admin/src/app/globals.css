@@ -3,27 +3,39 @@
 :root {
   --font-size: 16px;
 
-  /* Pastel Blue-Green Light Theme (match apps/web) */
-  --background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 50%, #e8f5e9 100%);
-  --background-solid: #f0f8ff;
-  --foreground: #2c3e50;
-  --card: rgba(255, 255, 255, 0.85);
-  --card-foreground: #2c3e50;
-  --popover: rgba(255, 255, 255, 0.95);
-  --popover-foreground: #2c3e50;
-  --primary: #5dade2;
-  --primary-foreground: #ffffff;
-  --secondary: #aed6f1;
-  --secondary-foreground: #2c3e50;
-  --muted: #d6eaf8;
-  --muted-foreground: #5d6d7e;
-  --accent: #85c1e9;
-  --accent-foreground: #2c3e50;
-  --destructive: #ec7063;
+  /* Persimmon (brand orange) */
+  --persimmon-500: #f97316;
+
+  /* Neutral ink scale */
+  --ink-0:   #ffffff;
+  --ink-50:  #F8F9FA;
+  --ink-100: #f4f4f5;
+  --ink-200: #ededed;
+  --ink-300: #e4e4e7;
+  --ink-600: #71717a;
+  --ink-900: #111111;
+
+  /* Semantic tokens — Bold Persimmon / Monochrome */
+  --background:             var(--ink-50);
+  --background-solid:       var(--ink-50);
+  --foreground:             var(--ink-900);
+  --card:                   var(--ink-0);
+  --card-foreground:        var(--ink-900);
+  --popover:                var(--ink-0);
+  --popover-foreground:     var(--ink-900);
+  --primary:                var(--persimmon-500);
+  --primary-foreground:     #ffffff;
+  --secondary:              var(--ink-100);
+  --secondary-foreground:   var(--ink-900);
+  --muted:                  var(--ink-100);
+  --muted-foreground:       var(--ink-600);
+  --accent:                 var(--persimmon-500);
+  --accent-foreground:      #ffffff;
+  --destructive:            #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(93, 173, 226, 0.2);
-  --ring: rgba(93, 173, 226, 0.3);
-  --radius: 0.75rem;
+  --border:                 var(--ink-300);
+  --ring:                   rgba(249, 115, 22, 0.3);
+  --radius:                 0.5rem;
 }
 
 @theme inline {
@@ -59,14 +71,29 @@
     background: var(--background);
     color: var(--foreground);
     min-height: 100vh;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Apple SD Gothic Neo", "Malgun Gothic", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-family: var(
+      --font-sans,
+      "Inter",
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Noto Sans",
+      "Apple SD Gothic Neo",
+      "Malgun Gothic",
+      "Helvetica Neue",
+      Arial,
+      sans-serif
+    );
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Custom Scrollbar (match apps/web) */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -74,11 +101,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--primary);
+  background: var(--muted-foreground);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: var(--primary);
 }
-

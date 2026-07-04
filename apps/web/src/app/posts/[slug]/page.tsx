@@ -9,7 +9,7 @@ import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
 import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
-import { getPost, getPosts } from "@/lib/api";
+import { getPost, getPosts, ApiError } from "@/lib/api";
 import { TableOfContents } from "@/components/toc";
 
 export const revalidate = 60;
@@ -18,7 +18,10 @@ export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await props.params;
-  const post = await getPost(slug).catch(() => null);
+  const post = await getPost(slug).catch((err: unknown) => {
+    if (err instanceof ApiError && err.status === 404) return null;
+    return null;
+  });
 
   if (!post) {
     return { title: "Not Found" };
@@ -49,7 +52,10 @@ export default async function PostPage(props: {
   const params = await props.params;
   const { slug } = params;
 
-  const post = await getPost(slug).catch(() => null);
+  const post = await getPost(slug).catch((err: unknown) => {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  });
 
   if (!post) {
     notFound();

@@ -9,6 +9,11 @@ import {
   updatePost,
 } from "@/lib/api";
 
+const inputCls =
+  "w-full px-3.5 py-2.5 text-sm border border-[color:var(--color-border)] rounded-lg bg-[color:var(--color-background)] text-[color:var(--color-foreground)] outline-none transition focus:ring-2 focus:ring-[color:var(--color-ring)]";
+const labelCls =
+  "text-[11px] font-bold tracking-[0.2em] uppercase text-[color:var(--color-muted-foreground)]";
+
 export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
@@ -28,9 +33,7 @@ export default function EditPostPage() {
   });
 
   useEffect(() => {
-    if (!postId) {
-      return;
-    }
+    if (!postId) return;
 
     async function loadPost() {
       const post = await getPostForAdmin(postId).catch((error) => {
@@ -42,9 +45,7 @@ export default function EditPostPage() {
         return;
       });
 
-      if (!post) {
-        return;
-      }
+      if (!post) return;
 
       setFormData({
         title: post.title,
@@ -55,7 +56,6 @@ export default function EditPostPage() {
         tags: post.tags.join(", "),
         published: post.published || false,
       });
-
       setFetching(false);
     }
 
@@ -65,17 +65,12 @@ export default function EditPostPage() {
   const uploadImage = async (file: File): Promise<string> => {
     try {
       const upload = await createSignedUploadUrl(file.name);
-
       const uploadResponse = await fetch(upload.signedUrl, {
         method: "PUT",
         headers: { "Content-Type": file.type || "application/octet-stream" },
         body: file,
       });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Storage upload failed");
-      }
-
+      if (!uploadResponse.ok) throw new Error("Storage upload failed");
       return getPublicUrlFromSignedUploadUrl(upload.signedUrl, upload.path);
     } catch (err: unknown) {
       console.error(err);
@@ -91,9 +86,7 @@ export default function EditPostPage() {
     textarea: HTMLTextAreaElement,
   ) => {
     const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    if (imageFiles.length === 0) {
-      return;
-    }
+    if (imageFiles.length === 0) return;
 
     for (const file of imageFiles) {
       const cursorPosition = textarea.selectionStart;
@@ -158,48 +151,48 @@ export default function EditPostPage() {
 
   if (fetching) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 pt-10 text-center text-gray-500">
+      <div className="max-w-3xl mx-auto pt-10 text-center text-[13px] text-[color:var(--color-muted-foreground)]">
         Loading post data...
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Edit Post</h1>
+    <div className="max-w-3xl mx-auto flex flex-col gap-6">
+      <h1 className="text-3xl font-black tracking-tight text-[color:var(--color-foreground)]">
+        Edit Post
+      </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 shadow-sm space-y-6"
+        className="bg-[color:var(--color-card)] p-6 md:p-8 rounded-lg border border-[color:var(--color-border)] shadow-sm flex flex-col gap-6"
       >
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Title</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Title</label>
           <input
             required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className={inputCls}
             value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Next.js 14 App Router Guide"
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Slug</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Slug</label>
           <input
             readOnly
             disabled
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none bg-gray-50 focus:ring-0 transition"
+            className={`${inputCls} bg-[color:var(--color-secondary)] opacity-70 cursor-not-allowed`}
             value={formData.slug}
             placeholder="nextjs-14-guide"
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Description</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Description</label>
           <textarea
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition h-20"
+            className={`${inputCls} h-20 resize-none`}
             value={formData.description}
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
@@ -208,92 +201,83 @@ export default function EditPostPage() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Thumbnail Image</label>
-          <div className="flex flex-col gap-3">
-            {formData.thumbnail_url && (
-              <img
-                src={formData.thumbnail_url}
-                alt="Thumbnail preview"
-                className="w-32 h-auto object-cover rounded-md border border-gray-200"
-              />
-            )}
-            <div className="flex gap-4 items-center">
-              <input
-                type="file"
-                accept="image/*"
-                disabled={uploadingImage}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition disabled:opacity-50 cursor-pointer"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setUploadingImage(true);
-                    const publicUrl = await uploadImage(file);
-                    if (publicUrl) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        thumbnail_url: publicUrl,
-                      }));
-                    }
-                    setUploadingImage(false);
-                  }
-                }}
-              />
-              {uploadingImage && (
-                <span className="text-sm text-blue-600 animate-pulse font-medium whitespace-nowrap">
-                  Uploading...
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-              Or provide a URL:
-            </p>
-            <input
-              className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
-              value={formData.thumbnail_url}
-              onChange={(e) =>
-                setFormData({ ...formData, thumbnail_url: e.target.value })
-              }
-              placeholder="https://example.com/image.png"
+        <div className="flex flex-col gap-3">
+          <label className={labelCls}>Thumbnail Image</label>
+          {formData.thumbnail_url && (
+            <img
+              src={formData.thumbnail_url}
+              alt="Thumbnail preview"
+              className="w-32 h-auto object-cover rounded-lg border border-[color:var(--color-border)]"
             />
+          )}
+          <div className="flex gap-4 items-center">
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploadingImage}
+              className="block w-full text-sm text-[color:var(--color-muted-foreground)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[color:var(--color-secondary)] file:text-[color:var(--color-foreground)] hover:file:bg-[color:var(--color-secondary)]/80 transition disabled:opacity-50 cursor-pointer"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setUploadingImage(true);
+                  const publicUrl = await uploadImage(file);
+                  if (publicUrl)
+                    setFormData((prev) => ({ ...prev, thumbnail_url: publicUrl }));
+                  setUploadingImage(false);
+                }
+              }}
+            />
+            {uploadingImage && (
+              <span className="text-sm text-[color:var(--color-primary)] animate-pulse font-medium whitespace-nowrap">
+                Uploading...
+              </span>
+            )}
           </div>
+          <p className={labelCls}>Or provide a URL:</p>
+          <input
+            className={inputCls}
+            value={formData.thumbnail_url}
+            onChange={(e) =>
+              setFormData({ ...formData, thumbnail_url: e.target.value })
+            }
+            placeholder="https://example.com/image.png"
+          />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Tags (comma separated)</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={labelCls}>Tags (comma separated)</label>
           <input
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className={inputCls}
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
             placeholder="react, nextjs, frontend"
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-sm font-medium">Markdown Content</label>
-            <span className="text-xs text-gray-500 font-medium">
+            <label className={labelCls}>Markdown Content</label>
+            <span className="text-[11px] text-[color:var(--color-muted-foreground)]">
               Drop/Paste images directly inside
             </span>
           </div>
           <textarea
             required
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition h-96 font-mono text-sm"
+            className={`${inputCls} h-96 font-mono text-sm resize-none`}
             value={formData.content}
             onChange={(e) =>
               setFormData({ ...formData, content: e.target.value })
             }
             onDrop={async (e) => {
               e.preventDefault();
-              const files = Array.from(e.dataTransfer.files);
-              await processMarkdownFiles(files, e.currentTarget);
+              await processMarkdownFiles(
+                Array.from(e.dataTransfer.files),
+                e.currentTarget,
+              );
             }}
             onPaste={async (e) => {
               const files = Array.from(e.clipboardData.files);
-              if (
-                files.length > 0 &&
-                files.some((f) => f.type.startsWith("image/"))
-              ) {
+              if (files.length > 0 && files.some((f) => f.type.startsWith("image/"))) {
                 e.preventDefault();
                 await processMarkdownFiles(files, e.currentTarget);
               }
@@ -302,7 +286,7 @@ export default function EditPostPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <input
             type="checkbox"
             id="published"
@@ -310,18 +294,21 @@ export default function EditPostPage() {
             onChange={(e) =>
               setFormData({ ...formData, published: e.target.checked })
             }
-            className="w-4 h-4 text-blue-600 rounded"
+            className="w-4 h-4 accent-[color:var(--color-primary)] rounded cursor-pointer"
           />
-          <label htmlFor="published" className="text-sm font-medium">
+          <label
+            htmlFor="published"
+            className="text-sm font-medium cursor-pointer select-none"
+          >
             Publish status
           </label>
         </div>
 
-        <div className="pt-4 border-t border-gray-200">
+        <div className="pt-4 border-t border-[color:var(--color-border)]">
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
+            className="w-full py-3 px-4 bg-[color:var(--color-primary)] text-white font-bold text-sm rounded-lg transition hover:opacity-90 disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Saving Changes..." : "Save Changes"}
           </button>

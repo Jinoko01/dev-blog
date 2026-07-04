@@ -222,21 +222,13 @@ export async function login(username: string, password: string) {
 }
 
 export async function getPosts() {
-  const posts = await apiFetch<ApiPost[]>("/api/posts");
+  const posts = await adminFetch<ApiPost[]>("/api/admin/posts");
   return posts.map(toAdminPost);
 }
 
 export async function getPostForAdmin(id: string) {
-  const posts = await getPosts();
-  const post = posts.find((item) => item.id === id);
-  if (!post) {
-    throw new Error("Post not found in the public backend API.");
-  }
-
-  const detail = await apiFetch<ApiPost>(
-    `/api/posts/${encodeURIComponent(post.slug)}`,
-  );
-  return toAdminPost(detail);
+  const post = await adminFetch<ApiPost>(`/api/admin/posts/${encodeURIComponent(id)}`);
+  return toAdminPost(post);
 }
 
 export async function createPost(payload: PostPayload) {
@@ -271,7 +263,8 @@ export async function deletePost(id: string) {
 }
 
 export async function getAlgorithms() {
-  const algos = await apiFetch<ApiAlgorithm[]>("/api/algorithms");
+  const result = await apiFetch<ApiAlgorithm[] | { content: ApiAlgorithm[] }>("/api/algorithms");
+  const algos = Array.isArray(result) ? result : (result.content ?? []);
   return algos.map(toAdminAlgorithm);
 }
 

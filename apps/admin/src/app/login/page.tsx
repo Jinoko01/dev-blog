@@ -13,7 +13,6 @@ export default function LoginPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
-
     try {
       await login(username, password);
       router.push("/");
@@ -28,49 +27,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white p-8 rounded-xl border border-gray-200 shadow-sm space-y-5"
-      >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Admin Login</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Sign in with the backend admin account.
+    <div className="min-h-screen w-full flex items-center justify-center bg-[color:var(--color-background)]">
+      <div className="w-full max-w-sm flex flex-col gap-8">
+        <header className="text-center flex flex-col gap-2">
+          <h1 className="text-3xl font-black tracking-tight text-[color:var(--color-foreground)]">
+            Admin Login
+          </h1>
+          <p className="text-[13px] text-[color:var(--color-muted-foreground)]">
+            관리자만 접근할 수 있습니다.
           </p>
-        </div>
+        </header>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Username</label>
-          <input
-            required
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
-            autoComplete="username"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Password</label>
-          <input
-            required
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition"
-            autoComplete="current-password"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md font-medium transition disabled:opacity-50"
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[color:var(--color-card)] p-6 rounded-lg border border-[color:var(--color-border)] shadow-sm flex flex-col gap-4"
         >
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold tracking-[0.2em] uppercase text-[color:var(--color-muted-foreground)]">
+              Username
+            </label>
+            <input
+              required
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+              className="w-full px-3.5 py-3 text-sm border border-[color:var(--color-border)] rounded-lg bg-[color:var(--color-background)] text-[color:var(--color-foreground)] outline-none transition focus:ring-2 focus:ring-[color:var(--color-ring)]"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold tracking-[0.2em] uppercase text-[color:var(--color-muted-foreground)]">
+              Password
+            </label>
+            <input
+              required
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              className="w-full px-3.5 py-3 text-sm border border-[color:var(--color-border)] rounded-lg bg-[color:var(--color-background)] text-[color:var(--color-foreground)] outline-none transition focus:ring-2 focus:ring-[color:var(--color-ring)]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 py-3 px-4 bg-[color:var(--color-primary)] text-white font-bold text-sm rounded-lg transition hover:opacity-90 disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
