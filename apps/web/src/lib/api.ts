@@ -117,7 +117,6 @@ export function getApiBaseUrl() {
     return "";
   }
   const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8080";
-  console.log(apiBaseUrl);
   return apiBaseUrl.replace(/\/$/, "");
 }
 
