@@ -3,31 +3,20 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { PostMetadata } from "@/lib/mdx";
+import { getDifficultyTier, type DifficultyTier } from "@/lib/difficulty";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
+const DIFFICULTY_COLOR: Record<DifficultyTier, string> = {
+  hard: "bg-red-100/60 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800",
+  medium:
+    "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)] dark:bg-[color:var(--color-primary)]/20 dark:border-[color:var(--color-primary)]/30 border border-[color:var(--color-primary)]/20",
+  easy: "bg-green-100/60 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800",
+};
+
 function getDifficultyColor(difficulty: string) {
-  const v = difficulty.toLowerCase();
-  if (
-    v.includes("플레") ||
-    v.includes("d5") ||
-    v.includes("lv4") ||
-    v.includes("hard")
-  ) {
-    return "bg-red-100/60 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800";
-  }
-  if (
-    v.includes("골드") ||
-    v.includes("d3") ||
-    v.includes("d4") ||
-    v.includes("lv2") ||
-    v.includes("lv3") ||
-    v.includes("medium")
-  ) {
-    return "bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)] dark:bg-[color:var(--color-primary)]/20 dark:border-[color:var(--color-primary)]/30 border border-[color:var(--color-primary)]/20";
-  }
-  return "bg-green-100/60 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800";
+  return DIFFICULTY_COLOR[getDifficultyTier(difficulty)];
 }
 
 export function AlgorithmListClient({

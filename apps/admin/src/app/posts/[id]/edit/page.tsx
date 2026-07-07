@@ -2,38 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import {
-  createSignedUploadUrl,
-  getPostForAdmin,
-  getPublicUrlFromSignedUploadUrl,
-  updatePost,
-} from "@/lib/api";
-
-const inputCls =
-  "w-full px-3.5 py-2.5 text-sm border border-[color:var(--color-border)] rounded-lg bg-[color:var(--color-background)] text-[color:var(--color-foreground)] outline-none transition focus:ring-2 focus:ring-[color:var(--color-ring)]";
-const labelCls =
-  "text-[11px] font-bold tracking-[0.2em] uppercase text-[color:var(--color-muted-foreground)]";
+import { getPostForAdmin, updatePost } from "@/lib/api";
+import { PostForm, type PostFormValues } from "@/components/post-form";
 
 export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
 
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    description: "",
-    content: "",
-    thumbnail_url: "",
-    tags: "",
-    published: false,
-  });
+  const [slug, setSlug] = useState("");
+  const [initialValues, setInitialValues] = useState<PostFormValues | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (!postId) return;
+    if (!postId) {
+      return;
+    }
 
     async function loadPost() {
       const post = await getPostForAdmin(postId).catch((error) => {
@@ -42,114 +27,45 @@ export default function EditPostPage() {
             (error instanceof Error ? error.message : "Not found"),
         );
         router.push("/posts");
-        return;
+        return null;
       });
 
-      if (!post) return;
+      if (!post) {
+        return;
+      }
 
-      setFormData({
+      setSlug(post.slug);
+      setInitialValues({
         title: post.title,
-        slug: post.slug,
         description: post.description || "",
         content: post.content || "",
         thumbnail_url: post.thumbnail_url || "",
         tags: post.tags.join(", "),
         published: post.published || false,
       });
-      setFetching(false);
     }
 
     loadPost();
   }, [postId, router]);
 
-  const uploadImage = async (file: File): Promise<string> => {
-    try {
-      const upload = await createSignedUploadUrl(file.name);
-      const uploadResponse = await fetch(upload.signedUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type || "application/octet-stream" },
-        body: file,
-      });
-      if (!uploadResponse.ok) throw new Error("Storage upload failed");
-      return getPublicUrlFromSignedUploadUrl(upload.signedUrl, upload.path);
-    } catch (err: unknown) {
-      console.error(err);
-      alert(
-        "Upload failed: " + (err instanceof Error ? err.message : String(err)),
-      );
-      return "";
-    }
-  };
-
-  const processMarkdownFiles = async (
-    files: File[],
-    textarea: HTMLTextAreaElement,
-  ) => {
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    if (imageFiles.length === 0) return;
-
-    for (const file of imageFiles) {
-      const cursorPosition = textarea.selectionStart;
-      const placeholder = `![Uploading ${file.name}...]()\n`;
-
-      setFormData((prev) => {
-        const textBefore = prev.content.substring(0, cursorPosition);
-        const textAfter = prev.content.substring(cursorPosition);
-        return { ...prev, content: textBefore + placeholder + textAfter };
-      });
-
-      setUploadingImage(true);
-      const publicUrl = await uploadImage(file);
-      setUploadingImage(false);
-
-      if (publicUrl) {
-        setFormData((prev) => ({
-          ...prev,
-          content: prev.content.replace(
-            placeholder,
-            `![${file.name}](${publicUrl})\n`,
-          ),
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          content: prev.content.replace(placeholder, ""),
-        }));
-      }
-    }
-  };
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    const tagsArray = formData.tags
+  async function handleUpdate(values: PostFormValues) {
+    const tagsArray = values.tags
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
 
     try {
-      await updatePost(postId, {
-        title: formData.title,
-        slug: formData.slug,
-        description: formData.description,
-        content: formData.content,
-        thumbnail_url: formData.thumbnail_url,
-        published: formData.published,
-        tags: tagsArray,
-      });
+      await updatePost(postId, { ...values, slug, tags: tagsArray });
       router.push("/posts");
     } catch (error) {
       alert(
         "Error saving post: " +
           (error instanceof Error ? error.message : String(error)),
       );
-    } finally {
-      setLoading(false);
     }
   }
 
-  if (fetching) {
+  if (!initialValues) {
     return (
       <div className="max-w-3xl mx-auto pt-10 text-center text-[13px] text-[color:var(--color-muted-foreground)]">
         Loading post data...
@@ -163,157 +79,13 @@ export default function EditPostPage() {
         Edit Post
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-[color:var(--color-card)] p-6 md:p-8 rounded-lg border border-[color:var(--color-border)] shadow-sm flex flex-col gap-6"
-      >
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Title</label>
-          <input
-            required
-            className={inputCls}
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Next.js 14 App Router Guide"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Slug</label>
-          <input
-            readOnly
-            disabled
-            className={`${inputCls} bg-[color:var(--color-secondary)] opacity-70 cursor-not-allowed`}
-            value={formData.slug}
-            placeholder="nextjs-14-guide"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Description</label>
-          <textarea
-            className={`${inputCls} h-20 resize-none`}
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            placeholder="Brief summary of the post..."
-          />
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <label className={labelCls}>Thumbnail Image</label>
-          {formData.thumbnail_url && (
-            <img
-              src={formData.thumbnail_url}
-              alt="Thumbnail preview"
-              className="w-32 h-auto object-cover rounded-lg border border-[color:var(--color-border)]"
-            />
-          )}
-          <div className="flex gap-4 items-center">
-            <input
-              type="file"
-              accept="image/*"
-              disabled={uploadingImage}
-              className="block w-full text-sm text-[color:var(--color-muted-foreground)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[color:var(--color-secondary)] file:text-[color:var(--color-foreground)] hover:file:bg-[color:var(--color-secondary)]/80 transition disabled:opacity-50 cursor-pointer"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setUploadingImage(true);
-                  const publicUrl = await uploadImage(file);
-                  if (publicUrl)
-                    setFormData((prev) => ({ ...prev, thumbnail_url: publicUrl }));
-                  setUploadingImage(false);
-                }
-              }}
-            />
-            {uploadingImage && (
-              <span className="text-sm text-[color:var(--color-primary)] animate-pulse font-medium whitespace-nowrap">
-                Uploading...
-              </span>
-            )}
-          </div>
-          <p className={labelCls}>Or provide a URL:</p>
-          <input
-            className={inputCls}
-            value={formData.thumbnail_url}
-            onChange={(e) =>
-              setFormData({ ...formData, thumbnail_url: e.target.value })
-            }
-            placeholder="https://example.com/image.png"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className={labelCls}>Tags (comma separated)</label>
-          <input
-            className={inputCls}
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            placeholder="react, nextjs, frontend"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <div className="flex justify-between items-center">
-            <label className={labelCls}>Markdown Content</label>
-            <span className="text-[11px] text-[color:var(--color-muted-foreground)]">
-              Drop/Paste images directly inside
-            </span>
-          </div>
-          <textarea
-            required
-            className={`${inputCls} h-96 font-mono text-sm resize-none`}
-            value={formData.content}
-            onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
-            }
-            onDrop={async (e) => {
-              e.preventDefault();
-              await processMarkdownFiles(
-                Array.from(e.dataTransfer.files),
-                e.currentTarget,
-              );
-            }}
-            onPaste={async (e) => {
-              const files = Array.from(e.clipboardData.files);
-              if (files.length > 0 && files.some((f) => f.type.startsWith("image/"))) {
-                e.preventDefault();
-                await processMarkdownFiles(files, e.currentTarget);
-              }
-            }}
-            placeholder={`## Hello World...\n\nDrag & drop or paste images directly into this area to upload them!`}
-          />
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <input
-            type="checkbox"
-            id="published"
-            checked={formData.published}
-            onChange={(e) =>
-              setFormData({ ...formData, published: e.target.checked })
-            }
-            className="w-4 h-4 accent-[color:var(--color-primary)] rounded cursor-pointer"
-          />
-          <label
-            htmlFor="published"
-            className="text-sm font-medium cursor-pointer select-none"
-          >
-            Publish status
-          </label>
-        </div>
-
-        <div className="pt-4 border-t border-[color:var(--color-border)]">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 px-4 bg-[color:var(--color-primary)] text-white font-bold text-sm rounded-lg transition hover:opacity-90 disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? "Saving Changes..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
+      <PostForm
+        initialValues={initialValues}
+        slug={slug}
+        submitLabel="Save Changes"
+        pendingLabel="Saving Changes..."
+        onSubmit={handleUpdate}
+      />
     </div>
   );
 }

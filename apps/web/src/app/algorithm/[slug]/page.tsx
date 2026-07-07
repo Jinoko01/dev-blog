@@ -5,31 +5,20 @@ import { codeToHtml } from "shiki";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import { getAlgorithm } from "@/lib/api";
+import { getDifficultyTier, type DifficultyTier } from "@/lib/difficulty";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
 import { AlgorithmDescriptionModal } from "@/components/algorithm/algorithm-description-modal";
 import { Pre } from "@/components/mdx/pre";
 
+const DIFFICULTY_COLOR: Record<DifficultyTier, string> = {
+  hard: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  medium:
+    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  easy: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+};
+
 function getDifficultyColor(difficulty: string) {
-  const v = difficulty.toLowerCase();
-  if (
-    v.includes("플레") ||
-    v.includes("d5") ||
-    v.includes("lv4") ||
-    v.includes("hard")
-  ) {
-    return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
-  }
-  if (
-    v.includes("골드") ||
-    v.includes("d3") ||
-    v.includes("d4") ||
-    v.includes("lv2") ||
-    v.includes("lv3") ||
-    v.includes("medium")
-  ) {
-    return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
-  }
-  return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+  return DIFFICULTY_COLOR[getDifficultyTier(difficulty)];
 }
 
 async function highlightCode(code: string, language: string) {
