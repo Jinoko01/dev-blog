@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import { codeToHtml } from "shiki";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
 import { getAlgorithm } from "@/lib/api";
 import { getDifficultyTier, type DifficultyTier } from "@/lib/difficulty";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
@@ -133,6 +134,7 @@ async function AlgorithmDetailContent({ slug }: { slug: string }) {
             components={{ pre: Pre }}
             options={{
               mdxOptions: {
+                remarkPlugins: [remarkGfm],
                 rehypePlugins: [[rehypePrettyCode, { theme: "github-dark" }]],
               },
             }}

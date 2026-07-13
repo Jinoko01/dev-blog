@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Check, Copy } from "lucide-react";
+import { Mermaid } from "./mermaid";
 
 export function Pre({
   children,
@@ -9,6 +10,16 @@ export function Pre({
 }: React.HTMLAttributes<HTMLPreElement>) {
   const [copied, setCopied] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
+  const [mermaidCode, setMermaidCode] = useState<string | null>(null);
+
+  const isMermaid =
+    (props as Record<string, unknown>)["data-language"] === "mermaid";
+
+  useEffect(() => {
+    if (isMermaid && preRef.current) {
+      setMermaidCode(preRef.current.textContent || "");
+    }
+  }, [isMermaid]);
 
   const onCopy = () => {
     if (preRef.current) {
@@ -18,6 +29,17 @@ export function Pre({
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  if (isMermaid) {
+    return (
+      <>
+        <pre ref={preRef} {...props} className="hidden">
+          {children}
+        </pre>
+        {mermaidCode && <Mermaid chart={mermaidCode} />}
+      </>
+    );
+  }
 
   return (
     <div className="relative group/code my-6 w-full max-w-full">
