@@ -41,14 +41,14 @@ apps/admin  (JWT 인증 필요)     ──┘        (별도 저장소·서버) 
 
 ### 프론트엔드
 
-| 구분 | 스택 |
-| --- | --- |
-| 프레임워크 | Next.js 16 (App Router), React 19, TypeScript (strict) |
-| 스타일링 | Tailwind CSS v4, shadcn/ui, Framer Motion |
-| 콘텐츠 | MDX (`next-mdx-remote`), Shiki, rehype-pretty-code |
-| 상태·데이터 | Jotai, TanStack Query |
+| 구분                 | 스택                                                                           |
+| -------------------- | ------------------------------------------------------------------------------ |
+| 프레임워크           | Next.js 16 (App Router), React 19, TypeScript (strict)                         |
+| 스타일링             | Tailwind CSS v4, shadcn/ui, Framer Motion                                      |
+| 콘텐츠               | MDX (`next-mdx-remote`), Shiki, rehype-pretty-code                             |
+| 상태·데이터          | Jotai, TanStack Query                                                          |
 | 컴포넌트 개발·테스트 | Storybook 10 (`@storybook/nextjs-vite`), Vitest + Playwright(interaction test) |
-| 린트·포맷 | ESLint 9 (flat config), Prettier |
+| 린트·포맷            | ESLint 9 (flat config), Prettier                                               |
 
 ### 모노레포
 
@@ -76,22 +76,22 @@ pnpm lint
 
 ### 웹 (apps/web)
 
-| 경로 | 화면 |
-| --- | --- |
-| `/` | 랜딩 페이지 — 자기소개, 기술 스택, 최신 글 목록, 방문자·글·알고리즘 통계 |
-| `/articles` | 전체 글 목록 — 태그 필터, 검색, 정렬(최신순/인기순) |
-| `/posts/[slug]` | 글 상세 — MDX 본문, 목차, 조회수/좋아요, Giscus 댓글 |
-| `/algorithm` | 알고리즘 아카이브 — 플랫폼·난이도별 목록, 검색, 페이지네이션 |
-| `/algorithm/[slug]` | 알고리즘 상세 — 풀이 코드, 설명 |
-| `/about` | 소개 페이지 (현재 상단 내비게이션에는 노출되지 않음) |
+| 경로                | 화면                                                                     |
+| ------------------- | ------------------------------------------------------------------------ |
+| `/`                 | 랜딩 페이지 — 자기소개, 기술 스택, 최신 글 목록, 방문자·글·알고리즘 통계 |
+| `/articles`         | 전체 글 목록 — 태그 필터, 검색, 정렬(최신순/인기순)                      |
+| `/posts/[slug]`     | 글 상세 — MDX 본문, 목차, 조회수/좋아요, Giscus 댓글                     |
+| `/algorithm`        | 알고리즘 아카이브 — 플랫폼·난이도별 목록, 검색, 페이지네이션             |
+| `/algorithm/[slug]` | 알고리즘 상세 — 풀이 코드, 설명                                          |
+| `/about`            | 소개 페이지 (현재 상단 내비게이션에는 노출되지 않음)                     |
 
 ### 어드민 (apps/admin)
 
-| 경로 | 화면 |
-| --- | --- |
-| `/login` | 로그인 |
-| `/` | 대시보드 — 통계 카드(예시 값), 최근 활동(미연동) |
-| `/posts` | 게시글 목록 — 발행 상태 토글, 삭제 |
-| `/posts/new`, `/posts/[id]/edit` | 게시글 작성·수정 — 제목/설명/태그/썸네일/마크다운 본문(이미지 업로드 지원) |
-| `/algorithms` | 알고리즘 목록 — 발행 상태 토글, 삭제 |
-| `/algorithms/new`, `/algorithms/[id]/edit` | 알고리즘 작성·수정 — 플랫폼/난이도/언어/풀이 코드 |
+| 경로                                       | 화면                                                                       |
+| ------------------------------------------ | -------------------------------------------------------------------------- |
+| `/login`                                   | 로그인                                                                     |
+| `/`                                        | 대시보드 — 통계 카드(예시 값), 최근 활동(미연동)                           |
+| `/posts`                                   | 게시글 목록 — 발행 상태 토글, 삭제                                         |
+| `/posts/new`, `/posts/[id]/edit`           | 게시글 작성·수정 — 제목/설명/태그/썸네일/마크다운 본문(이미지 업로드 지원) |
+| `/algorithms`                              | 알고리즘 목록 — 발행 상태 토글, 삭제                                       |
+| `/algorithms/new`, `/algorithms/[id]/edit` | 알고리즘 작성·수정 — 플랫폼/난이도/언어/풀이 코드                          |

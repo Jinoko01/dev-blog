@@ -227,7 +227,9 @@ export async function getPosts() {
 }
 
 export async function getPostForAdmin(id: string) {
-  const post = await adminFetch<ApiPost>(`/api/admin/posts/${encodeURIComponent(id)}`);
+  const post = await adminFetch<ApiPost>(
+    `/api/admin/posts/${encodeURIComponent(id)}`,
+  );
   return toAdminPost(post);
 }
 
@@ -263,7 +265,9 @@ export async function deletePost(id: string) {
 }
 
 export async function getAlgorithms() {
-  const result = await apiFetch<ApiAlgorithm[] | { content: ApiAlgorithm[] }>("/api/algorithms");
+  const result = await apiFetch<ApiAlgorithm[] | { content: ApiAlgorithm[] }>(
+    "/api/algorithms",
+  );
   const algos = Array.isArray(result) ? result : (result.content ?? []);
   return algos.map(toAdminAlgorithm);
 }

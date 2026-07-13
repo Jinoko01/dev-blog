@@ -15,7 +15,9 @@ export default function PostError({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-      <h2 className="text-2xl font-bold text-foreground">게시글을 불러올 수 없습니다</h2>
+      <h2 className="text-2xl font-bold text-foreground">
+        게시글을 불러올 수 없습니다
+      </h2>
       <p className="text-foreground/60">
         일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
       </p>

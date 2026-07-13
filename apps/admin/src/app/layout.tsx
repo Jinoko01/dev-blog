@@ -26,10 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ko"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="ko" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased min-h-screen flex text-[color:var(--color-foreground)]">
         <AdminShell>{children}</AdminShell>
       </body>

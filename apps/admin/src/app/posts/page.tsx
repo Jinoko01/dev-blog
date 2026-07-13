@@ -35,7 +35,10 @@ export default function PostsPage() {
   }
 
   async function deletePost(id: string) {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    if (!confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+
     await deletePostById(id);
     fetchPosts();
   }
@@ -86,24 +89,22 @@ export default function PostsPage() {
                   borderBottom: "1px solid var(--border)",
                 }}
               >
-                {["Title", "Slug", "Date", "Status", "Actions"].map(
-                  (h, i) => (
-                    <th
-                      key={h}
-                      className="px-6 py-3.5"
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "var(--muted-foreground)",
-                        textAlign: i === 4 ? "right" : "left",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ),
-                )}
+                {["Title", "Slug", "Date", "Status", "Actions"].map((h, i) => (
+                  <th
+                    key={h}
+                    className="px-6 py-3.5"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "var(--muted-foreground)",
+                      textAlign: i === 4 ? "right" : "left",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
