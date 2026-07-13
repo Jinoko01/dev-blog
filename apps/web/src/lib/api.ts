@@ -82,22 +82,6 @@ export type ArticleQuery = {
   page?: number;
 };
 
-type CacheEntry<T> = { data: T; expiry: number };
-const articleCache = new Map<string, CacheEntry<unknown>>();
-const CACHE_TTL_MS = 60_000;
-
-function getCached<T>(key: string): T | null {
-  const entry = articleCache.get(key) as CacheEntry<T> | undefined;
-  if (entry && entry.expiry > Date.now()) {
-    return entry.data;
-  }
-  return null;
-}
-
-function setCached<T>(key: string, data: T): void {
-  articleCache.set(key, { data, expiry: Date.now() + CACHE_TTL_MS });
-}
-
 /**
  * API base URL을 반환한다.
  *
@@ -216,23 +200,14 @@ export async function getArticles(query: ArticleQuery) {
   const suffix = params.toString() ? `?${params.toString()}` : "";
   const path = `/articles${suffix}`;
 
-  type ArticlesResult = { data: ArticleListItem[]; count: number };
-  const cached = getCached<ArticlesResult>(path);
-  if (cached) {
-    return cached;
-  }
-
   const page = await apiFetch<{ data: ApiArticle[]; count: number }>(path, {
     next: { revalidate: 60 },
   });
 
-  const result: ArticlesResult = {
+  return {
     data: page.data.map(toArticleListItem),
     count: page.count,
   };
-
-  setCached(path, result);
-  return result;
 }
 
 export async function getAlgorithms() {

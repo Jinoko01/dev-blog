@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { ArticlesClient } from "./articles-client";
+import { QueryProvider } from "@/components/query-provider";
 import type { ArticleListItem } from "@/lib/api";
 
 const makeArticles = (count: number): ArticleListItem[] =>
@@ -34,6 +35,13 @@ const meta = {
   title: "Web/ArticlesClient",
   component: ArticlesClient,
   parameters: { layout: "fullscreen" },
+  decorators: [
+    (Story) => (
+      <QueryProvider>
+        <Story />
+      </QueryProvider>
+    ),
+  ],
   beforeEach: () => {
     const originalFetch = window.fetch;
     window.fetch = (async () =>

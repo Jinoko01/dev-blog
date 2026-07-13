@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Link from "next/link";
 import {
   Search,
@@ -16,14 +21,37 @@ import { getArticles, type ArticleListItem } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 import Image from "next/image";
 
-type Article = ArticleListItem;
-
 type SortOption = "latest" | "views" | "likes";
 type ArticlesClientProps = {
   initialTags: string[];
-  initialArticles: Article[];
+  initialArticles: ArticleListItem[];
   initialTotalCount: number;
 };
+
+const ITEMS_PER_PAGE = 10;
+// SSR(ISR 60초)과 동일한 기준으로 클라이언트 캐시를 신선하게 취급한다.
+const ARTICLES_STALE_TIME_MS = 60_000;
+
+function articlesQueryOptions(
+  search: string,
+  tag: string | null,
+  sort: SortOption,
+  page: number,
+) {
+  return {
+    queryKey: ["articles", search, tag, sort, page] as const,
+    queryFn: () =>
+      getArticles({
+        search: search || undefined,
+        tag: tag || undefined,
+        sort: sort === "latest" ? "latest" : "popular",
+        page,
+      }),
+    staleTime: ARTICLES_STALE_TIME_MS,
+    // 실패 시 빈 목록을 보여주던 기존 동작을 유지한다 (재시도로 지연시키지 않음).
+    retry: false,
+  };
+}
 
 // [rerender-no-inline-components] Defined at module level — was previously inside ArticlesClient,
 // which caused React to unmount+remount the component tree on every parent render.
@@ -74,46 +102,47 @@ export function ArticlesClient({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("latest");
   const [page, setPage] = useState(1);
-  const [articles, setArticles] = useState<Article[]>(initialArticles);
-  const [totalCount, setTotalCount] = useState(initialTotalCount);
-  const [loading, setLoading] = useState(false);
-  const hasUsedInitialArticles = useRef(false);
+  const queryClient = useQueryClient();
 
-  const ITEMS_PER_PAGE = 10;
+  const isInitialQuery =
+    !debouncedQuery &&
+    selectedTag === null &&
+    sortOption === "latest" &&
+    page === 1;
 
+  const { data, isPending, isPlaceholderData } = useQuery({
+    ...articlesQueryOptions(debouncedQuery, selectedTag, sortOption, page),
+    // 페이지/필터 전환 중에는 새 데이터가 올 때까지 이전 리스트를 유지한다.
+    placeholderData: keepPreviousData,
+    // SSR로 받은 첫 페이지 데이터를 캐시 초기값으로 사용해 마운트 시 재요청을 피한다.
+    initialData: isInitialQuery
+      ? { data: initialArticles, count: initialTotalCount }
+      : undefined,
+  });
+
+  const articles = data?.data ?? [];
+  const totalCount = data?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  // 인접 페이지를 미리 캐시에 받아 두어 페이지 전환이 즉시 보이도록 한다.
   useEffect(() => {
-    const isInitialQuery =
-      !debouncedQuery &&
-      selectedTag === null &&
-      sortOption === "latest" &&
-      page === 1;
+    const prefetch = (targetPage: number) =>
+      queryClient.prefetchQuery(
+        articlesQueryOptions(
+          debouncedQuery,
+          selectedTag,
+          sortOption,
+          targetPage,
+        ),
+      );
 
-    if (!hasUsedInitialArticles.current && isInitialQuery) {
-      hasUsedInitialArticles.current = true;
-      return;
+    if (page < totalPages) {
+      prefetch(page + 1);
     }
-
-    async function fetchArticles() {
-      setLoading(true);
-      try {
-        const result = await getArticles({
-          search: debouncedQuery || undefined,
-          tag: selectedTag || undefined,
-          sort: sortOption === "latest" ? "latest" : "popular",
-          page,
-        });
-        setArticles(result.data);
-        setTotalCount(result.count);
-      } catch {
-        setArticles([]);
-        setTotalCount(0);
-      }
-      setLoading(false);
+    if (page > 1) {
+      prefetch(page - 1);
     }
-
-    hasUsedInitialArticles.current = true;
-    fetchArticles();
-  }, [debouncedQuery, selectedTag, sortOption, page]);
+  }, [queryClient, debouncedQuery, selectedTag, sortOption, page, totalPages]);
 
   const handleTagSelect = (tag: string | null) => {
     setSelectedTag(tag);
@@ -129,8 +158,6 @@ export function ArticlesClient({
     setQuery(val);
     setPage(1);
   };
-
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
     <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 space-y-16">
@@ -233,7 +260,7 @@ export function ArticlesClient({
             </div>
           </div>
 
-          {loading && articles.length === 0 ? (
+          {isPending && articles.length === 0 ? (
             <div className="flex justify-center items-center h-48 w-full">
               <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
             </div>
@@ -247,7 +274,11 @@ export function ArticlesClient({
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-8 w-full">
+            <div
+              className={`flex flex-col gap-8 w-full transition-opacity duration-200 ${
+                isPlaceholderData ? "opacity-50" : "opacity-100"
+              }`}
+            >
               {articles.map((article, index) => (
                 <Link
                   href={`/posts/${article.slug}`}
