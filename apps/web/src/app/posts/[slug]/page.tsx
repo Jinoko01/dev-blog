@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Provider as JotaiProvider } from "jotai";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -19,7 +20,9 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { slug } = await props.params;
   const post = await getPost(slug).catch((err: unknown) => {
-    if (err instanceof ApiError && err.status === 404) return null;
+    if (err instanceof ApiError && err.status === 404) {
+      return null;
+    }
     return null;
   });
 
@@ -46,14 +49,46 @@ export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
 }
 
-export default async function PostPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
-  const params = await props.params;
-  const { slug } = params;
+function ProseSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse py-4">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-4 bg-secondary rounded-sm ${i % 4 === 3 ? "w-2/3" : "w-full"}`}
+        />
+      ))}
+    </div>
+  );
+}
 
+function PostSkeleton() {
+  return (
+    <div className="w-full min-w-0 min-h-screen relative z-10">
+      <header className="relative w-full border-b border-black/5 dark:border-white/5">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 sm:px-12 sm:py-28 flex flex-col items-center animate-pulse">
+          <div className="h-4 w-52 bg-secondary mb-6" />
+          <div className="h-10 w-3/4 max-w-2xl bg-secondary mb-6" />
+          <div className="h-6 w-1/2 max-w-xl bg-secondary" />
+        </div>
+      </header>
+
+      <div className="w-full max-w-[1600px] mx-auto px-6 pt-10 pb-32 grid grid-cols-1 xl:grid-cols-[1fr_minmax(auto,48rem)_1fr] gap-x-8">
+        <div className="hidden xl:block" />
+        <article className="w-full min-w-0">
+          <ProseSkeleton />
+        </article>
+        <aside className="hidden xl:block" />
+      </div>
+    </div>
+  );
+}
+
+async function PostContent({ slug }: { slug: string }) {
   const post = await getPost(slug).catch((err: unknown) => {
-    if (err instanceof ApiError && err.status === 404) return null;
+    if (err instanceof ApiError && err.status === 404) {
+      return null;
+    }
     throw err;
   });
 
@@ -145,20 +180,22 @@ export default async function PostPage(props: {
           <div className="hidden xl:block" />
 
           <article className="w-full min-w-0">
-            {/* Prose Content */}
+            {/* Prose Content — MDX 컴파일이 무거우므로 헤더보다 늦게 스트리밍되도록 분리 */}
             <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
-              <MDXRemote
-                source={content}
-                components={{ pre: Pre, CodeTabs, CodeTab }}
-                options={{
-                  mdxOptions: {
-                    rehypePlugins: [
-                      rehypeSlug,
-                      [rehypePrettyCode, { theme: "github-dark" }],
-                    ],
-                  },
-                }}
-              />
+              <Suspense fallback={<ProseSkeleton />}>
+                <MDXRemote
+                  source={content}
+                  components={{ pre: Pre, CodeTabs, CodeTab }}
+                  options={{
+                    mdxOptions: {
+                      rehypePlugins: [
+                        rehypeSlug,
+                        [rehypePrettyCode, { theme: "github-dark" }],
+                      ],
+                    },
+                  }}
+                />
+              </Suspense>
             </div>
 
             {/* Giscus Comments */}
@@ -180,5 +217,17 @@ export default async function PostPage(props: {
         </div>
       </div>
     </JotaiProvider>
+  );
+}
+
+export default async function PostPage(props: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await props.params;
+
+  return (
+    <Suspense fallback={<PostSkeleton />}>
+      <PostContent slug={slug} />
+    </Suspense>
   );
 }

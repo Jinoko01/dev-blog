@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, Tag } from "lucide-react";
@@ -44,11 +45,15 @@ async function highlightCode(code: string, language: string) {
 
 export const revalidate = 3600;
 
-export default async function AlgorithmDetailPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await props.params;
+function AlgorithmDetailSkeleton() {
+  return (
+    <div className="w-full h-[calc(100vh-4rem)] flex flex-col bg-[color:var(--color-background-solid)] animate-pulse">
+      <div className="flex-1 m-4 bg-secondary border border-border" />
+    </div>
+  );
+}
 
+async function AlgorithmDetailContent({ slug }: { slug: string }) {
   const algo = await getAlgorithm(slug).catch(() => null);
 
   if (!algo) {
@@ -135,5 +140,17 @@ export default async function AlgorithmDetailPage(props: {
         </div>
       </AlgorithmDescriptionModal>
     </div>
+  );
+}
+
+export default async function AlgorithmDetailPage(props: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await props.params;
+
+  return (
+    <Suspense fallback={<AlgorithmDetailSkeleton />}>
+      <AlgorithmDetailContent slug={slug} />
+    </Suspense>
   );
 }
