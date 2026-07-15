@@ -77,6 +77,12 @@ type SignedUploadResponse = {
   path: string;
 };
 
+type ApiSignedUploadResponse = {
+  signed_url: string;
+  token: string;
+  path: string;
+};
+
 export function getApiBaseUrl() {
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL;
@@ -309,12 +315,28 @@ export async function deleteAlgorithm(id: string) {
   });
 }
 
+function normalizeSignedUrl(rawUrl: string) {
+  const url = new URL(rawUrl);
+  if (!url.pathname.startsWith("/storage/v1/")) {
+    url.pathname = `/storage/v1${url.pathname}`;
+  }
+  return url.toString();
+}
+
 export async function createSignedUploadUrl(filename: string) {
-  return adminFetch<SignedUploadResponse>("/api/admin/upload", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename }),
-  });
+  const result = await adminFetch<ApiSignedUploadResponse>(
+    "/api/admin/upload",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename }),
+    },
+  );
+  return {
+    signedUrl: normalizeSignedUrl(result.signed_url),
+    token: result.token,
+    path: result.path,
+  } satisfies SignedUploadResponse;
 }
 
 export function getPublicUrlFromSignedUploadUrl(

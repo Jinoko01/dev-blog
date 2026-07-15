@@ -130,6 +130,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - 파일 삭제 전 반드시 확인 요청
 - 커밋 메시지는 영어로, conventional commits 형식
 - 스타일링은 무조건 Tailwind css 방식으로
+- 코드 작업(생성/수정) 완료 후에는 반드시 `pnpm lint`(또는 해당 앱 디렉토리에서 `pnpm lint`)를 실행해 eslint 규칙을 통과하도록 다듬는다. 포맷 문제는 `pnpm format`으로 정리한다.
 
 ## Testing
 
