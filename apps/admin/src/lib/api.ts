@@ -206,18 +206,6 @@ function toAdminAlgorithm(algo: ApiAlgorithm): AdminAlgorithm {
   };
 }
 
-function toPostRequest(payload: PostPayload) {
-  return {
-    title: payload.title,
-    slug: payload.slug,
-    description: payload.description,
-    content: payload.content,
-    thumbnailUrl: payload.thumbnail_url,
-    published: payload.published,
-    tags: payload.tags,
-  };
-}
-
 export async function login(username: string, password: string) {
   const result = await apiFetch<{ token: string }>("/api/auth/login", {
     method: "POST",
@@ -243,7 +231,7 @@ export async function createPost(payload: PostPayload) {
   const post = await adminFetch<ApiPost>("/api/admin/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(toPostRequest(payload)),
+    body: JSON.stringify(payload),
   });
   return toAdminPost(post);
 }
@@ -252,7 +240,7 @@ export async function updatePost(id: string, payload: PostPayload) {
   const post = await adminFetch<ApiPost>(`/api/admin/posts/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(toPostRequest(payload)),
+    body: JSON.stringify(payload),
   });
   return toAdminPost(post);
 }
