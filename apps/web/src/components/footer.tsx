@@ -37,9 +37,12 @@ export function Footer() {
               >
                 ALGORITHMS
               </Link>
-              {/* <Link href="/about" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest">
-                ABOUT
-              </Link> */}
+              <Link
+                href="/privacy"
+                className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors tracking-widest"
+              >
+                PRIVACY
+              </Link>
             </nav>
           </div>
 
