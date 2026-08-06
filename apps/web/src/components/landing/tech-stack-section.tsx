@@ -58,7 +58,7 @@ const STACK: StackItem[] = [
     cat: "Frontend",
     slug: "emotion",
     accent: "#d26ac2",
-    image: '/tech/emotion.png'
+    img: '/tech/emotion.png'
   },
   { name: "SCSS", cat: "Frontend", slug: "sass", accent: "#cc6699" },
   {
