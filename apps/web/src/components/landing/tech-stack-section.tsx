@@ -9,40 +9,76 @@ type StackItem = {
   cat: string;
   slug: string;
   accent: string;
+  /** simpleicons에 없는 로고는 로컬 이미지(public 경로)로 대체한다. */
+  img?: string;
 };
 
 const STACK: StackItem[] = [
-  { name: "React", cat: "Frontend", slug: "react", accent: "#61dafb" },
+  {
+    name: "JavaScript",
+    cat: "Frontend",
+    slug: "javascript",
+    accent: "#f7df1e",
+  },
   {
     name: "TypeScript",
     cat: "Frontend",
     slug: "typescript",
     accent: "#3178c6",
   },
+  { name: "Java", cat: "Backend", slug: "openjdk", accent: "#ed8b00" },
+  { name: "React.js", cat: "Frontend", slug: "react", accent: "#61dafb" },
   { name: "Next.js", cat: "Frontend", slug: "nextdotjs", accent: "#000000" },
-  { name: "Tailwind", cat: "Frontend", slug: "tailwindcss", accent: "#38bdf8" },
-  { name: "Framer Motion", cat: "Frontend", slug: "framer", accent: "#bb4b96" },
-  { name: "Zustand", cat: "Frontend", slug: "zustand", accent: "#452a18" },
-  { name: "Jotai", cat: "Frontend", slug: "jotai", accent: "#edf2f7" },
+  { name: "Vite", cat: "Tool", slug: "vite", accent: "#646cff" },
   {
-    name: "Node.js",
-    cat: "Backend",
-    slug: "nodedotjs",
-    accent: "#5fa04e",
+    name: "TanStack Query",
+    cat: "Frontend",
+    slug: "reactquery",
+    accent: "#ff4154",
   },
+  {
+    name: "Zustand",
+    cat: "Frontend",
+    slug: "zustand",
+    accent: "#452a18",
+    img: "/tech/zustand.png",
+  },
+  {
+    name: "Jotai",
+    cat: "Frontend",
+    slug: "jotai",
+    accent: "#edf2f7",
+    img: "/tech/jotai.png",
+  },
+  { name: "Framer Motion", cat: "Frontend", slug: "framer", accent: "#bb4b96" },
+  { name: "Turborepo", cat: "Tool", slug: "turborepo", accent: "#ff2e88" },
+  { name: "Tailwind", cat: "Frontend", slug: "tailwindcss", accent: "#38bdf8" },
+  { name: "Emotion", cat: "Frontend", slug: "emotion", accent: "#d26ac2" },
+  { name: "SCSS", cat: "Frontend", slug: "sass", accent: "#cc6699" },
+  {
+    name: "Playwright",
+    cat: "Tool",
+    slug: "playwright",
+    accent: "#2ead33",
+    img: "/tech/playwright.png",
+  },
+  { name: "Storybook", cat: "Tool", slug: "storybook", accent: "#ff4785" },
+  { name: "Jest", cat: "Tool", slug: "jest", accent: "#c21325" },
   {
     name: "Spring Boot",
     cat: "Backend",
     slug: "springboot",
     accent: "#6db33f",
   },
-  { name: "Java 21", cat: "Backend", slug: "openjdk", accent: "#ed8b00" },
-  { name: "Supabase", cat: "Backend", slug: "supabase", accent: "#3ecf8e" },
   { name: "PostgreSQL", cat: "Backend", slug: "postgresql", accent: "#336791" },
-  { name: "Turborepo", cat: "Tool", slug: "turborepo", accent: "#ff2e88" },
-  { name: "Vite", cat: "Tool", slug: "vite", accent: "#646cff" },
-  { name: "Vitest", cat: "Tool", slug: "vitest", accent: "#fcc72b" },
-  { name: "Figma", cat: "Tool", slug: "figma", accent: "#f24e1e" },
+  { name: "Supabase", cat: "Backend", slug: "supabase", accent: "#3ecf8e" },
+  {
+    name: "GitHub Actions",
+    cat: "Tool",
+    slug: "githubactions",
+    accent: "#2088ff",
+  },
+  { name: "Vercel", cat: "Tool", slug: "vercel", accent: "#000000" },
 ];
 
 const STACK_INDEX = new Map(STACK.map((item, i) => [item, i + 1]));
@@ -89,7 +125,12 @@ export function TechStackSection() {
                 tabIndex={0}
               >
                 <div className="stack-tile__top">
-                  <TechLogo slug={t.slug} name={t.name} accent={t.accent} />
+                  <TechLogo
+                    slug={t.slug}
+                    name={t.name}
+                    accent={t.accent}
+                    img={t.img}
+                  />
                   <div className="stack-tile__num">
                     {String(STACK_INDEX.get(t)).padStart(2, "0")}
                   </div>
@@ -122,13 +163,15 @@ function TechLogo({
   slug,
   name,
   accent,
+  img,
 }: {
   slug: string;
   name: string;
   accent: string;
+  img?: string;
 }) {
   const [failed, setFailed] = useState(false);
-  if (failed || !slug) {
+  if (failed || (!slug && !img)) {
     return (
       <div className="tech-logo tech-logo--fallback" aria-hidden="true">
         <span style={{ color: accent || "var(--primary)" }}>
@@ -138,10 +181,11 @@ function TechLogo({
     );
   }
   const hex = (accent || "").replace("#", "").trim() || "currentColor";
+  const src = img ?? `https://cdn.simpleicons.org/${slug}/${hex}`;
   return (
     <div className="tech-logo">
       <img
-        src={`https://cdn.simpleicons.org/${slug}/${hex}`}
+        src={src}
         alt=""
         loading="lazy"
         decoding="async"
