@@ -53,7 +53,13 @@ const STACK: StackItem[] = [
   { name: "Framer Motion", cat: "Frontend", slug: "framer", accent: "#bb4b96" },
   { name: "Turborepo", cat: "Tool", slug: "turborepo", accent: "#ff2e88" },
   { name: "Tailwind", cat: "Frontend", slug: "tailwindcss", accent: "#38bdf8" },
-  { name: "Emotion", cat: "Frontend", slug: "emotion", accent: "#d26ac2" },
+  { 
+    name: "Emotion",
+    cat: "Frontend",
+    slug: "emotion",
+    accent: "#d26ac2",
+    image: '/tech/emotion.png'
+  },
   { name: "SCSS", cat: "Frontend", slug: "sass", accent: "#cc6699" },
   {
     name: "Playwright",
