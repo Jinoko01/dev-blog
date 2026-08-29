@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@source "../../../../packages/mdx-renderer/src";
 @variant dark (&:where(.dark, .dark *));
 
 @theme {

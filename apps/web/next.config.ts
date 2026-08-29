@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@dev-blog/mdx-renderer"],
   experimental: {
     // [bundle-barrel-imports] Transforms barrel imports into direct imports at build time.
     // lucide-react has 1,583+ re-exports — naive imports add ~200-800ms cold-start cost.

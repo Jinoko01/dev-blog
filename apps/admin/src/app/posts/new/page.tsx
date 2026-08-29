@@ -37,12 +37,13 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <h1 className="text-3xl font-black tracking-tight text-[color:var(--color-foreground)]">
         Create New Post
       </h1>
 
       <PostForm
+        enablePreview
         submitLabel="Save Post"
         pendingLabel="Saving..."
         publishLabel="Publish immediately"

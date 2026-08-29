@@ -2,9 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Provider as JotaiProvider } from "jotai";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
+import { mdxRemoteOptions } from "@dev-blog/mdx-renderer/config";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PostMetricsDisplay } from "@/components/post-metrics";
@@ -187,15 +185,7 @@ async function PostContent({ slug }: { slug: string }) {
                 <MDXRemote
                   source={content}
                   components={{ pre: Pre, CodeTabs, CodeTab }}
-                  options={{
-                    mdxOptions: {
-                      remarkPlugins: [remarkGfm],
-                      rehypePlugins: [
-                        rehypeSlug,
-                        [rehypePrettyCode, { theme: "github-dark" }],
-                      ],
-                    },
-                  }}
+                  options={mdxRemoteOptions}
                 />
               </Suspense>
             </div>

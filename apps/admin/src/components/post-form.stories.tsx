@@ -35,6 +35,68 @@ export const Edit: Story = {
   },
 };
 
+export const WithPreview: Story = {
+  args: {
+    enablePreview: true,
+    initialValues: {
+      title: "Previewing a New Post",
+      description: "Review the article before it is published.",
+      content: `## Markdown preview
+
+| Feature | Status |
+| --- | --- |
+| GFM table | Ready |
+| Highlighted code | Ready |
+
+<CodeTabs tabs="npm, pnpm">
+<CodeTab title="npm">
+
+\`\`\`bash
+npm install
+\`\`\`
+
+</CodeTab>
+<CodeTab title="pnpm">
+
+\`\`\`bash
+pnpm install
+\`\`\`
+
+</CodeTab>
+</CodeTabs>`,
+      thumbnail_url: "",
+      tags: "nextjs, markdown",
+      published: false,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole("tab", { name: "Preview" }));
+    await expect(
+      await canvas.findByRole("heading", { name: "Markdown preview" }),
+    ).toBeInTheDocument();
+    await expect(canvas.getByRole("tab", { name: "npm" })).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Full page preview" }),
+    );
+    await expect(
+      canvas.getByRole("dialog", { name: "Full page preview" }),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole("heading", { name: "Previewing a New Post" }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Close full page preview" }),
+    );
+    await expect(
+      canvas.queryByRole("dialog", { name: "Full page preview" }),
+    ).not.toBeInTheDocument();
+  },
+};
+
 export const SubmitsFilledValues: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

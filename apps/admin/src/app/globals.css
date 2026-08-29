@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@source "../../../../packages/mdx-renderer/src";
 
 :root {
   --font-size: 16px;

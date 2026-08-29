@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Eye, FileText, Pencil } from "lucide-react";
 import {
   createSignedUploadUrl,
   getPublicUrlFromSignedUploadUrl,
 } from "@/lib/api";
+import { FullPostPreview, MarkdownPreview } from "./post-preview";
 
 export type PostFormValues = {
   title: string;
@@ -56,6 +58,7 @@ export function PostForm({
   submitLabel,
   pendingLabel,
   publishLabel = "Publish status",
+  enablePreview = false,
   onSubmit,
 }: {
   initialValues?: PostFormValues;
@@ -64,11 +67,14 @@ export function PostForm({
   submitLabel: string;
   pendingLabel: string;
   publishLabel?: string;
+  enablePreview?: boolean;
   onSubmit: (values: PostFormValues) => Promise<void>;
 }) {
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState<PostFormValues>(initialValues);
+  const [contentMode, setContentMode] = useState<"write" | "preview">("write");
+  const [showFullPreview, setShowFullPreview] = useState(false);
 
   const processMarkdownFiles = async (
     files: File[],
@@ -125,6 +131,25 @@ export function PostForm({
       onSubmit={handleSubmit}
       className="bg-[color:var(--color-card)] p-6 md:p-8 rounded-lg border border-[color:var(--color-border)] shadow-sm flex flex-col gap-6"
     >
+      {enablePreview && (
+        <div className="flex flex-col gap-3 rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-secondary)]/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold">Preview the current draft</p>
+            <p className="mt-0.5 text-xs text-[color:var(--color-muted-foreground)]">
+              Check the complete article without saving or publishing.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowFullPreview(true)}
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[color:var(--color-foreground)] px-4 py-2.5 text-xs font-bold text-[color:var(--color-background)] transition hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]"
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            Full page preview
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-1.5">
         <label className={labelCls}>Title</label>
         <input
@@ -225,32 +250,66 @@ export function PostForm({
             Drop/Paste images directly inside
           </span>
         </div>
-        <textarea
-          required
-          className={`${inputCls} h-96 font-mono text-sm resize-none`}
-          value={formData.content}
-          onChange={(e) =>
-            setFormData({ ...formData, content: e.target.value })
-          }
-          onDrop={async (e) => {
-            e.preventDefault();
-            await processMarkdownFiles(
-              Array.from(e.dataTransfer.files),
-              e.currentTarget,
-            );
-          }}
-          onPaste={async (e) => {
-            const files = Array.from(e.clipboardData.files);
-            if (
-              files.length > 0 &&
-              files.some((f) => f.type.startsWith("image/"))
-            ) {
-              e.preventDefault();
-              await processMarkdownFiles(files, e.currentTarget);
+        {enablePreview && (
+          <div
+            role="tablist"
+            aria-label="Markdown editor mode"
+            className="mt-1 flex w-fit rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-secondary)] p-1"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={contentMode === "write"}
+              onClick={() => setContentMode("write")}
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition ${contentMode === "write" ? "bg-[color:var(--color-card)] text-[color:var(--color-foreground)] shadow-sm" : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"}`}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              Write
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={contentMode === "preview"}
+              onClick={() => setContentMode("preview")}
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition ${contentMode === "preview" ? "bg-[color:var(--color-card)] text-[color:var(--color-foreground)] shadow-sm" : "text-[color:var(--color-muted-foreground)] hover:text-[color:var(--color-foreground)]"}`}
+            >
+              <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+              Preview
+            </button>
+          </div>
+        )}
+        {contentMode === "write" || !enablePreview ? (
+          <textarea
+            required
+            className={`${inputCls} h-96 font-mono text-sm resize-none`}
+            value={formData.content}
+            onChange={(e) =>
+              setFormData({ ...formData, content: e.target.value })
             }
-          }}
-          placeholder={`## Hello World...\n\nDrag & drop or paste images directly into this area to upload them!`}
-        />
+            onDrop={async (e) => {
+              e.preventDefault();
+              await processMarkdownFiles(
+                Array.from(e.dataTransfer.files),
+                e.currentTarget,
+              );
+            }}
+            onPaste={async (e) => {
+              const files = Array.from(e.clipboardData.files);
+              if (
+                files.length > 0 &&
+                files.some((f) => f.type.startsWith("image/"))
+              ) {
+                e.preventDefault();
+                await processMarkdownFiles(files, e.currentTarget);
+              }
+            }}
+            placeholder={`## Hello World...\n\nDrag & drop or paste images directly into this area to upload them!`}
+          />
+        ) : (
+          <div className="min-h-96 overflow-hidden rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-background)]">
+            <MarkdownPreview content={formData.content} />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2.5">
@@ -280,6 +339,13 @@ export function PostForm({
           {loading ? pendingLabel : submitLabel}
         </button>
       </div>
+
+      {showFullPreview && (
+        <FullPostPreview
+          values={formData}
+          onClose={() => setShowFullPreview(false)}
+        />
+      )}
     </form>
   );
 }
