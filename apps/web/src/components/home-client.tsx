@@ -17,7 +17,6 @@ export function HomeClient({
   algorithmCount = 0,
 }: {
   posts: PostMetadata[];
-  topics?: string[];
   totalVisitors?: number;
   postCount?: number;
   algorithmCount?: number;

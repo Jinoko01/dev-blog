@@ -4,36 +4,22 @@ import { toPostMetadata } from "@/lib/api";
 import { getPosts, getStats } from "@/lib/api.server";
 
 async function HomeContent() {
-  try {
-    const [{ posts, total_visitors: totalVisitors }, stats] = await Promise.all(
-      [getPosts(), getStats()],
-    );
+  const [postsData, stats] = await Promise.all([
+    getPosts().catch(() => ({ posts: [], total_visitors: 0 })),
+    getStats().catch(() => ({ post_count: 0, algorithm_count: 0 })),
+  ]);
+  const { posts, total_visitors: totalVisitors } = postsData;
 
-    const uniqueTopics = new Set<string>();
-    const formattedPosts = (posts ?? []).map((post) => {
-      post.tags?.forEach((tag) => uniqueTopics.add(tag));
-      return toPostMetadata(post);
-    });
+  const formattedPosts = posts.map(toPostMetadata);
 
-    return (
-      <HomeClient
-        posts={formattedPosts}
-        topics={Array.from(uniqueTopics)}
-        totalVisitors={totalVisitors ?? 0}
-        postCount={stats.post_count}
-        algorithmCount={stats.algorithm_count}
-      />
-    );
-  } catch {
-    return (
-      <HomeClient
-        posts={[]}
-        totalVisitors={0}
-        postCount={0}
-        algorithmCount={0}
-      />
-    );
-  }
+  return (
+    <HomeClient
+      posts={formattedPosts}
+      totalVisitors={totalVisitors}
+      postCount={stats.post_count}
+      algorithmCount={stats.algorithm_count}
+    />
+  );
 }
 
 function HomeSkeleton() {
