@@ -44,7 +44,14 @@ export async function getAlgorithms() {
 export async function getAlgorithm(id: string) {
   cacheLife({ revalidate: 3600 });
   cacheTag("algorithms", `algorithm-${id}`);
-  return api.getAlgorithm(id);
+  try {
+    return await api.getAlgorithm(id);
+  } catch (error) {
+    if (error instanceof api.ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function getStats() {

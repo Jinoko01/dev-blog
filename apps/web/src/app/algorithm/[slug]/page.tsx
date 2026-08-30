@@ -58,7 +58,7 @@ async function AlgorithmDetailContent({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const algo = await getAlgorithm(slug).catch(() => null);
+  const algo = await getAlgorithm(slug);
 
   if (!algo) {
     notFound();
