@@ -1,9 +1,3 @@
-type FetchOptions = RequestInit & {
-  next?: {
-    revalidate?: number;
-  };
-};
-
 export type ApiPostSummary = {
   id: string;
   title: string;
@@ -87,14 +81,13 @@ export type ArticleQuery = {
  *
  * [클라이언트]
  *   빈 문자열("")을 반환해 /api/... (Next.js Route Handler)를 경유한다.
- *   mutation 후 Route Handler가 revalidateTag()를 호출해 캐시를 즉시 무효화한다.
+ *   mutation 성공 후 Route Handler가 revalidateTag()로 관련 캐시를 갱신한다.
  *
  * [서버 / 빌드 타임]
  *   API_BASE_URL (Spring Boot)을 직접 반환한다.
  *   빌드 타임에는 Next.js 앱 자체가 아직 실행 중이 아니므로
  *   /api/... 자기 자신을 호출하면 ECONNREFUSED가 발생한다.
- *   서버 컴포넌트의 ISR 갱신은 페이지 레벨 revalidate와
- *   클라이언트 mutation 후 revalidateTag()로 처리한다.
+ *   서버 컴포넌트의 캐시는 api.server.ts의 use cache/cacheLife로 관리한다.
  */
 export function getApiBaseUrl() {
   if (typeof window !== "undefined") {
@@ -114,7 +107,7 @@ export class ApiError extends Error {
   }
 }
 
-async function apiFetch<T>(path: string, options: FetchOptions = {}) {
+async function apiFetch<T>(path: string, options: RequestInit = {}) {
   const response = await fetch(`${getApiBaseUrl()}/api${path}`, {
     ...options,
     headers: {
@@ -165,21 +158,15 @@ export function toArticleListItem(article: ApiArticle): ArticleListItem {
 }
 
 export async function getPosts() {
-  return apiFetch<ApiPostsResponse>("/posts", {
-    next: { revalidate: 600 },
-  });
+  return apiFetch<ApiPostsResponse>("/posts");
 }
 
 export async function getPost(slug: string) {
-  return apiFetch<ApiPostDetail>(`/posts/${encodeURIComponent(slug)}`, {
-    cache: "no-store",
-  });
+  return apiFetch<ApiPostDetail>(`/posts/${encodeURIComponent(slug)}`);
 }
 
 export async function getTags() {
-  return apiFetch<ApiTag[]>("/tags", {
-    next: { revalidate: 600 },
-  });
+  return apiFetch<ApiTag[]>("/tags");
 }
 
 export async function getArticles(query: ArticleQuery) {
@@ -200,9 +187,7 @@ export async function getArticles(query: ArticleQuery) {
   const suffix = params.toString() ? `?${params.toString()}` : "";
   const path = `/articles${suffix}`;
 
-  const page = await apiFetch<{ data: ApiArticle[]; count: number }>(path, {
-    next: { revalidate: 60 },
-  });
+  const page = await apiFetch<{ data: ApiArticle[]; count: number }>(path);
 
   return {
     data: page.data.map(toArticleListItem),
@@ -211,15 +196,11 @@ export async function getArticles(query: ArticleQuery) {
 }
 
 export async function getAlgorithms() {
-  return apiFetch<ApiAlgorithm[]>("/algorithms", {
-    next: { revalidate: 600 },
-  });
+  return apiFetch<ApiAlgorithm[]>("/algorithms");
 }
 
 export async function getAlgorithm(id: string) {
-  return apiFetch<ApiAlgorithm>(`/algorithms/${encodeURIComponent(id)}`, {
-    next: { revalidate: 3600 },
-  });
+  return apiFetch<ApiAlgorithm>(`/algorithms/${encodeURIComponent(id)}`);
 }
 
 export async function incrementPostView(slug: string) {
@@ -254,7 +235,5 @@ export type ApiStats = {
 };
 
 export async function getStats() {
-  return apiFetch<ApiStats>("/stats", {
-    next: { revalidate: 60 },
-  });
+  return apiFetch<ApiStats>("/stats");
 }

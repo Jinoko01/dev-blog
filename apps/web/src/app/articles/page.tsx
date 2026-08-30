@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { ArticlesClient } from "@/components/articles-client";
-import { getArticles, getTags } from "@/lib/api";
-
-export const revalidate = 60; // Revalidate every 60 seconds
+import { getArticles, getTags } from "@/lib/api.server";
 
 export const metadata = {
   title: "Articles",

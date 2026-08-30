@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { HomeClient } from "@/components/home-client";
-import { getPosts, getStats, toPostMetadata } from "@/lib/api";
-
-export const revalidate = 60;
+import { toPostMetadata } from "@/lib/api";
+import { getPosts, getStats } from "@/lib/api.server";
 
 async function HomeContent() {
   try {

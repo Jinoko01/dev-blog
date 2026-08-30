@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { Provider as JotaiProvider } from "jotai";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxRemoteOptions } from "@dev-blog/mdx-renderer/config";
@@ -9,21 +10,14 @@ import { PostMetricsDisplay } from "@/components/post-metrics";
 import { GiscusComments } from "@/components/giscus-comments";
 import { Pre } from "@/components/mdx/pre";
 import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
-import { getPost, getPosts, ApiError } from "@/lib/api";
+import { getPost, getPosts } from "@/lib/api.server";
 import { TableOfContents } from "@/components/toc";
-
-export const revalidate = 60;
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await props.params;
-  const post = await getPost(slug).catch((err: unknown) => {
-    if (err instanceof ApiError && err.status === 404) {
-      return null;
-    }
-    return null;
-  });
+  const post = await getPost(slug).catch(() => null);
 
   if (!post) {
     return { title: "Not Found" };
@@ -83,13 +77,22 @@ function PostSkeleton() {
   );
 }
 
-async function PostContent({ slug }: { slug: string }) {
-  const post = await getPost(slug).catch((err: unknown) => {
-    if (err instanceof ApiError && err.status === 404) {
-      return null;
-    }
-    throw err;
-  });
+async function PostBody({ content }: { content: string }) {
+  "use cache";
+  cacheLife({ revalidate: 60 });
+
+  return (
+    <MDXRemote
+      source={content}
+      components={{ pre: Pre, CodeTabs, CodeTab }}
+      options={mdxRemoteOptions}
+    />
+  );
+}
+
+async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post) {
     notFound();
@@ -182,11 +185,7 @@ async function PostContent({ slug }: { slug: string }) {
             {/* Prose Content — MDX 컴파일이 무거우므로 헤더보다 늦게 스트리밍되도록 분리 */}
             <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
               <Suspense fallback={<ProseSkeleton />}>
-                <MDXRemote
-                  source={content}
-                  components={{ pre: Pre, CodeTabs, CodeTab }}
-                  options={mdxRemoteOptions}
-                />
+                <PostBody content={content} />
               </Suspense>
             </div>
 
@@ -212,14 +211,10 @@ async function PostContent({ slug }: { slug: string }) {
   );
 }
 
-export default async function PostPage(props: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await props.params;
-
+export default function PostPage(props: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={<PostSkeleton />}>
-      <PostContent slug={slug} />
+      <PostContent params={props.params} />
     </Suspense>
   );
 }

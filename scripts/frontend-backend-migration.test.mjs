@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { test } from "node:test";
 
 const root = process.cwd();
 const appDirs = ["apps/web", "apps/admin"];
 const ignoredDirs = new Set([".next", ".turbo", "node_modules", "public"]);
+const require = createRequire(
+  new URL("../apps/web/package.json", import.meta.url),
+);
+const ts = require("typescript");
 
 async function* walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -52,7 +57,7 @@ test("frontend source does not hardcode the backend API origin", async () => {
   assert.deepEqual(offenders, []);
 });
 
-test("articles page preloads initial article data for ISR", async () => {
+test("articles page preloads initial article data from the server cache", async () => {
   const pageSource = await readFile(
     path.join(root, "apps/web/src/app/articles/page.tsx"),
     "utf8",
@@ -64,7 +69,7 @@ test("articles page preloads initial article data for ISR", async () => {
 
   assert.match(
     pageSource,
-    /import \{ getArticles, getTags \} from "@\/lib\/api";/,
+    /import \{ getArticles, getTags \} from "@\/lib\/api.server";/,
   );
   assert.match(
     pageSource,
@@ -76,14 +81,67 @@ test("articles page preloads initial article data for ISR", async () => {
   assert.doesNotMatch(clientSource, /useState<Article\[\]>\(\[\]\)/);
 });
 
-test("getArticles uses the same ISR revalidation window as getTags", async () => {
+test("getArticles encodes filters and maps the backend response", async (t) => {
   const apiSource = await readFile(
     path.join(root, "apps/web/src/lib/api.ts"),
     "utf8",
   );
 
-  assert.match(
-    apiSource,
-    /`\/api\/articles\$\{suffix\}`,\s*\{\s*next: \{\s*revalidate: 60\s*\},\s*\}/s,
+  const { outputText } = ts.transpileModule(apiSource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext },
+  });
+  const api = await import(
+    `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`
   );
+  const fetchMock = t.mock.method(globalThis, "fetch", async () =>
+    Response.json({
+      data: [
+        {
+          id: "article-1",
+          title: "Cache Components",
+          slug: "cache-components",
+          created_at: "2026-08-30T00:00:00Z",
+          thumbnail_url: "/cache.png",
+        },
+      ],
+      count: 1,
+    }),
+  );
+
+  const result = await api.getArticles({
+    search: "cache & suspense",
+    tag: "Next.js",
+    sort: "latest",
+    page: 2,
+  });
+  const [requestUrl] = fetchMock.mock.calls[0].arguments;
+  const url = new URL(requestUrl);
+  assert.equal(url.pathname, "/api/articles");
+  assert.deepEqual(Object.fromEntries(url.searchParams), {
+    search: "cache & suspense",
+    tag: "Next.js",
+    sort: "latest",
+    page: "2",
+  });
+  assert.deepEqual(result, {
+    data: [
+      {
+        id: "article-1",
+        title: "Cache Components",
+        slug: "cache-components",
+        createdAt: "2026-08-30T00:00:00Z",
+        thumbnailUrl: "/cache.png",
+        description: "",
+        views: 0,
+        likes: 0,
+        tags: [],
+      },
+    ],
+    count: 1,
+  });
+
+  fetchMock.mock.mockImplementation(
+    async () => new Response(null, { status: 503 }),
+  );
+  await assert.rejects(api.getArticles({}), { name: "ApiError", status: 503 });
 });

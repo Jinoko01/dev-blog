@@ -9,17 +9,27 @@ const NO_BODY_STATUSES = new Set([204, 205, 304]);
 /** 경로에 따라 fetch 태그를 결정한다 */
 function resolveTag(segments: string[]): string | null {
   if (segments[0] === "posts") {
-    if (segments.length === 1) return "posts";
+    if (segments.length === 1) {
+      return "posts";
+    }
     const slug = segments[1];
     return `post-${slug}`;
   }
   if (segments[0] === "algorithms") {
-    if (segments.length === 1) return "algorithms";
+    if (segments.length === 1) {
+      return "algorithms";
+    }
     return `algorithm-${segments[1]}`;
   }
-  if (segments[0] === "articles") return "articles";
-  if (segments[0] === "tags") return "tags";
-  if (segments[0] === "stats") return "stats";
+  if (segments[0] === "articles") {
+    return "articles";
+  }
+  if (segments[0] === "tags") {
+    return "tags";
+  }
+  if (segments[0] === "stats") {
+    return "stats";
+  }
   return null;
 }
 
@@ -81,7 +91,19 @@ async function mutate(
   });
 
   const tag = resolveTag(segments);
-  if (tag) revalidateTag(tag, "default");
+  if (res.ok && tag) {
+    revalidateTag(tag, "max");
+    if (segments[0] === "posts") {
+      revalidateTag("posts", "max");
+      revalidateTag("articles", "max");
+    }
+    if (segments[0] === "algorithms") {
+      revalidateTag("algorithms", "max");
+    }
+  }
+  if (res.ok && segments[0] === "visits") {
+    revalidateTag("posts", "max");
+  }
 
   return proxyResponse(res);
 }

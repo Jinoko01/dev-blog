@@ -6,7 +6,7 @@ import { codeToHtml } from "shiki";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import { getAlgorithm } from "@/lib/api";
+import { getAlgorithm } from "@/lib/api.server";
 import { getDifficultyTier, type DifficultyTier } from "@/lib/difficulty";
 import { AlgorithmCodePanel } from "@/components/algorithm/algorithm-code-panel";
 import { AlgorithmDescriptionModal } from "@/components/algorithm/algorithm-description-modal";
@@ -44,8 +44,6 @@ async function highlightCode(code: string, language: string) {
   }
 }
 
-export const revalidate = 3600;
-
 function AlgorithmDetailSkeleton() {
   return (
     <div className="w-full h-[calc(100vh-4rem)] flex flex-col bg-[color:var(--color-background-solid)] animate-pulse">
@@ -54,7 +52,12 @@ function AlgorithmDetailSkeleton() {
   );
 }
 
-async function AlgorithmDetailContent({ slug }: { slug: string }) {
+async function AlgorithmDetailContent({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
   const algo = await getAlgorithm(slug).catch(() => null);
 
   if (!algo) {
@@ -145,14 +148,12 @@ async function AlgorithmDetailContent({ slug }: { slug: string }) {
   );
 }
 
-export default async function AlgorithmDetailPage(props: {
+export default function AlgorithmDetailPage(props: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await props.params;
-
   return (
     <Suspense fallback={<AlgorithmDetailSkeleton />}>
-      <AlgorithmDetailContent slug={slug} />
+      <AlgorithmDetailContent params={props.params} />
     </Suspense>
   );
 }

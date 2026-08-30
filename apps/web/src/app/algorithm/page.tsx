@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { AlgorithmListClient } from "@/components/algorithm/algorithm-list-client";
-import { getAlgorithms } from "@/lib/api";
-
-export const revalidate = 60;
+import { getAlgorithms } from "@/lib/api.server";
 
 async function AlgorithmListContent() {
   const algos = await getAlgorithms();

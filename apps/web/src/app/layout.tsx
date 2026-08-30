@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/query-provider";
@@ -53,12 +54,18 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <div className="flex flex-col min-h-screen pb-16 sm:pb-0">
-              <Header />
+              <Suspense
+                fallback={<div className="h-16 border-b border-border" />}
+              >
+                <Header />
+              </Suspense>
               <main className="flex-1 w-full flex flex-col items-center">
                 {children}
               </main>
               <Footer />
-              <BottomNav />
+              <Suspense fallback={null}>
+                <BottomNav />
+              </Suspense>
             </div>
           </ThemeProvider>
         </QueryProvider>

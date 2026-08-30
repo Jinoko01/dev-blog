@@ -1,9 +1,13 @@
 // [server-serialization] Footer has no interactivity — removed "use client" to make
 // it a React Server Component. This avoids shipping this component's JS to the browser.
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 import { Github, Mail } from "lucide-react";
 
-export function Footer() {
+export async function Footer() {
+  "use cache";
+  cacheLife("days");
+
   return (
     <footer className="w-full bg-card border-t border-border mt-20">
       <div className="max-w-7xl mx-auto px-6 py-16">
