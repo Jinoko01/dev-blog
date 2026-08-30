@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { clsx } from "clsx";
+import { type MouseEvent, useEffect, useState } from "react";
+
+const HEADING_SELECTOR = "h1[id], h2[id], h3[id], h4[id]";
+const SCROLL_OFFSET = 100;
 
 interface Heading {
   id: string;
@@ -9,52 +12,94 @@ interface Heading {
   level: number;
 }
 
-export function TableOfContents() {
+interface TableOfContentsProps {
+  contentId: string;
+}
+
+function scrollToHeading(
+  event: MouseEvent<HTMLAnchorElement>,
+  headingId: string,
+) {
+  event.preventDefault();
+
+  const target = document.getElementById(headingId);
+  if (!target) {
+    return;
+  }
+
+  const top =
+    target.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
+  window.scrollTo({ top, behavior: "smooth" });
+  window.history.pushState(null, "", `#${headingId}`);
+}
+
+export function TableOfContents({ contentId }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<Heading[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
-    const elements = Array.from(
-      document.querySelectorAll(".prose h1, .prose h2, .prose h3, .prose h4"),
-    );
-
-    const headingData = elements.map((elem) => ({
-      id: elem.id,
-      text: elem.textContent || "",
-      level: Number(elem.tagName.charAt(1)),
-    }));
-
-    setHeadings(headingData);
-
-    if (elements.length > 0) {
-      setActiveId(elements[0].id);
+    const content = document.getElementById(contentId);
+    if (!content) {
+      return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+    let intersectionObserver: IntersectionObserver | undefined;
+
+    const updateHeadings = () => {
+      const elements = Array.from(
+        content.querySelectorAll<HTMLElement>(HEADING_SELECTOR),
+      );
+      const nextHeadings = elements.map((element) => ({
+        id: element.id,
+        text: element.textContent ?? "",
+        level: Number(element.tagName.slice(1)),
+      }));
+
+      setHeadings(nextHeadings);
+      setActiveId((currentId) => {
+        const currentHeadingStillExists = nextHeadings.some(
+          ({ id }) => id === currentId,
+        );
+        return currentHeadingStillExists
+          ? currentId
+          : (nextHeadings[0]?.id ?? "");
+      });
+
+      intersectionObserver?.disconnect();
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visibleHeading = entries.find((entry) => entry.isIntersecting);
+          if (visibleHeading) {
+            setActiveId(visibleHeading.target.id);
           }
-        });
-      },
-      { rootMargin: "-100px 0px -60% 0px", threshold: 1.0 },
-    );
+        },
+        { rootMargin: "-100px 0px -60% 0px", threshold: 1 },
+      );
+      elements.forEach((element) => intersectionObserver?.observe(element));
+    };
 
-    elements.forEach((elem) => observer.observe(elem));
+    updateHeadings();
 
-    return () => observer.disconnect();
-  }, []);
+    const mutationObserver = new MutationObserver(updateHeadings);
+    mutationObserver.observe(content, { childList: true, subtree: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      intersectionObserver?.disconnect();
+    };
+  }, [contentId]);
 
   if (headings.length === 0) {
     return null;
   }
 
-  // Find the minimum heading level to calculate indentation properly
-  const minLevel = Math.min(...headings.map((h) => h.level));
+  const minLevel = Math.min(...headings.map(({ level }) => level));
 
   return (
-    <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto p-6 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-black/5 dark:border-white/10 shadow-sm transition-colors scrollbar-thin">
+    <nav
+      aria-label="목차"
+      className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto p-6 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-black/5 dark:border-white/10 shadow-sm transition-colors scrollbar-thin"
+    >
       <h3 className="font-display font-bold text-lg tracking-wide text-foreground mb-5">
         목차
       </h3>
@@ -72,22 +117,14 @@ export function TableOfContents() {
                   ? "text-brand-500 font-semibold"
                   : "text-foreground/60",
               )}
-              onClick={(e) => {
-                e.preventDefault();
-                const target = document.querySelector(`#${heading.id}`);
-                if (target) {
-                  const y =
-                    target.getBoundingClientRect().top + window.scrollY - 100;
-                  window.scrollTo({ top: y, behavior: "smooth" });
-                  history.pushState(null, "", `#${heading.id}`);
-                }
-              }}
+              aria-current={activeId === heading.id ? "location" : undefined}
+              onClick={(event) => scrollToHeading(event, heading.id)}
             >
               {heading.text}
             </a>
           </li>
         ))}
       </ul>
-    </div>
+    </nav>
   );
 }

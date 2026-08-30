@@ -1,21 +1,28 @@
 import { Suspense } from "react";
+import { mdxRemoteOptions } from "@dev-blog/mdx-renderer/config";
+import { Provider as JotaiProvider } from "jotai";
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
-import { Provider as JotaiProvider } from "jotai";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { mdxRemoteOptions } from "@dev-blog/mdx-renderer/config";
-import { notFound } from "next/navigation";
 import Image from "next/image";
-import { PostMetricsDisplay } from "@/components/post-metrics";
-import { GiscusComments } from "@/components/giscus-comments";
-import { Pre } from "@/components/mdx/pre";
-import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
-import { getPost, getPosts } from "@/lib/api.server";
-import { TableOfContents } from "@/components/toc";
+import { notFound } from "next/navigation";
+import { MDXRemote } from "next-mdx-remote/rsc";
 
-export async function generateMetadata(props: {
+import { GiscusComments } from "@/components/giscus-comments";
+import { CodeTabs, CodeTab } from "@/components/mdx/code-tabs";
+import { Pre } from "@/components/mdx/pre";
+import { PostMetricsDisplay } from "@/components/post-metrics";
+import { TableOfContents } from "@/components/toc";
+import { getPost, getPosts } from "@/lib/api.server";
+
+const POST_CONTENT_ID = "post-content";
+
+interface PostPageProps {
   params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+}
+
+export async function generateMetadata(
+  props: PostPageProps,
+): Promise<Metadata> {
   const { slug } = await props.params;
   const post = await getPost(slug).catch(() => null);
 
@@ -90,7 +97,7 @@ async function PostBody({ content }: { content: string }) {
   );
 }
 
-async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
+async function PostContent({ params }: PostPageProps) {
   const { slug } = await params;
   const post = await getPost(slug);
 
@@ -183,7 +190,10 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
 
           <article className="w-full min-w-0">
             {/* Prose Content — MDX 컴파일이 무거우므로 헤더보다 늦게 스트리밍되도록 분리 */}
-            <div className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none">
+            <div
+              id={POST_CONTENT_ID}
+              className="prose sm:prose-lg dark:prose-invert prose-headings:font-display prose-headings:tracking-tight prose-a:text-brand-500 hover:prose-a:text-brand-600 prose-img:rounded-xl prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-white/10 prose-pre:shadow-2xl max-w-none"
+            >
               <Suspense fallback={<ProseSkeleton />}>
                 <PostBody content={content} />
               </Suspense>
@@ -202,7 +212,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
           {/* TOC Sidebar */}
           <aside className="hidden xl:block">
             <div className="sticky top-24 w-full max-w-[16rem]">
-              <TableOfContents />
+              <TableOfContents contentId={POST_CONTENT_ID} />
             </div>
           </aside>
         </div>
@@ -211,7 +221,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
   );
 }
 
-export default function PostPage(props: { params: Promise<{ slug: string }> }) {
+export default function PostPage(props: PostPageProps) {
   return (
     <Suspense fallback={<PostSkeleton />}>
       <PostContent params={props.params} />

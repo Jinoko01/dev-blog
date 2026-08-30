@@ -6,11 +6,12 @@ import { TableOfContents } from "./toc";
 const meta = {
   title: "Web/TableOfContents",
   component: TableOfContents,
-  // TOC는 .prose 내부의 헤딩을 DOM에서 직접 수집하므로 본문을 함께 렌더링한다.
+  args: { contentId: "storybook-post-content" },
+  // TOC는 본문 헤딩을 DOM에서 직접 수집하므로 본문을 함께 렌더링한다.
   decorators: [
     (Story) => (
       <div className="flex gap-8 p-8">
-        <div className="prose">
+        <div id="storybook-post-content" className="prose">
           <h2 id="intro">Intro</h2>
           <p>Introduction paragraph.</p>
           <h3 id="details">Details</h3>
@@ -41,5 +42,32 @@ export const Default: Story = {
     // 링크 클릭 시 해당 헤딩으로 해시가 변경된다.
     await userEvent.click(canvas.getByRole("link", { name: "Conclusion" }));
     await waitFor(() => expect(window.location.hash).toBe("#conclusion"));
+  },
+};
+
+export const StreamedContent: Story = {
+  args: { contentId: "streamed-post-content" },
+  render: (args) => (
+    <div className="flex gap-8 p-8">
+      <div id={args.contentId} className="prose" />
+      <TableOfContents {...args} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const content = canvasElement.querySelector("#streamed-post-content");
+
+    if (!content) {
+      throw new Error("Streamed post content container was not rendered.");
+    }
+
+    const heading = document.createElement("h2");
+    heading.id = "streamed-heading";
+    heading.textContent = "Streamed heading";
+    content.append(heading);
+
+    await expect(
+      await canvas.findByRole("link", { name: "Streamed heading" }),
+    ).toHaveAttribute("href", "#streamed-heading");
   },
 };
