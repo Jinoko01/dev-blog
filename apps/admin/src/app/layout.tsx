@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import AdminShell from "@/components/AdminShell";
 import "./globals.css";
@@ -28,7 +29,15 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased min-h-screen flex text-[color:var(--color-foreground)]">
-        <AdminShell>{children}</AdminShell>
+        <Suspense
+          fallback={
+            <p role="status" className="p-8 text-sm text-muted-foreground">
+              관리자 화면을 불러오는 중입니다.
+            </p>
+          }
+        >
+          <AdminShell>{children}</AdminShell>
+        </Suspense>
       </body>
     </html>
   );
