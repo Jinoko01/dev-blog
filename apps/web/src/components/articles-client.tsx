@@ -21,7 +21,7 @@ import { getArticles, type ArticleListItem } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
 import Image from "next/image";
 
-type SortOption = "latest" | "views" | "likes";
+type SortOption = "latest" | "popular";
 type ArticlesClientProps = {
   initialTags: string[];
   initialArticles: ArticleListItem[];
@@ -44,7 +44,7 @@ function articlesQueryOptions(
       getArticles({
         search: search || undefined,
         tag: tag || undefined,
-        sort: sort === "latest" ? "latest" : "popular",
+        sort,
         page,
       }),
     staleTime: ARTICLES_STALE_TIME_MS,
@@ -69,7 +69,7 @@ function HighlightText({
     return <span>{text}</span>;
   }
   const safeHighlight = highlight.replace(ESCAPE_REGEXP, "\\$&");
-  const regex = new RegExp(`(${safeHighlight})`, "gi");
+  const regex = new RegExp(`(${safeHighlight})`, "i");
   const parts = text.split(regex);
   return (
     <span>
@@ -244,7 +244,7 @@ export function ArticlesClient({
             </div>
 
             <div className="flex bg-secondary/50 p-1 border border-border">
-              {(["latest", "views", "likes"] as SortOption[]).map((option) => (
+              {(["latest", "popular"] as SortOption[]).map((option) => (
                 <button
                   key={option}
                   onClick={() => handleSortSelect(option)}

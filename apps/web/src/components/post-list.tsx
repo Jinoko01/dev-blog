@@ -58,9 +58,9 @@ export function PostList({
               {variant === "figma" ? (
                 <>
                   <div className="aspect-video relative overflow-hidden bg-muted">
-                    {(post as any).thumbnailUrl ? (
+                    {post.thumbnailUrl ? (
                       <Image
-                        src={(post as any).thumbnailUrl}
+                        src={post.thumbnailUrl}
                         alt={post.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -98,11 +98,10 @@ export function PostList({
                       </span>
                       <span className="flex gap-3 font-bold tracking-widest text-[10px] uppercase">
                         <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]">
-                          <Eye className="w-3 h-3" /> {(post as any).views || 0}
+                          <Eye className="w-3 h-3" /> {post.views ?? 0}
                         </span>
                         <span className="flex items-center gap-1 text-[color:var(--color-muted-foreground)]">
-                          <Heart className="w-3 h-3" />{" "}
-                          {(post as any).likes || 0}
+                          <Heart className="w-3 h-3" /> {post.likes ?? 0}
                         </span>
                       </span>
                     </div>

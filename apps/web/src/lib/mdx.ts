@@ -10,6 +10,9 @@ export type PostMetadata = {
   description: string;
   tags: string[];
   slug: string;
+  thumbnailUrl?: string | null;
+  views?: number;
+  likes?: number;
 };
 
 export function getPostSlugs() {
