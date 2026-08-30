@@ -5,7 +5,8 @@ import { useAtom, useSetAtom } from "jotai";
 import { incrementPostView } from "@/lib/api";
 import {
   likesAtomFamily,
-  initLikesAtom,
+  initializeLikesAtom,
+  syncLikesAtom,
   toggleLikeAtom,
 } from "@/store/post-metrics";
 import { Heart, Eye } from "lucide-react";
@@ -13,7 +14,7 @@ import { Heart, Eye } from "lucide-react";
 /** views 표시 + view 카운트 증가 */
 function usePostViews(slug: string, initialViews: number) {
   const [views, setViews] = useState(initialViews);
-  const initLikes = useSetAtom(initLikesAtom);
+  const syncLikes = useSetAtom(syncLikesAtom);
 
   useEffect(() => {
     const initMetrics = async () => {
@@ -24,13 +25,13 @@ function usePostViews(slug: string, initialViews: number) {
         const metrics = await incrementPostView(slug);
         setViews(metrics.views);
         // view 증가 응답에서 받은 최신 likes로 atom 업데이트
-        initLikes({ slug, initialLikes: metrics.likes });
+        syncLikes({ slug, likes: metrics.likes });
         localStorage.setItem(viewKey, "true");
       }
     };
 
     initMetrics();
-  }, [slug, initLikes]);
+  }, [slug, syncLikes]);
 
   return views;
 }
@@ -46,13 +47,13 @@ export function PostMetricsDisplay({
   initialLikes: number;
 }) {
   const views = usePostViews(slug, initialViews);
-  const initLikes = useSetAtom(initLikesAtom);
+  const initializeLikes = useSetAtom(initializeLikesAtom);
   const [{ likes }] = useAtom(likesAtomFamily(slug));
 
   // atom 초기화 (view를 이미 카운트한 날에도 초기값 설정)
   useEffect(() => {
-    initLikes({ slug, initialLikes });
-  }, [slug, initialLikes, initLikes]);
+    initializeLikes({ slug, initialLikes });
+  }, [slug, initialLikes, initializeLikes]);
 
   return (
     <div className="flex items-center justify-center gap-4 text-sm mt-4">
@@ -79,18 +80,20 @@ export function PostLikeButton({
   slug: string;
   initialLikes: number;
 }) {
-  const initLikes = useSetAtom(initLikesAtom);
-  const [{ likes, isLiked, isPending }] = useAtom(likesAtomFamily(slug));
+  const initializeLikes = useSetAtom(initializeLikesAtom);
+  const [{ likes, isLiked, isPending, isInitialized }] = useAtom(
+    likesAtomFamily(slug),
+  );
   const toggleLike = useSetAtom(toggleLikeAtom);
 
   useEffect(() => {
-    initLikes({ slug, initialLikes });
-  }, [slug, initialLikes, initLikes]);
+    initializeLikes({ slug, initialLikes });
+  }, [slug, initialLikes, initializeLikes]);
 
   return (
     <button
       onClick={() => toggleLike(slug)}
-      disabled={isPending}
+      disabled={!isInitialized || isPending}
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
         isLiked
           ? "text-pink-500 border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30"
