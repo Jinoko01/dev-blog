@@ -37,7 +37,9 @@ export default function AlgorithmsPage() {
   }
 
   async function deleteAlgo(id: string) {
-    if (!confirm("Are you sure you want to delete this archive?")) return;
+    if (!confirm("Are you sure you want to delete this archive?")) {
+      return;
+    }
     await deleteAlgorithm(id);
     fetchAlgos();
   }

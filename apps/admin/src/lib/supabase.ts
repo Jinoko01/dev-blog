@@ -4,7 +4,7 @@ export {
   createSignedUploadUrl,
   deleteAlgorithm,
   deletePost,
-  getAlgorithm,
+  getAlgorithmForAdmin,
   getAlgorithms,
   getPostForAdmin,
   getPosts,

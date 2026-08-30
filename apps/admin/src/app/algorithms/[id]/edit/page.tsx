@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getAlgorithm, updateAlgorithm } from "@/lib/api";
+import { getAlgorithmForAdmin, updateAlgorithm } from "@/lib/api";
 import {
   AlgorithmForm,
   type AlgorithmFormValues,
@@ -22,7 +22,7 @@ export default function EditAlgorithmPage() {
     }
 
     async function loadAlgorithm() {
-      const algo = await getAlgorithm(algoId).catch((error) => {
+      const algo = await getAlgorithmForAdmin(algoId).catch((error) => {
         alert(
           "Failed to load algorithm: " +
             (error instanceof Error ? error.message : "Not found"),

@@ -237,37 +237,43 @@ export async function createPost(payload: PostPayload) {
 }
 
 export async function updatePost(id: string, payload: PostPayload) {
-  const post = await adminFetch<ApiPost>(`/api/admin/posts/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const post = await adminFetch<ApiPost>(
+    `/api/admin/posts/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
   return toAdminPost(post);
 }
 
 export async function togglePostPublish(id: string) {
-  const post = await adminFetch<ApiPost>(`/api/admin/posts/${id}/publish`, {
-    method: "PATCH",
-  });
+  const post = await adminFetch<ApiPost>(
+    `/api/admin/posts/${encodeURIComponent(id)}/publish`,
+    { method: "PATCH" },
+  );
   return toAdminPost(post);
 }
 
 export async function deletePost(id: string) {
-  await adminFetch<void>(`/api/admin/posts/${id}`, {
+  await adminFetch<void>(`/api/admin/posts/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
 }
 
 export async function getAlgorithms() {
-  const result = await apiFetch<ApiAlgorithm[] | { content: ApiAlgorithm[] }>(
-    "/api/algorithms",
+  const result = await adminFetch<ApiAlgorithm[] | { content: ApiAlgorithm[] }>(
+    "/api/admin/algorithms",
   );
   const algos = Array.isArray(result) ? result : (result.content ?? []);
   return algos.map(toAdminAlgorithm);
 }
 
-export async function getAlgorithm(id: string) {
-  const algo = await apiFetch<ApiAlgorithm>(`/api/algorithms/${id}`);
+export async function getAlgorithmForAdmin(id: string) {
+  const algo = await adminFetch<ApiAlgorithm>(
+    `/api/admin/algorithms/${encodeURIComponent(id)}`,
+  );
   return toAdminAlgorithm(algo);
 }
 
@@ -281,24 +287,27 @@ export async function createAlgorithm(payload: AlgorithmPayload) {
 }
 
 export async function updateAlgorithm(id: string, payload: AlgorithmPayload) {
-  const algo = await adminFetch<ApiAlgorithm>(`/api/admin/algorithms/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const algo = await adminFetch<ApiAlgorithm>(
+    `/api/admin/algorithms/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
   return toAdminAlgorithm(algo);
 }
 
 export async function toggleAlgorithmPublish(id: string) {
   const algo = await adminFetch<ApiAlgorithm>(
-    `/api/admin/algorithms/${id}/publish`,
+    `/api/admin/algorithms/${encodeURIComponent(id)}/publish`,
     { method: "PATCH" },
   );
   return toAdminAlgorithm(algo);
 }
 
 export async function deleteAlgorithm(id: string) {
-  await adminFetch<void>(`/api/admin/algorithms/${id}`, {
+  await adminFetch<void>(`/api/admin/algorithms/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
 }
