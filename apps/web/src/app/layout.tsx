@@ -19,6 +19,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const shareImage = {
+  url: "https://okojins.com/okojin-blog-og.png",
+  width: 1730,
+  height: 909,
+  alt: "OKOJIN — 프론트엔드 개발자의 아카이브",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "OKOJIN의 블로그",
@@ -30,9 +37,11 @@ export const metadata: Metadata = {
     description: "프론트엔드 개발자의 아카이브 채널",
     type: "website",
     locale: "ko_KR",
+    images: [shareImage],
   },
   twitter: {
     card: "summary_large_image",
+    images: [shareImage],
   },
 };
 

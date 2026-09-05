@@ -1,32 +1,7 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { HomeClient } from "@/components/home-client";
 import { toPostMetadata } from "@/lib/api";
 import { getPosts, getStats } from "@/lib/api.server";
-
-const shareImage = {
-  url: "https://okojins.com/okojin-blog-og.png",
-  width: 1730,
-  height: 909,
-  alt: "OKOJIN — 프론트엔드 개발자의 아카이브",
-};
-
-export const metadata: Metadata = {
-  openGraph: {
-    title: "OKOJIN의 블로그",
-    description: "프론트엔드 개발자의 아카이브 채널",
-    type: "website",
-    locale: "ko_KR",
-    url: "https://okojins.com",
-    images: [shareImage],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "OKOJIN의 블로그",
-    description: "프론트엔드 개발자의 아카이브 채널",
-    images: [shareImage],
-  },
-};
 
 async function HomeContent() {
   const [postsData, stats] = await Promise.all([
