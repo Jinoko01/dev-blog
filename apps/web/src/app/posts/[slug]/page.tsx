@@ -41,6 +41,13 @@ export async function generateMetadata(
         images: [{ url: post.thumbnail_url, width: 1200, height: 630 }],
       }),
     },
+    twitter: {
+      title: post.title,
+      description: post.description || undefined,
+      ...(post.thumbnail_url && {
+        images: [{ url: post.thumbnail_url, width: 1200, height: 630 }],
+      }),
+    },
   };
 }
 
