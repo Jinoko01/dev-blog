@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { startTransition, useEffect, useOptimistic } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Hash,
@@ -32,6 +29,33 @@ const ITEMS_PER_PAGE = 10;
 // SSR(ISR 60초)과 동일한 기준으로 클라이언트 캐시를 신선하게 취급한다.
 const ARTICLES_STALE_TIME_MS = 60_000;
 
+function readPage(value: string | null) {
+  const page = Number(value);
+  return value && /^\d+$/.test(value) && Number.isSafeInteger(page) && page > 0
+    ? page
+    : 1;
+}
+
+function replaceArticlesParams(
+  changes: Partial<Record<"search" | "tag" | "sort" | "page", string | null>>,
+) {
+  const url = new URL(window.location.href);
+  for (const [key, value] of Object.entries(changes)) {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
+  }
+  if (url.href !== window.location.href) {
+    window.history.replaceState(null, "", url);
+  }
+}
+
+function replacePage(page: number) {
+  replaceArticlesParams({ page: page === 1 ? null : String(page) });
+}
+
 function articlesQueryOptions(
   search: string,
   tag: string | null,
@@ -56,7 +80,7 @@ function articlesQueryOptions(
 // [rerender-no-inline-components] Defined at module level — was previously inside ArticlesClient,
 // which caused React to unmount+remount the component tree on every parent render.
 // [js-hoist-regexp] The escape RegExp is also hoisted to module level to avoid recreation.
-const ESCAPE_REGEXP = /[.*+?^${}()|[\\]\\]/g;
+const ESCAPE_REGEXP = /[.*+?^${}()|[\]\\]/g;
 
 function HighlightText({
   text,
@@ -97,23 +121,28 @@ export function ArticlesClient({
   initialArticles,
   initialTotalCount,
 }: ArticlesClientProps) {
-  const [query, setQuery] = useState("");
-  const debouncedQuery = useDebounce(query, 300);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>("latest");
-  const [page, setPage] = useState(1);
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search") ?? "";
+  const selectedTag = searchParams.get("tag") || null;
+  const sortOption =
+    searchParams.get("sort") === "popular" ? "popular" : "latest";
+  const page = readPage(searchParams.get("page"));
+  const [query, setOptimisticQuery] = useOptimistic(search);
+  const debouncedSearch = useDebounce(search, 300);
+  const isSearchReady = !search || search === debouncedSearch;
   const queryClient = useQueryClient();
 
   const isInitialQuery =
-    !debouncedQuery &&
-    selectedTag === null &&
-    sortOption === "latest" &&
-    page === 1;
+    !search && selectedTag === null && sortOption === "latest" && page === 1;
 
   const { data, isPending, isPlaceholderData } = useQuery({
-    ...articlesQueryOptions(debouncedQuery, selectedTag, sortOption, page),
-    // 페이지/필터 전환 중에는 새 데이터가 올 때까지 이전 리스트를 유지한다.
-    placeholderData: keepPreviousData,
+    ...articlesQueryOptions(search, selectedTag, sortOption, page),
+    enabled: isSearchReady,
+    // 1페이지로 돌아갈 때 다른 페이지의 글이 잠깐 표시되는 것을 막는다.
+    placeholderData: (previousData, previousQuery) =>
+      page === 1 && previousQuery?.queryKey.at(-1) !== 1
+        ? undefined
+        : previousData,
     // SSR로 받은 첫 페이지 데이터를 캐시 초기값으로 사용해 마운트 시 재요청을 피한다.
     initialData: isInitialQuery
       ? { data: initialArticles, count: initialTotalCount }
@@ -123,17 +152,22 @@ export function ArticlesClient({
   const articles = data?.data ?? [];
   const totalCount = data?.count ?? 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const hasCurrentPageData =
+    isSearchReady && data !== undefined && !isPlaceholderData;
 
-  // 인접 페이지를 미리 캐시에 받아 두어 페이지 전환이 즉시 보이도록 한다.
+  // 현재 조회 결과로 페이지 범위를 확인한 뒤 인접 페이지를 미리 받는다.
   useEffect(() => {
+    if (!hasCurrentPageData) {
+      return;
+    }
+    if (page > Math.max(1, totalPages)) {
+      replacePage(1);
+      return;
+    }
+
     const prefetch = (targetPage: number) =>
       queryClient.prefetchQuery(
-        articlesQueryOptions(
-          debouncedQuery,
-          selectedTag,
-          sortOption,
-          targetPage,
-        ),
+        articlesQueryOptions(search, selectedTag, sortOption, targetPage),
       );
 
     if (page < totalPages) {
@@ -142,21 +176,32 @@ export function ArticlesClient({
     if (page > 1) {
       prefetch(page - 1);
     }
-  }, [queryClient, debouncedQuery, selectedTag, sortOption, page, totalPages]);
+  }, [
+    hasCurrentPageData,
+    queryClient,
+    search,
+    selectedTag,
+    sortOption,
+    page,
+    totalPages,
+  ]);
 
   const handleTagSelect = (tag: string | null) => {
-    setSelectedTag(tag);
-    setPage(1);
+    replaceArticlesParams({ tag, page: null });
   };
 
   const handleSortSelect = (sort: SortOption) => {
-    setSortOption(sort);
-    setPage(1);
+    replaceArticlesParams({
+      sort: sort === "latest" ? null : sort,
+      page: null,
+    });
   };
 
-  const handleQueryChange = (val: string) => {
-    setQuery(val);
-    setPage(1);
+  const handleQueryChange = (value: string) => {
+    startTransition(() => {
+      setOptimisticQuery(value);
+      replaceArticlesParams({ search: value, page: null });
+    });
   };
 
   return (
@@ -188,6 +233,7 @@ export function ArticlesClient({
               />
               {query && (
                 <button
+                  aria-label="Clear search"
                   onClick={() => handleQueryChange("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -204,6 +250,7 @@ export function ArticlesClient({
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
               <button
                 onClick={() => handleTagSelect(null)}
+                aria-pressed={selectedTag === null}
                 className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
                   selectedTag === null
                     ? "bg-primary text-white border-primary"
@@ -218,6 +265,7 @@ export function ArticlesClient({
                   onClick={() =>
                     handleTagSelect(tag === selectedTag ? null : tag)
                   }
+                  aria-pressed={selectedTag === tag}
                   className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wider transition-all border truncate cursor-pointer ${
                     selectedTag === tag
                       ? "bg-primary text-white border-primary"
@@ -248,6 +296,7 @@ export function ArticlesClient({
                 <button
                   key={option}
                   onClick={() => handleSortSelect(option)}
+                  aria-pressed={sortOption === option}
                   className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
                     sortOption === option
                       ? "bg-primary text-white"
@@ -338,14 +387,14 @@ export function ArticlesClient({
                       <h4 className="font-black text-xl lg:text-2xl text-foreground line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors">
                         <HighlightText
                           text={article.title}
-                          highlight={debouncedQuery}
+                          highlight={search}
                         />
                       </h4>
 
                       <p className="text-xs lg:text-sm text-muted-foreground line-clamp-3 leading-relaxed mb-3 pr-4 lg:pr-12">
                         <HighlightText
                           text={article.description || ""}
-                          highlight={debouncedQuery}
+                          highlight={search}
                         />
                       </p>
 
@@ -370,7 +419,7 @@ export function ArticlesClient({
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-12 border-t border-border">
               <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={() => replacePage(page - 1)}
                 disabled={page === 1}
                 className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                 aria-label="Previous page"
@@ -403,7 +452,8 @@ export function ArticlesClient({
                     return (
                       <button
                         key={p}
-                        onClick={() => setPage(p)}
+                        onClick={() => replacePage(p)}
+                        aria-current={page === p ? "page" : undefined}
                         className={`w-8 h-8 border text-[10px] font-bold transition-all cursor-pointer ${
                           page === p
                             ? "bg-primary text-white border-primary"
@@ -418,8 +468,8 @@ export function ArticlesClient({
               </div>
 
               <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
+                onClick={() => replacePage(page + 1)}
+                disabled={page >= totalPages}
                 className="p-2 border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                 aria-label="Next page"
               >
