@@ -41,7 +41,7 @@ export const FiltersBySearch: Story = {
     const canvas = within(canvasElement);
 
     await userEvent.type(
-      canvas.getByPlaceholderText("Search by title, tags, difficulty..."),
+      canvas.getByRole("textbox", { name: "알고리즘 검색" }),
       "Problem 1",
     );
 

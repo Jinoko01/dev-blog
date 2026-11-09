@@ -58,6 +58,11 @@ export type ApiAlgorithm = {
   createdAt: string;
 };
 
+type AlgorithmResponse = Omit<ApiAlgorithm, "createdAt"> & {
+  created_at?: string | null;
+  createdAt?: string | null;
+};
+
 export type ApiTag = {
   id: string;
   name: string;
@@ -195,12 +200,24 @@ export async function getArticles(query: ArticleQuery) {
   };
 }
 
+function toAlgorithm({
+  created_at,
+  createdAt,
+  ...algo
+}: AlgorithmResponse): ApiAlgorithm {
+  return { ...algo, createdAt: created_at ?? createdAt ?? "" };
+}
+
 export async function getAlgorithms() {
-  return apiFetch<ApiAlgorithm[]>("/algorithms");
+  const algorithms = await apiFetch<AlgorithmResponse[]>("/algorithms");
+  return algorithms.map(toAlgorithm);
 }
 
 export async function getAlgorithm(id: string) {
-  return apiFetch<ApiAlgorithm>(`/algorithms/${encodeURIComponent(id)}`);
+  const algorithm = await apiFetch<AlgorithmResponse>(
+    `/algorithms/${encodeURIComponent(id)}`,
+  );
+  return toAlgorithm(algorithm);
 }
 
 export async function incrementPostView(slug: string) {

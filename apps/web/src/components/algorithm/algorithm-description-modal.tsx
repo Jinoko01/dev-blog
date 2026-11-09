@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { X, FileText, GripHorizontal } from "lucide-react";
 
 export function AlgorithmDescriptionModal({
-  title = "설명",
+  title = "풀이 설명",
   children,
 }: {
   title?: string;
@@ -12,34 +12,42 @@ export function AlgorithmDescriptionModal({
 }) {
   const [open, setOpen] = useState(false);
   const dialogId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeDescription = useCallback(() => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) {
       return;
     }
+    closeButtonRef.current?.focus();
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setOpen(false);
+        closeDescription();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, closeDescription]);
 
   return (
     <>
       {/* 플로팅 버튼 */}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        ref={triggerRef}
+        onClick={open ? closeDescription : () => setOpen(true)}
         className="fixed bottom-18 sm:bottom-6 right-6 z-60 inline-flex items-center gap-2 px-4 py-3.5 rounded-full border border-border bg-[color:var(--color-card)] shadow-xl text-[color:var(--color-card-foreground)] hover:shadow-2xl transition-all cursor-pointer"
         aria-haspopup="dialog"
-        aria-controls={dialogId}
+        aria-controls={open ? dialogId : undefined}
         aria-expanded={open}
       >
         <FileText className="w-5 h-5 text-[color:var(--color-primary)]" />
         <span className="text-xs font-bold tracking-widest uppercase">
-          {open ? "CLOSE" : "INFO"}
+          {open ? `${title} 닫기` : title}
         </span>
       </button>
 
@@ -52,8 +60,8 @@ export function AlgorithmDescriptionModal({
             role="dialog"
             aria-modal="false"
             id={dialogId}
-            aria-label={`${title} 설명`}
-            className="pointer-events-auto absolute bottom-6 right-6 left-6 sm:left-auto sm:w-[min(680px,calc(100vw-3rem))] max-h-[78vh] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl flex flex-col"
+            aria-label={title}
+            className="pointer-events-auto absolute bottom-18 right-6 left-6 sm:bottom-6 sm:left-auto sm:w-[min(680px,calc(100vw-3rem))] max-h-[min(78dvh,calc(100dvh-6rem))] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl flex flex-col"
           >
             {/* 헤더 */}
             <div className="select-none flex items-center justify-between gap-4 px-5 py-3.5 border-b border-border bg-secondary/20 shrink-0">
@@ -64,13 +72,14 @@ export function AlgorithmDescriptionModal({
                     {title}
                   </div>
                   <div className="text-[10px] uppercase font-bold tracking-widest text-[color:var(--color-muted-foreground)] mt-0.5">
-                    ESC to close
+                    Esc로 닫기
                   </div>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                ref={closeButtonRef}
+                onClick={closeDescription}
                 className="shrink-0 p-1.5 rounded-lg hover:bg-secondary/60 transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
                 aria-label="닫기"
               >

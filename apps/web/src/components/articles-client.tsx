@@ -226,6 +226,7 @@ export function ArticlesClient({
             <div className="relative">
               <input
                 type="text"
+                aria-label="글 검색"
                 placeholder="Search articles..."
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
@@ -332,6 +333,7 @@ export function ArticlesClient({
                 <Link
                   href={`/posts/${article.slug}`}
                   key={article.id}
+                  aria-labelledby={`article-title-${article.id}`}
                   className="group relative block animate-fade-in-up"
                   style={{
                     animationDelay: `${(index % 10) * 0.05}s`,
@@ -384,7 +386,10 @@ export function ArticlesClient({
                         </div>
                       </div>
 
-                      <h4 className="font-black text-xl lg:text-2xl text-foreground line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors">
+                      <h4
+                        id={`article-title-${article.id}`}
+                        className="font-black text-xl lg:text-2xl text-foreground line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors"
+                      >
                         <HighlightText
                           text={article.title}
                           highlight={search}

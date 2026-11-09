@@ -8,7 +8,6 @@ const meta = {
   component: AlgorithmDescriptionModal,
   parameters: { layout: "fullscreen" },
   args: {
-    title: "PROBLEM INFO",
     children: <p>문제 설명 본문입니다.</p>,
   },
 } satisfies Meta<typeof AlgorithmDescriptionModal>;
@@ -23,19 +22,20 @@ export const OpensAndCloses: Story = {
     // 처음에는 닫혀 있다.
     await expect(canvas.queryByRole("dialog")).not.toBeInTheDocument();
 
-    // 플로팅 버튼 클릭 → 팝업 열림, 버튼 라벨이 CLOSE로 바뀐다.
-    await userEvent.click(canvas.getByRole("button", { name: /INFO/i }));
-    await expect(canvas.getByRole("dialog")).toBeInTheDocument();
-    await expect(canvas.getByText("문제 설명 본문입니다.")).toBeVisible();
+    const trigger = canvas.getByRole("button", { name: "풀이 설명" });
+    await userEvent.click(trigger);
     await expect(
-      canvas.getByRole("button", { name: /CLOSE/i }),
-    ).toBeInTheDocument();
+      canvas.getByRole("dialog", { name: "풀이 설명" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("문제 설명 본문입니다.")).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "닫기" })).toHaveFocus();
 
     // ESC로 닫힌다.
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
       expect(canvas.queryByRole("dialog")).not.toBeInTheDocument(),
     );
+    await expect(trigger).toHaveFocus();
   },
 };
 
@@ -43,7 +43,7 @@ export const ClosesWithButton: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole("button", { name: /INFO/i }));
+    await userEvent.click(canvas.getByRole("button", { name: "풀이 설명" }));
     await expect(canvas.getByRole("dialog")).toBeInTheDocument();
 
     await userEvent.click(canvas.getByRole("button", { name: "닫기" }));

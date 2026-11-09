@@ -111,7 +111,9 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText("3 articles found")).toBeInTheDocument();
-    await expect(canvas.getByText("Article 1")).toBeInTheDocument();
+    await expect(
+      canvas.getByRole("link", { name: "Article 1" }),
+    ).toHaveAttribute("href", "/posts/article-1");
     await expect(canvas.getByText("Article 3")).toBeInTheDocument();
     // 태그 필터 버튼: ALL + 전달된 태그
     await expect(
@@ -150,7 +152,7 @@ export const SearchRefetchesArticles: Story = {
 
     // 검색어 입력 → 300ms 디바운스 후 스텁된 fetch 결과로 목록이 교체된다.
     await userEvent.type(
-      canvas.getByPlaceholderText("Search articles..."),
+      canvas.getByRole("textbox", { name: "글 검색" }),
       "zzz",
     );
 
